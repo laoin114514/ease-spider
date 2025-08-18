@@ -7,7 +7,7 @@ import (
 
 func neverPassHandle(results []any, handle string) {
 	passSet := map[string]bool{}
-	fiilPassSet(results, passSet)
+	fiilPassSet(results, handle, passSet)
 	insertNeverPass(results, handle, passSet)
 	deletePass(handle, passSet)
 }

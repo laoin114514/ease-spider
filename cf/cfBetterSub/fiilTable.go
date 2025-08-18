@@ -5,13 +5,9 @@ import (
 	"spider/db"
 )
 
-func fillTable(result map[string]any, table *db.Cf_all_submissions) []any {
+func fillTable(result map[string]any, handle string, table *db.Cf_all_submissions) []any {
 	arr := result["author"].(map[string]any)["members"].([]any)
-	str := ""
-	for _, v := range arr {
-		str += fmt.Sprintf("%s,", v.(map[string]any)["handle"].(string))
-	}
-	table.Handle = str[:len(str)-1]
+	table.Handle = handle
 	table.SubId = int(result["id"].(float64))
 	table.ProblemId = fmt.Sprintf("%d", int(result["problem"].(map[string]any)["contestId"].(float64))) + result["problem"].(map[string]any)["index"].(string)
 	table.ProblemName = result["problem"].(map[string]any)["name"].(string)
@@ -35,11 +31,11 @@ func fiilNeverPass(result map[string]any, handle string, table *db.Cf_never_pass
 		table.Rating = -1
 	}
 }
-func fiilPassSet(results []any, passSet map[string]bool) {
+func fiilPassSet(results []any, handle string, passSet map[string]bool) {
 	for _, result := range results {
 		result := result.(map[string]any)
 		var table db.Cf_all_submissions
-		fillTable(result, &table)
+		fillTable(result, handle, &table)
 		if table.Verdict == "OK" {
 			passSet[table.ProblemId] = true
 		}

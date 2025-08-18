@@ -22,7 +22,7 @@ func Use() {
 		for _, result := range results {
 			result := result.(map[string]any)
 			var table db.Cf_all_submissions
-			handleArr := fillTable(result, &table)
+			handleArr := fillTable(result, handle, &table)
 			err := insert(table, dataBase)
 			if err != nil {
 				if len(handleArr) > 1 {
