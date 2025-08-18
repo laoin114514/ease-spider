@@ -1,14 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"spider/cf/cfBetterSub"
-	"time"
+	"spider/component"
 )
 
 func main() {
-	start := time.Now().Unix()
+	var countTime component.CountTime
+	countTime.Start()
 	cfBetterSub.Use()
-	end := time.Now().Unix()
-	fmt.Printf("耗时:%ds", (end - start))
+	countTime.End()
 }
