@@ -17,5 +17,5 @@ func (c *CountTime) Start() {
 func (c *CountTime) End() {
 	c.EndTime = time.Now().UnixMilli()
 	c.Duration = c.EndTime - c.StartTime
-	fmt.Printf("总耗时:%ds  %dms", c.Duration/1000, c.Duration)
+	fmt.Printf("总耗时:%ds/%dms   ", c.Duration/1000, c.Duration)
 }

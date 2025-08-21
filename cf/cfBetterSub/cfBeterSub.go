@@ -2,15 +2,18 @@ package cfBetterSub
 
 import (
 	"fmt"
+	"spider/component"
 	"spider/db"
 )
 
 func Use() {
+	var countTime component.CountTime
 	dataBase := db.New()
 	defer dataBase.Close()
 	rows, _ := dataBase.Query("select account from user where role_id=1")
 	defer rows.Close()
 	for rows.Next() {
+		countTime.Start()
 		var handle string
 		rows.Scan(&handle)
 		results, err := request(handle)

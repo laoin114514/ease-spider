@@ -29,6 +29,10 @@ func request(handle string) ([]any, error) {
 		return nil, err
 	}
 
-	results := response["result"].([]any)
+	results, ok := response["result"].([]any)
+	if !ok {
+		fmt.Printf("apikey不正确 ")
+		return []any{}, nil
+	}
 	return results, nil
 }

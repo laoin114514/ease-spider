@@ -2,6 +2,7 @@ package cfBetterSub
 
 import (
 	"fmt"
+	"spider/component"
 	"spider/db"
 )
 
@@ -11,11 +12,14 @@ func neverPassHandle(results []any, handle string) {
 	insertNeverPass(results, handle, passSet)
 	deletePass(handle, passSet)
 }
-
 func insertNeverPass(results []any, handle string, passSet map[string]bool) {
+	var countTime component.CountTime
 	dateBase := db.New()
 	defer dateBase.Close()
 	count := 0
+	insertArr := []db.Cf_never_pass{}
+	has := map[string]bool{}
+	countTime.Start()
 	for _, result := range results {
 		result := result.(map[string]any)
 		var neverPassTable db.Cf_never_pass
@@ -23,18 +27,25 @@ func insertNeverPass(results []any, handle string, passSet map[string]bool) {
 		if passSet[neverPassTable.ProblemId] {
 			continue
 		}
+		if !has[neverPassTable.ProblemId] {
+			insertArr = append(insertArr, neverPassTable)
+			has[neverPassTable.ProblemId] = true
+		}
+	}
+	for _, table := range insertArr {
 		_, err := dateBase.Exec(
 			"insert into cf_never_pass (ProblemId,Handle,ProblemName,Rating ) values (?,?,?,?)",
-			neverPassTable.ProblemId,
-			neverPassTable.Handle,
-			neverPassTable.ProblemName,
-			neverPassTable.Rating,
+			table.ProblemId,
+			table.Handle,
+			table.ProblemName,
+			table.Rating,
 		)
 		if err != nil {
-			continue
+			break
 		}
 		count++
 	}
+	// countTime.End()
 	fmt.Printf("未过题新增：%d  ", count)
 }
 func deletePass(handle string, passSet map[string]bool) {
