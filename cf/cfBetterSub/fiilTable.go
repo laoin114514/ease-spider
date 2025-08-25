@@ -3,6 +3,7 @@ package cfBetterSub
 import (
 	"fmt"
 	"spider/db"
+	"time"
 )
 
 func fillTable(result map[string]any, handle string, table *db.Cf_all_submissions) []any {
@@ -17,7 +18,14 @@ func fillTable(result map[string]any, handle string, table *db.Cf_all_submission
 	} else {
 		table.Rating = -1
 	}
-	table.Verdict = result["verdict"].(string)
+	_, ok := result["verdict"].(string)
+	if !ok {
+		table.Verdict = ""
+	} else {
+		table.Verdict = result["verdict"].(string)
+	}
+	t := int(result["creationTimeSeconds"].(float64))
+	table.CreationTime = time.Unix(int64(t), 0)
 	return arr
 }
 func fiilNeverPass(result map[string]any, handle string, table *db.Cf_never_pass) {

@@ -23,7 +23,11 @@ func (u *User) Status(useApikey bool, query User_status) (string, error) {
 		"includeSources": query.IncludeSources,
 	}
 	if useApikey {
-		return apiKeyUrl("user.status", pararms)
+		back, err := apiKeyUrl("user.status", pararms)
+		if err != nil {
+			return defaultUrl("user.status", pararms)
+		}
+		return back, err
 	}
 	return defaultUrl("user.status", pararms)
 }

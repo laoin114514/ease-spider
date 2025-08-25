@@ -10,7 +10,7 @@ func Use() {
 	var countTime component.CountTime
 	dataBase := db.New()
 	defer dataBase.Close()
-	rows, _ := dataBase.Query("select account from user where role_id=1")
+	rows, _ := dataBase.Query("select account from user where role_id=1||role_id=3")
 	defer rows.Close()
 	for rows.Next() {
 		countTime.Start()

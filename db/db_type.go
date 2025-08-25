@@ -1,5 +1,7 @@
 package db
 
+import "time"
+
 type User struct {
 	Id          int
 	Account     string
@@ -20,7 +22,7 @@ type Cf_all_submissions struct {
 	ProblemName  string
 	Rating       int
 	Verdict      string
-	CreationTime string
+	CreationTime time.Time
 }
 
 type Cf_contest_official struct {
@@ -51,4 +53,11 @@ type Cf_team_trainning struct {
 	Name      string
 	StartTime string
 	PrePareBy string
+}
+type Luogu_problem struct {
+	Uid        string
+	Pid        string
+	Type       string
+	Difficulty int
+	Title      string
 }
