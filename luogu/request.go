@@ -2,33 +2,34 @@ package luogu
 
 import (
 	"fmt"
-	"spider/db"
+	"os"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/joho/godotenv"
 )
 
-func request(uid string) []db.Luogu_problem {
+func url(uid string) string {
+	return fmt.Sprintf("https://www.luogu.com.cn/user/%s?_contentOnly=1", uid)
+}
+
+func request(uid string) []any {
+	godotenv.Load()
+	cookie := os.Getenv("Cookie")
 	c := resty.New()
 	var result map[string]any
 	c.R().
 		SetResult(&result).
+		SetHeader("Cookie", cookie).
 		Get(url(uid))
 	code := result["code"].(float64)
 	if code != 200 {
-		fmt.Println("请求错误")
-		return nil
+		fmt.Printf("%s请求错误 code:%v\n", uid, code)
+		return []any{}
 	}
-	passedProblems := result["currentData"].(map[string]any)["passedProblems"].([]any)
-	var tables []db.Luogu_problem
-	for _, p := range passedProblems {
-		p := p.(map[string]any)
-		var table db.Luogu_problem
-		table.Uid = uid
-		table.Pid = p["pid"].(string)
-		table.Difficulty = int(p["difficulty"].(float64))
-		table.Title = p["title"].(string)
-		table.Type = p["type"].(string)
-		tables = append(tables, table)
+	passedProblems, ok := result["currentData"].(map[string]any)["passedProblems"].([]any)
+	if !ok {
+		passedProblems = []any{}
+		fmt.Printf("%s无权限访问\n", uid)
 	}
-	return tables
+	return passedProblems
 }

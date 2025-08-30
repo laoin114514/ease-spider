@@ -7,6 +7,7 @@ import (
 )
 
 func Use() {
+	fmt.Println("cf提交情况:")
 	var countTime component.CountTime
 	dataBase := db.New()
 	defer dataBase.Close()

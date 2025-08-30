@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务运行状态通知</title>
+    <style type="text/css">
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .running {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+            border-left: 4px solid #4CAF50;
+        }
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #f9f9f9;
+            font-size: 12px;
+            color: #777777;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .info-table th, .info-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dddddd;
+        }
+        .info-table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>服务运行状态通知</h1>
+        </div>
+        
+        <div class="content">
+            <p>您好，</p>
+            
+            <p>这是来自您服务的定时状态通知，当前服务运行正常。</p>
+            
+            <div class="status running">
+                <p>状态: 运行中 ✅</p>
+                <p>最后检查时间: <span id="current-time">2023-11-15 14:30:00</span></p>
+            </div>
+            
+            <h3>服务信息</h3>
+            <table class="info-table">
+                <tr>
+                    <th>服务名称</th>
+                    <td>golang爬虫</td>
+                </tr>
+                <tr>
+                    <th>服务器</th>
+                    <td>8.138.180.182</td>
+                </tr>
+                <tr>
+                    <th>运行时间</th>
+                    <td>12天5小时23分钟</td>
+                </tr>
+                <!-- <tr>
+                    <th>CPU使用率</th>
+                    <td>23%</td>
+                </tr>
+                <tr>
+                    <th>内存使用率</th>
+                    <td>45%</td>
+                </tr> -->
+            </table>
+            
+            <!-- <p>如果您需要立即检查服务状态，请点击下方按钮：</p> -->
+            <!-- <a href="https://your-service-dashboard.com" class="button">查看服务仪表盘</a> -->
+            
+            <p>此邮件为系统自动发送，请勿直接回复。</p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2023 gxuicpc 保留所有权利.</p>
+        </div>
+    </div>
+</body>
+</html>
