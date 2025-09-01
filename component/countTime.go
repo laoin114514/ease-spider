@@ -19,6 +19,11 @@ func (c *CountTime) End() {
 	c.Duration = c.EndTime - c.StartTime
 	fmt.Printf("总耗时:%ds/%dms   \n", c.Duration/1000, c.Duration)
 }
+func DateTime(rawStamp int64) string {
+	stamp := time.Unix(rawStamp, 1)
+	str := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", stamp.Year(), stamp.Month(), stamp.Day(), stamp.Hour(), stamp.Minute(), stamp.Second())
+	return str
+}
 func NowDateTime() string {
 	now := time.Now()
 	str := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second())

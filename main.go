@@ -6,36 +6,39 @@ import (
 	"spider/component"
 	"spider/dingding"
 	"spider/luogu"
+	"spider/newLuogu"
 	"time"
 )
 
+var countTime component.CountTime
+var tempDB component.TempDB
+
 func main() {
+	newLuogu.Use()
+	return
+	now := time.Now()
+	tempDB.Set("startTime", now.Unix())
 	ticker := time.NewTicker(60 * time.Second)
 	defer ticker.Stop()
+	fmt.Println("开始计时")
 	for range ticker.C {
-		now := time.Now()
+		now = time.Now()
+		//每天十二点收集数据
 		if now.Hour() == 23 && now.Minute() == 59 {
 			action()
 		}
 	}
 }
 func action() {
-	var countTime component.CountTime
 	fmt.Println(component.NowDateTime())
 	countTime.Start()
+	//功能区
+
 	dingding.Use()
 	luogu.Use()
 	cfBetterSub.Use()
+
+	//功能区
 	countTime.End()
 	fmt.Printf("\n\n")
-}
-func countDuration(start int64) string {
-	now := time.Now()
-	nowStamp := now.Unix()
-	fmt.Println(now)
-	duration := nowStamp - start
-	day := duration / (3600 * 24)
-	hour := (duration % (3600 * 24)) / 3600
-	minute := (duration % 3600) / 60
-	return fmt.Sprintf("%d天%d小时%d分钟", day, hour, minute)
 }

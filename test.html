@@ -1,131 +1,27 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>服务运行状态通知</title>
-    <style type="text/css">
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333333;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-        }
-        .email-container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .content {
-            padding: 30px;
-        }
-        .status {
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        .running {
-            background-color: #E8F5E9;
-            color: #2E7D32;
-            border-left: 4px solid #4CAF50;
-        }
-        .footer {
-            text-align: center;
-            padding: 15px;
-            background-color: #f9f9f9;
-            font-size: 12px;
-            color: #777777;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 20px 0;
-        }
-        .info-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        .info-table th, .info-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #dddddd;
-        }
-        .info-table th {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
-<body>
-    <div class="email-container">
-        <div class="header">
-            <h1>服务运行状态通知</h1>
+<html class="no-js" lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>记录列表 - 洛谷</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="renderer" content="webkit">
+        <meta name="csrf-token" content="1756792504:tq4mZIRwTFg9jrvNrxIQWebPS2QyvnogiVVjQPDsPz8=">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'unsafe-inline' luogu.com *.luogu.com luogu.com.cn *.luogu.com.cn luogu.org *.luogu.org *.cnzz.com luoguprivate.oss-cn-hangzhou.aliyuncs.com luogu.oss-cn-hangzhou.aliyuncs.com wss: blob:; img-src * data:; font-src * data:; worker-src data: blob:; frame-src https://player.bilibili.com https://www.bilibili.com">
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" media="screen"/>
+        <link rel="stylesheet" href="https://fecdn.luogu.com.cn/luogu/loader.css?ver=20250805">
+        <script>
+            window._feInjection = JSON.parse(decodeURIComponent("%7B%22code%22%3A200%2C%22currentTemplate%22%3A%22RecordList%22%2C%22currentData%22%3A%7B%22records%22%3A%7B%22result%22%3A%5B%7B%22time%22%3A40%2C%22memory%22%3A816%2C%22problem%22%3A%7B%22pid%22%3A%22P1048%22%2C%22title%22%3A%22%5BNOIP%202005%20%5Cu666e%5Cu53ca%5Cu7ec4%5D%20%5Cu91c7%5Cu836f%22%2C%22difficulty%22%3A2%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A591%2C%22submitTime%22%3A1754624363%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A229579366%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A51%2C%22memory%22%3A864%2C%22problem%22%3A%7B%22pid%22%3A%22P2834%22%2C%22title%22%3A%22%5Cu7eb8%5Cu5e01%5Cu95ee%5Cu9898%203%22%2C%22difficulty%22%3A2%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A584%2C%22submitTime%22%3A1754623737%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A229575933%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A69%2C%22memory%22%3A936%2C%22problem%22%3A%7B%22pid%22%3A%22P2840%22%2C%22title%22%3A%22%5Cu7eb8%5Cu5e01%5Cu95ee%5Cu9898%202%22%2C%22difficulty%22%3A2%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A584%2C%22submitTime%22%3A1754623490%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A229574679%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A62%2C%22memory%22%3A7724%2C%22problem%22%3A%7B%22pid%22%3A%22P1216%22%2C%22title%22%3A%22%5BIOI%201994%5D%20%5Cu6570%5Cu5b57%5Cu4e09%5Cu89d2%5Cu5f62%20Number%20Triangles%22%2C%22difficulty%22%3A2%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A606%2C%22submitTime%22%3A1754535360%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A229342760%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A48%2C%22memory%22%3A812%2C%22problem%22%3A%7B%22pid%22%3A%22P2842%22%2C%22title%22%3A%22%5Cu7eb8%5Cu5e01%5Cu95ee%5Cu9898%201%22%2C%22difficulty%22%3A2%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A606%2C%22submitTime%22%3A1754534665%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A229339083%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A236%2C%22memory%22%3A752%2C%22problem%22%3A%7B%22pid%22%3A%22P3390%22%2C%22title%22%3A%22%5Cu3010%5Cu6a21%5Cu677f%5Cu3011%5Cu77e9%5Cu9635%5Cu5feb%5Cu901f%5Cu5e42%22%2C%22difficulty%22%3A3%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A1084%2C%22submitTime%22%3A1753519432%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A227020407%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A34%2C%22memory%22%3A784%2C%22problem%22%3A%7B%22pid%22%3A%22P3812%22%2C%22title%22%3A%22%5Cu3010%5Cu6a21%5Cu677f%5Cu3011%5Cu7ebf%5Cu6027%5Cu57fa%22%2C%22difficulty%22%3A5%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A878%2C%22submitTime%22%3A1753151113%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A226012530%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A31%2C%22memory%22%3A568%2C%22problem%22%3A%7B%22pid%22%3A%22P3812%22%2C%22title%22%3A%22%5Cu3010%5Cu6a21%5Cu677f%5Cu3011%5Cu7ebf%5Cu6027%5Cu57fa%22%2C%22difficulty%22%3A5%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A874%2C%22submitTime%22%3A1753151073%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A226012303%2C%22status%22%3A14%2C%22enableO2%22%3Atrue%2C%22score%22%3A66%7D%2C%7B%22time%22%3A959%2C%22memory%22%3A25092%2C%22problem%22%3A%7B%22pid%22%3A%22P3384%22%2C%22title%22%3A%22%5Cu3010%5Cu6a21%5Cu677f%5Cu3011%5Cu91cd%5Cu94fe%5Cu5256%5Cu5206%5C%2F%5Cu6811%5Cu94fe%5Cu5256%5Cu5206%22%2C%22difficulty%22%3A5%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A4020%2C%22submitTime%22%3A1753106164%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A225965135%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A2471%2C%22memory%22%3A55704%2C%22problem%22%3A%7B%22pid%22%3A%22P3379%22%2C%22title%22%3A%22%5Cu3010%5Cu6a21%5Cu677f%5Cu3011%5Cu6700%5Cu8fd1%5Cu516c%5Cu5171%5Cu7956%5Cu5148%5Cuff08LCA%5Cuff09%22%2C%22difficulty%22%3A3%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A1378%2C%22submitTime%22%3A1753100561%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A225944564%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A2175%2C%22memory%22%3A31768%2C%22problem%22%3A%7B%22pid%22%3A%22P3509%22%2C%22title%22%3A%22%5BPOI%202010%5D%20ZAB-Frog%22%2C%22difficulty%22%3A5%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A963%2C%22submitTime%22%3A1752717740%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A224932260%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A99%2C%22memory%22%3A4796%2C%22problem%22%3A%7B%22pid%22%3A%22P1395%22%2C%22title%22%3A%22%5Cu4f1a%5Cu8bae%22%2C%22difficulty%22%3A3%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A1002%2C%22submitTime%22%3A1752152461%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A223543939%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A104%2C%22memory%22%3A4796%2C%22problem%22%3A%7B%22pid%22%3A%22P1395%22%2C%22title%22%3A%22%5Cu4f1a%5Cu8bae%22%2C%22difficulty%22%3A3%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A1002%2C%22submitTime%22%3A1752152443%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A223543867%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A1417%2C%22memory%22%3A17936%2C%22problem%22%3A%7B%22pid%22%3A%22P1972%22%2C%22title%22%3A%22%5BSDOI2009%5D%20HH%5Cu7684%5Cu9879%5Cu94fe%22%2C%22difficulty%22%3A5%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A718%2C%22submitTime%22%3A1752150336%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A223535493%2C%22status%22%3A14%2C%22enableO2%22%3Atrue%2C%22score%22%3A0%7D%2C%7B%22time%22%3A12%2C%22memory%22%3A1236%2C%22problem%22%3A%7B%22pid%22%3A%22P1972%22%2C%22title%22%3A%22%5BSDOI2009%5D%20HH%5Cu7684%5Cu9879%5Cu94fe%22%2C%22difficulty%22%3A5%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A716%2C%22submitTime%22%3A1752150296%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A223535338%2C%22status%22%3A14%2C%22enableO2%22%3Atrue%2C%22score%22%3A0%7D%2C%7B%22time%22%3A246%2C%22memory%22%3A10724%2C%22problem%22%3A%7B%22pid%22%3A%22P1558%22%2C%22title%22%3A%22%5Cu8272%5Cu677f%5Cu6e38%5Cu620f%22%2C%22difficulty%22%3A4%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A2228%2C%22submitTime%22%3A1752149354%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A223531690%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A249%2C%22memory%22%3A10716%2C%22problem%22%3A%7B%22pid%22%3A%22P1558%22%2C%22title%22%3A%22%5Cu8272%5Cu677f%5Cu6e38%5Cu620f%22%2C%22difficulty%22%3A4%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A2228%2C%22submitTime%22%3A1752149264%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A223531337%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A78%2C%22memory%22%3A1100%2C%22problem%22%3A%7B%22pid%22%3A%22P3958%22%2C%22title%22%3A%22%5BNOIP%202017%20%5Cu63d0%5Cu9ad8%5Cu7ec4%5D%20%5Cu5976%5Cu916a%22%2C%22difficulty%22%3A3%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A1519%2C%22submitTime%22%3A1752133077%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A223458657%2C%22status%22%3A12%2C%22enableO2%22%3Atrue%2C%22score%22%3A100%7D%2C%7B%22time%22%3A3661%2C%22memory%22%3A3716%2C%22problem%22%3A%7B%22pid%22%3A%22P1395%22%2C%22title%22%3A%22%5Cu4f1a%5Cu8bae%22%2C%22difficulty%22%3A3%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A1383%2C%22submitTime%22%3A1752128008%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A223426941%2C%22status%22%3A14%2C%22enableO2%22%3Atrue%2C%22score%22%3A70%7D%2C%7B%22time%22%3A1581%2C%22memory%22%3A128000%2C%22problem%22%3A%7B%22pid%22%3A%22P1395%22%2C%22title%22%3A%22%5Cu4f1a%5Cu8bae%22%2C%22difficulty%22%3A3%2C%22fullScore%22%3A100%2C%22type%22%3A%22P%22%7D%2C%22contest%22%3Anull%2C%22sourceCodeLength%22%3A1256%2C%22submitTime%22%3A1752126698%2C%22language%22%3A27%2C%22user%22%3A%7B%22uid%22%3A1473418%2C%22name%22%3A%22feisui557%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1473418.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%7D%2C%22id%22%3A223420884%2C%22status%22%3A14%2C%22enableO2%22%3Atrue%2C%22score%22%3A70%7D%5D%2C%22perPage%22%3A20%2C%22count%22%3A549%7D%7D%2C%22currentTitle%22%3A%22%5Cu8bb0%5Cu5f55%5Cu5217%5Cu8868%22%2C%22currentTheme%22%3A%7B%22id%22%3A1%2C%22header%22%3A%7B%22imagePath%22%3Anull%2C%22color%22%3A%5B%5B35%2C37%2C38%2C1%5D%2C%5B65%2C67%2C69%2C1%5D%5D%2C%22blur%22%3A0%2C%22brightness%22%3A0%2C%22degree%22%3A90%2C%22repeat%22%3A0%2C%22position%22%3A%5B50%2C50%5D%2C%22size%22%3A%5B0%2C0%5D%2C%22type%22%3A2%2C%22__CLASS_NAME%22%3A%22Luogu%5C%5CDataClass%5C%5CUser%5C%5CThemeConfig%5C%5CHeaderFooterConfig%22%7D%2C%22sideNav%22%3A%7B%22logoBackgroundColor%22%3A%5B52%2C152%2C219%2C1%5D%2C%22color%22%3A%5B52%2C73%2C94%2C1%5D%2C%22invertColor%22%3Afalse%2C%22__CLASS_NAME%22%3A%22Luogu%5C%5CDataClass%5C%5CUser%5C%5CThemeConfig%5C%5CSideNavConfig%22%7D%2C%22footer%22%3A%7B%22imagePath%22%3Anull%2C%22color%22%3A%5B%5B51%2C51%2C51%2C1%5D%5D%2C%22blur%22%3A0%2C%22brightness%22%3A0%2C%22degree%22%3A0%2C%22repeat%22%3A0%2C%22position%22%3A%5B0%2C0%5D%2C%22size%22%3A%5B0%2C0%5D%2C%22type%22%3A2%2C%22__CLASS_NAME%22%3A%22Luogu%5C%5CDataClass%5C%5CUser%5C%5CThemeConfig%5C%5CHeaderFooterConfig%22%7D%7D%2C%22currentTime%22%3A1756706103%2C%22currentUser%22%3A%7B%22followingCount%22%3A1%2C%22followerCount%22%3A0%2C%22ranking%22%3A144162%2C%22eloValue%22%3Anull%2C%22blogAddress%22%3Anull%2C%22unreadMessageCount%22%3A0%2C%22unreadNoticeCount%22%3A0%2C%22uid%22%3A1582049%2C%22name%22%3A%22luo18378627740%22%2C%22avatar%22%3A%22https%3A%5C%2F%5C%2Fcdn.luogu.com.cn%5C%2Fupload%5C%2Fusericon%5C%2F1582049.png%22%2C%22slogan%22%3A%22%22%2C%22badge%22%3Anull%2C%22isAdmin%22%3Afalse%2C%22isBanned%22%3Afalse%2C%22color%22%3A%22Blue%22%2C%22ccfLevel%22%3A0%2C%22xcpcLevel%22%3A0%2C%22background%22%3A%22%22%2C%22verified%22%3Atrue%7D%7D"));
+            window._feConfigVersion = 1754247884;
+            console.log("我在这大大我打的",window._feInjection.currentData.records.result)
+            window._tagVersion = 1756705108;
+        </script>
+        <script src="https://fecdn.luogu.com.cn/luogu/loader.js?ver=20250805" charset="utf-8" defer></script>
+    </head>
+    <body>
+        <div id="app">
+            <div class="lg-container"></div>
         </div>
-        
-        <div class="content">
-            <p>您好，</p>
-            
-            <p>这是来自您服务的定时状态通知，当前服务运行正常。</p>
-            
-            <div class="status running">
-                <p>状态: 运行中 ✅</p>
-                <p>最后检查时间: <span id="current-time">2023-11-15 14:30:00</span></p>
-            </div>
-            
-            <h3>服务信息</h3>
-            <table class="info-table">
-                <tr>
-                    <th>服务名称</th>
-                    <td>golang爬虫</td>
-                </tr>
-                <tr>
-                    <th>服务器</th>
-                    <td>8.138.180.182</td>
-                </tr>
-                <tr>
-                    <th>运行时间</th>
-                    <td>12天5小时23分钟</td>
-                </tr>
-                <!-- <tr>
-                    <th>CPU使用率</th>
-                    <td>23%</td>
-                </tr>
-                <tr>
-                    <th>内存使用率</th>
-                    <td>45%</td>
-                </tr> -->
-            </table>
-            
-            <!-- <p>如果您需要立即检查服务状态，请点击下方按钮：</p> -->
-            <!-- <a href="https://your-service-dashboard.com" class="button">查看服务仪表盘</a> -->
-            
-            <p>此邮件为系统自动发送，请勿直接回复。</p>
-        </div>
-        
-        <div class="footer">
-            <p>© 2023 gxuicpc 保留所有权利.</p>
-        </div>
-    </div>
-</body>
+        <!-- <script src="//www.recaptcha.net/recaptcha/api.js?hl=zh-CN&render=explicit&onload=renderCaptcha" async defer></script> -->
+    </body>
 </html>
