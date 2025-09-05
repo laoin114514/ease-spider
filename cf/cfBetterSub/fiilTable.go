@@ -6,8 +6,7 @@ import (
 	"time"
 )
 
-func fillTable(result map[string]any, handle string, table *db.Cf_all_submissions) []any {
-	arr := result["author"].(map[string]any)["members"].([]any)
+func fillTable(result map[string]any, handle string, table *db.Cf_all_submissions) {
 	table.Handle = handle
 	table.SubId = int(result["id"].(float64))
 	table.ProblemId = fmt.Sprintf("%d", int(result["problem"].(map[string]any)["contestId"].(float64))) + result["problem"].(map[string]any)["index"].(string)
@@ -26,7 +25,6 @@ func fillTable(result map[string]any, handle string, table *db.Cf_all_submission
 	}
 	t := int(result["creationTimeSeconds"].(float64))
 	table.CreationTime = time.Unix(int64(t), 0)
-	return arr
 }
 func fiilNeverPass(result map[string]any, handle string, table *db.Cf_never_pass) {
 	table.ProblemId = fmt.Sprintf("%d", int(result["problem"].(map[string]any)["contestId"].(float64))) + result["problem"].(map[string]any)["index"].(string)

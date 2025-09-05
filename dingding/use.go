@@ -3,7 +3,10 @@ package dingding
 import (
 	"fmt"
 	"spider/component"
+	"spider/db"
 )
+
+var tempDB component.TempDB
 
 func Use() {
 	token := getToken()
@@ -12,9 +15,13 @@ func Use() {
 	count := 0
 	for _, v := range checkUpDatas {
 		v := v.(map[string]any)
-		var table dingCheckUp
+		var table db.DingCheckUp
 		fillTable(v, &table)
-		insert(table, &count)
+		err := db.Insert_checkup(table)
+		if err != nil {
+			continue
+		}
+		count++
 	}
 	fmt.Printf("插入%d条打卡记录\n", count)
 }

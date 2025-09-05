@@ -1,4 +1,4 @@
-package newLuogu
+package luogu
 
 import (
 	"fmt"

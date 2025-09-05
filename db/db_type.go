@@ -65,3 +65,9 @@ type Luogu_all_submissions struct {
 	ProblemName string
 	Difficulty  string
 }
+type DingCheckUp struct {
+	Name      string
+	UserId    string
+	Time      time.Time
+	CheckType string
+}

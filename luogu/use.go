@@ -1,4 +1,4 @@
-package newLuogu
+package luogu
 
 import (
 	"fmt"
@@ -7,9 +7,7 @@ import (
 
 func Use() {
 	fmt.Println("洛谷提交情况:")
-	dataBase := db.New()
-	defer dataBase.Close()
-	rows, err := dataBase.Query("select id from luoguac")
+	rows, err := db.Pool.Query("select id from luoguac")
 	defer rows.Close()
 	if err != nil {
 		fmt.Println(err)
@@ -30,7 +28,7 @@ func Use() {
 			if !ok {
 				continue
 			}
-			err := handle(result, dataBase, &count)
+			err := handle(result, &count)
 			if err != nil {
 				break
 			}

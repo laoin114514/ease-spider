@@ -1,11 +1,14 @@
 package dingding
 
-import "time"
+import (
+	"spider/db"
+	"time"
+)
 
-func fillTable(checkUpData map[string]any, table *dingCheckUp) {
-	userObject := getUserId()
-	table.userId = checkUpData["userId"].(string)
-	table.time = time.UnixMilli(int64(checkUpData["userCheckTime"].(float64)))
-	table.name = userObject[table.userId].(string)
-	table.checkType = checkUpData["checkType"].(string)
+func fillTable(checkUpData map[string]any, table *db.DingCheckUp) {
+	userObject := tempDB.Get("dingUserId").(map[string]any)
+	table.UserId = checkUpData["userId"].(string)
+	table.Time = time.UnixMilli(int64(checkUpData["userCheckTime"].(float64)))
+	table.Name = userObject[table.UserId].(string)
+	table.CheckType = checkUpData["checkType"].(string)
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func request(token string, from string, to string) []any {
-	userObject := getUserId()
+	userObject := tempDB.Get("dingUserId").(map[string]any)
 	userId := []string{}
 	for k, _ := range userObject {
 		userId = append(userId, k)

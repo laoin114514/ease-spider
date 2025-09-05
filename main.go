@@ -2,19 +2,28 @@ package main
 
 import (
 	"fmt"
-	"spider/cf/cfBetterSub"
-	cfofficial "spider/cf/cf_official"
+	"spider/cf/genUrl"
 	"spider/component"
+	"spider/db"
 	"spider/dingding"
-	"spider/newLuogu"
+	"spider/luogu"
 	"time"
 )
 
+var User genUrl.User
 var countTime component.CountTime
 var tempDB component.TempDB
 
 func main() {
-	cfofficial.Use()
+	fmt.Println(User.Status(true, genUrl.User_status{
+		Handle:         "233zhang",
+		From:           1,
+		Count:          50000,
+		IncludeSources: false,
+	}))
+	db.Init()
+	defer db.Pool.Close()
+	action()
 	return
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
@@ -38,8 +47,8 @@ func action() {
 
 	//功能区
 	dingding.Use()
-	newLuogu.Use()
-	cfBetterSub.Use()
+	luogu.Use()
+	// cfBetterSub.Use()
 
 	countTime.End()
 	fmt.Printf("\n\n")

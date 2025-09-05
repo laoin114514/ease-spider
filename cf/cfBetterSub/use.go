@@ -6,16 +6,15 @@ import (
 	"spider/db"
 )
 
+var countTime component.CountTime
+var handle string
+
 func Use() {
 	fmt.Println("cf提交情况:")
-	var countTime component.CountTime
-	dataBase := db.New()
-	defer dataBase.Close()
-	rows, _ := dataBase.Query("select account from user where role_id=1||role_id=3")
+	rows, _ := db.Pool.Query("select account from user where role_id=1||role_id=3")
 	defer rows.Close()
 	for rows.Next() {
 		countTime.Start()
-		var handle string
 		rows.Scan(&handle)
 		results, err := request(handle)
 		if err != nil {
@@ -27,12 +26,9 @@ func Use() {
 			for _, result := range results {
 				result := result.(map[string]any)
 				var table db.Cf_all_submissions
-				handleArr := fillTable(result, handle, &table)
-				err := insert(table, dataBase)
+				fillTable(result, handle, &table)
+				err := db.Insert_cf_all_sub(table)
 				if err != nil {
-					if len(handleArr) > 1 {
-						continue
-					}
 					break
 				}
 				count++
