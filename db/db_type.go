@@ -54,10 +54,14 @@ type Cf_team_trainning struct {
 	StartTime string
 	PrePareBy string
 }
-type Luogu_problem struct {
-	Uid        string
-	Pid        string
-	Type       string
-	Difficulty int
-	Title      string
+
+type Luogu_all_submissions struct {
+	SubId       string
+	Pid         string
+	Username    string
+	Uid         string
+	IsPass      bool
+	SubTime     time.Time
+	ProblemName string
+	Difficulty  string
 }

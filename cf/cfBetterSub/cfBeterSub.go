@@ -22,21 +22,22 @@ func Use() {
 			fmt.Println(err)
 			continue
 		}
-		count := 0
-		for _, result := range results {
-			result := result.(map[string]any)
-			var table db.Cf_all_submissions
-			handleArr := fillTable(result, handle, &table)
-			err := insert(table, dataBase)
-			if err != nil {
-				if len(handleArr) > 1 {
-					continue
+		go func() {
+			count := 0
+			for _, result := range results {
+				result := result.(map[string]any)
+				var table db.Cf_all_submissions
+				handleArr := fillTable(result, handle, &table)
+				err := insert(table, dataBase)
+				if err != nil {
+					if len(handleArr) > 1 {
+						continue
+					}
+					break
 				}
-				break
+				count++
 			}
-			count++
-		}
-		fmt.Printf("%s新增：%d   ", handle, count)
-		neverPassHandle(results, handle)
+			go neverPassHandle(results, handle, count)
+		}()
 	}
 }

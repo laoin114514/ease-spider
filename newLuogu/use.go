@@ -26,7 +26,10 @@ func Use() {
 		count := 0
 		for i := 1; i <= page; i++ {
 			data := request(uid, i)
-			result := data["result"].([]any)
+			result, ok := data["result"].([]any)
+			if !ok {
+				continue
+			}
 			err := handle(result, dataBase, &count)
 			if err != nil {
 				break

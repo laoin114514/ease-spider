@@ -6,13 +6,14 @@ import (
 	"spider/db"
 )
 
-func neverPassHandle(results []any, handle string) {
+func neverPassHandle(results []any, handle string, count int) {
 	passSet := map[string]bool{}
 	fiilPassSet(results, handle, passSet)
-	insertNeverPass(results, handle, passSet)
-	deletePass(handle, passSet)
+	neCount := insertNeverPass(results, handle, passSet)
+	deCount := deletePass(handle, passSet)
+	fmt.Printf("%s提交新增%d 未过题新增%d 删除已过题%d\n", handle, count, neCount, deCount)
 }
-func insertNeverPass(results []any, handle string, passSet map[string]bool) {
+func insertNeverPass(results []any, handle string, passSet map[string]bool) int {
 	var countTime component.CountTime
 	dateBase := db.New()
 	defer dateBase.Close()
@@ -46,9 +47,9 @@ func insertNeverPass(results []any, handle string, passSet map[string]bool) {
 		count++
 	}
 	// countTime.End()
-	fmt.Printf("未过题新增：%d  ", count)
+	return count
 }
-func deletePass(handle string, passSet map[string]bool) {
+func deletePass(handle string, passSet map[string]bool) int {
 	dateBase := db.New()
 	defer dateBase.Close()
 	rows, _ := dateBase.Query("select problemId from cf_never_pass where handle=?", handle)
@@ -62,5 +63,5 @@ func deletePass(handle string, passSet map[string]bool) {
 		dateBase.Exec("delete from cf_never_pass where problemId=?", problemId)
 		count++
 	}
-	fmt.Printf("删除已过题:%d\n", count)
+	return count
 }

@@ -16,5 +16,5 @@ func Use() {
 		fillTable(v, &table)
 		insert(table, &count)
 	}
-	fmt.Printf("插入%d条打卡记录", count)
+	fmt.Printf("插入%d条打卡记录\n", count)
 }

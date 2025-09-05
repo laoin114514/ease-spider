@@ -2,18 +2,16 @@ package newLuogu
 
 import (
 	"fmt"
-	"os"
 	"spider/component"
 
 	"github.com/go-resty/resty/v2"
-	"github.com/joho/godotenv"
 )
 
 var countTime component.CountTime
+var tempDB component.TempDB
 
 func request(uid string, page int) map[string]any {
-	godotenv.Load()
-	cookie := os.Getenv("Cookie")
+	cookie := tempDB.Get("Cookie").(string)
 	c := resty.New()
 	var result map[string]any
 	_, err := c.R().
