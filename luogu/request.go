@@ -2,13 +2,9 @@ package luogu
 
 import (
 	"fmt"
-	"spider/component"
 
 	"github.com/go-resty/resty/v2"
 )
-
-var countTime component.CountTime
-var tempDB component.TempDB
 
 func request(uid string, page int) map[string]any {
 	cookie := tempDB.Get("Cookie").(string)

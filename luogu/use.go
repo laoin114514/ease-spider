@@ -2,8 +2,11 @@ package luogu
 
 import (
 	"fmt"
+	"spider/component"
 	"spider/db"
 )
+
+var tempDB component.TempDB
 
 func Use() {
 	fmt.Println("洛谷提交情况:")
@@ -28,10 +31,11 @@ func Use() {
 			if !ok {
 				continue
 			}
-			err := handle(result, &count)
+			err := handle(result)
 			if err != nil {
 				break
 			}
+			count++
 		}
 		fmt.Println(uid, count)
 	}

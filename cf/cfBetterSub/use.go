@@ -21,19 +21,17 @@ func Use() {
 			fmt.Println(err)
 			continue
 		}
-		go func() {
-			count := 0
-			for _, result := range results {
-				result := result.(map[string]any)
-				var table db.Cf_all_submissions
-				fillTable(result, handle, &table)
-				err := db.Insert_cf_all_sub(table)
-				if err != nil {
-					break
-				}
-				count++
+		count := 0
+		for _, result := range results {
+			result := result.(map[string]any)
+			var table db.Cf_all_submissions
+			fillTable(result, &table)
+			err := db.Insert_cf_all_sub(table)
+			if err != nil {
+				break
 			}
-			go neverPassHandle(results, handle, count)
-		}()
+			count++
+		}
+		neverPassHandle(results, count)
 	}
 }

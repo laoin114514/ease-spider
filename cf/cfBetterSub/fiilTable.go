@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func fillTable(result map[string]any, handle string, table *db.Cf_all_submissions) {
+func fillTable(result map[string]any, table *db.Cf_all_submissions) {
 	table.Handle = handle
 	table.SubId = int(result["id"].(float64))
 	table.ProblemId = fmt.Sprintf("%d", int(result["problem"].(map[string]any)["contestId"].(float64))) + result["problem"].(map[string]any)["index"].(string)
@@ -26,7 +26,7 @@ func fillTable(result map[string]any, handle string, table *db.Cf_all_submission
 	t := int(result["creationTimeSeconds"].(float64))
 	table.CreationTime = time.Unix(int64(t), 0)
 }
-func fiilNeverPass(result map[string]any, handle string, table *db.Cf_never_pass) {
+func fiilNeverPass(result map[string]any, table *db.Cf_never_pass) {
 	table.ProblemId = fmt.Sprintf("%d", int(result["problem"].(map[string]any)["contestId"].(float64))) + result["problem"].(map[string]any)["index"].(string)
 	table.Handle = handle
 	table.ProblemName = result["problem"].(map[string]any)["name"].(string)
@@ -37,11 +37,11 @@ func fiilNeverPass(result map[string]any, handle string, table *db.Cf_never_pass
 		table.Rating = -1
 	}
 }
-func fiilPassSet(results []any, handle string, passSet map[string]bool) {
+func fiilPassSet(results []any, passSet map[string]bool) {
 	for _, result := range results {
 		result := result.(map[string]any)
 		var table db.Cf_all_submissions
-		fillTable(result, handle, &table)
+		fillTable(result, &table)
 		if table.Verdict == "OK" {
 			passSet[table.ProblemId] = true
 		}

@@ -1,6 +1,7 @@
 package cfBetterSub
 
 import (
+	"errors"
 	"fmt"
 	"spider/cf/genUrl"
 
@@ -31,8 +32,7 @@ func request(handle string) ([]any, error) {
 
 	results, ok := response["result"].([]any)
 	if !ok {
-		fmt.Printf("apikey不正确 ")
-		return []any{}, nil
+		return []any{}, errors.New("handle不正确")
 	}
 	return results, nil
 }

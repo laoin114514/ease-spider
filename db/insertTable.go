@@ -46,3 +46,16 @@ func Insert_cf_all_sub(table Cf_all_submissions) error {
 	}
 	return nil
 }
+func Insert_never_pass(table Cf_never_pass) error {
+	_, err := Pool.Exec(
+		"insert into cf_never_pass (ProblemId,Handle,ProblemName,Rating ) values (?,?,?,?)",
+		table.ProblemId,
+		table.Handle,
+		table.ProblemName,
+		table.Rating,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}

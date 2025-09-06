@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"spider/cf/cfBetterSub"
 	"spider/cf/genUrl"
 	"spider/component"
 	"spider/db"
@@ -15,12 +16,6 @@ var countTime component.CountTime
 var tempDB component.TempDB
 
 func main() {
-	fmt.Println(User.Status(true, genUrl.User_status{
-		Handle:         "233zhang",
-		From:           1,
-		Count:          50000,
-		IncludeSources: false,
-	}))
 	db.Init()
 	defer db.Pool.Close()
 	action()
@@ -46,9 +41,9 @@ func action() {
 	countTime.Start()
 
 	//功能区
+	cfBetterSub.Use()
 	dingding.Use()
 	luogu.Use()
-	// cfBetterSub.Use()
 
 	countTime.End()
 	fmt.Printf("\n\n")

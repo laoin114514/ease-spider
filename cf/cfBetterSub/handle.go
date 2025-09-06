@@ -2,21 +2,17 @@ package cfBetterSub
 
 import (
 	"fmt"
-	"spider/component"
 	"spider/db"
 )
 
-func neverPassHandle(results []any, handle string, count int) {
+func neverPassHandle(results []any, count int) {
 	passSet := map[string]bool{}
-	fiilPassSet(results, handle, passSet)
-	neCount := insertNeverPass(results, handle, passSet)
+	fiilPassSet(results, passSet)
+	neCount := insertNeverPass(results, passSet)
 	deCount := deletePass(handle, passSet)
 	fmt.Printf("%s提交新增%d 未过题新增%d 删除已过题%d\n", handle, count, neCount, deCount)
 }
-func insertNeverPass(results []any, handle string, passSet map[string]bool) int {
-	var countTime component.CountTime
-	dateBase := db.New()
-	defer dateBase.Close()
+func insertNeverPass(results []any, passSet map[string]bool) int {
 	count := 0
 	insertArr := []db.Cf_never_pass{}
 	has := map[string]bool{}
@@ -24,7 +20,7 @@ func insertNeverPass(results []any, handle string, passSet map[string]bool) int 
 	for _, result := range results {
 		result := result.(map[string]any)
 		var neverPassTable db.Cf_never_pass
-		fiilNeverPass(result, handle, &neverPassTable)
+		fiilNeverPass(result, &neverPassTable)
 		if passSet[neverPassTable.ProblemId] {
 			continue
 		}
@@ -34,13 +30,7 @@ func insertNeverPass(results []any, handle string, passSet map[string]bool) int 
 		}
 	}
 	for _, table := range insertArr {
-		_, err := dateBase.Exec(
-			"insert into cf_never_pass (ProblemId,Handle,ProblemName,Rating ) values (?,?,?,?)",
-			table.ProblemId,
-			table.Handle,
-			table.ProblemName,
-			table.Rating,
-		)
+		err := db.Insert_never_pass(table)
 		if err != nil {
 			break
 		}
@@ -50,9 +40,7 @@ func insertNeverPass(results []any, handle string, passSet map[string]bool) int 
 	return count
 }
 func deletePass(handle string, passSet map[string]bool) int {
-	dateBase := db.New()
-	defer dateBase.Close()
-	rows, _ := dateBase.Query("select problemId from cf_never_pass where handle=?", handle)
+	rows, _ := db.Pool.Query("select problemId from cf_never_pass where handle=?", handle)
 	count := 0
 	for rows.Next() {
 		var problemId string
@@ -60,7 +48,7 @@ func deletePass(handle string, passSet map[string]bool) int {
 		if !passSet[problemId] {
 			continue
 		}
-		dateBase.Exec("delete from cf_never_pass where problemId=?", problemId)
+		db.Pool.Exec("delete from cf_never_pass where problemId=?", problemId)
 		count++
 	}
 	return count
