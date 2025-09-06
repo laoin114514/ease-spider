@@ -18,6 +18,7 @@ func Insert_luogu_sub(table Luogu_all_submissions) error {
 	}
 	return nil
 }
+
 func Insert_checkup(table DingCheckUp) error {
 	_, err := Pool.Exec("insert into checkup (name,dingID,time,checkType) values (?,?,?,?)",
 		table.Name,
@@ -30,6 +31,7 @@ func Insert_checkup(table DingCheckUp) error {
 	}
 	return nil
 }
+
 func Insert_cf_all_sub(table Cf_all_submissions) error {
 	_, err := Pool.Exec(
 		"insert into cf_all_submissions (subId,problemId,handle,problemName,rating,verdict,creationTime) values(?,?,?,?,?,?,?)",
@@ -46,6 +48,7 @@ func Insert_cf_all_sub(table Cf_all_submissions) error {
 	}
 	return nil
 }
+
 func Insert_never_pass(table Cf_never_pass) error {
 	_, err := Pool.Exec(
 		"insert into cf_never_pass (ProblemId,Handle,ProblemName,Rating ) values (?,?,?,?)",
@@ -53,6 +56,21 @@ func Insert_never_pass(table Cf_never_pass) error {
 		table.Handle,
 		table.ProblemName,
 		table.Rating,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Insert_cf_official(table Cf_contest_official) error {
+	_, err := Pool.Exec(
+		"insert into cf_contest_official (id, title, points, rating, tags) values (?,?,?,?,?)",
+		table.Id,
+		table.Title,
+		table.Points,
+		table.Rating,
+		table.Tags,
 	)
 	if err != nil {
 		return err

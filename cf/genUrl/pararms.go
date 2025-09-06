@@ -6,6 +6,9 @@ import (
 )
 
 func buildPararms(pararms map[string]any) string {
+	if pararms == nil {
+		return ""
+	}
 	keyArr := []string{}
 	for k, _ := range pararms {
 		keyArr = append(keyArr, k)

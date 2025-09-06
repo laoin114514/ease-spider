@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func fillTable(result map[string]any, table *db.Cf_all_submissions) {
+func fillSubTable(result map[string]any, table *db.Cf_all_submissions) {
 	table.Handle = handle
 	table.SubId = int(result["id"].(float64))
 	table.ProblemId = fmt.Sprintf("%d", int(result["problem"].(map[string]any)["contestId"].(float64))) + result["problem"].(map[string]any)["index"].(string)
@@ -35,15 +35,5 @@ func fiilNeverPass(result map[string]any, table *db.Cf_never_pass) {
 		table.Rating = int(rating.(float64))
 	} else {
 		table.Rating = -1
-	}
-}
-func fiilPassSet(results []any, passSet map[string]bool) {
-	for _, result := range results {
-		result := result.(map[string]any)
-		var table db.Cf_all_submissions
-		fillTable(result, &table)
-		if table.Verdict == "OK" {
-			passSet[table.ProblemId] = true
-		}
 	}
 }

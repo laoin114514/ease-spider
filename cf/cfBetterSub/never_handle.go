@@ -1,22 +1,28 @@
 package cfBetterSub
 
 import (
-	"fmt"
 	"spider/db"
 )
 
-func neverPassHandle(results []any, count int) {
-	passSet := map[string]bool{}
-	fiilPassSet(results, passSet)
-	neCount := insertNeverPass(results, passSet)
-	deCount := deletePass(handle, passSet)
-	fmt.Printf("%s提交新增%d 未过题新增%d 删除已过题%d\n", handle, count, neCount, deCount)
+func neverPassHandle(results []any) (int, int) {
+	passSet := calPassSet(results)
+	insertArr := calInsertArr(results, passSet)
+	nePaCount := 0
+	for _, table := range insertArr {
+		err := db.Insert_never_pass(table)
+		if err != nil {
+			break
+		}
+		nePaCount++
+	}
+	delCount := deletePass(handle, passSet)
+	return nePaCount, delCount
 }
-func insertNeverPass(results []any, passSet map[string]bool) int {
-	count := 0
+
+func calInsertArr(results []any, passSet map[string]bool) []db.Cf_never_pass {
+	//返回需要插入的从未通过的题目数组
 	insertArr := []db.Cf_never_pass{}
 	has := map[string]bool{}
-	countTime.Start()
 	for _, result := range results {
 		result := result.(map[string]any)
 		var neverPassTable db.Cf_never_pass
@@ -29,16 +35,22 @@ func insertNeverPass(results []any, passSet map[string]bool) int {
 			has[neverPassTable.ProblemId] = true
 		}
 	}
-	for _, table := range insertArr {
-		err := db.Insert_never_pass(table)
-		if err != nil {
-			break
-		}
-		count++
-	}
-	// countTime.End()
-	return count
+	return insertArr
 }
+
+func calPassSet(results []any) map[string]bool {
+	passSet := map[string]bool{}
+	for _, result := range results {
+		result := result.(map[string]any)
+		var table db.Cf_all_submissions
+		fillSubTable(result, &table)
+		if table.Verdict == "OK" {
+			passSet[table.ProblemId] = true
+		}
+	}
+	return passSet
+}
+
 func deletePass(handle string, passSet map[string]bool) int {
 	rows, _ := db.Pool.Query("select problemId from cf_never_pass where handle=?", handle)
 	count := 0

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"spider/cf/cfBetterSub"
+	cfOfficial "spider/cf/cf_official"
 	"spider/cf/genUrl"
 	"spider/component"
 	"spider/db"
@@ -14,18 +15,18 @@ import (
 var User genUrl.User
 var countTime component.CountTime
 var tempDB component.TempDB
+var former int64 = 0
 
 func main() {
 	db.Init()
 	defer db.Pool.Close()
-	action()
-	return
+
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
+
 	ticker := time.NewTicker(60 * time.Second)
 	defer ticker.Stop()
-	fmt.Println("开始计时")
-	var former int64 = 0
+
 	for range ticker.C {
 		now = time.Now()
 		current := now.Unix()
@@ -42,6 +43,7 @@ func action() {
 
 	//功能区
 	cfBetterSub.Use()
+	cfOfficial.Use()
 	dingding.Use()
 	luogu.Use()
 

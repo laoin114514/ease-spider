@@ -8,30 +8,22 @@ import (
 
 var countTime component.CountTime
 var handle string
+var username string
 
 func Use() {
 	fmt.Println("cf提交情况:")
-	rows, _ := db.Pool.Query("select account from user where role_id=1||role_id=3")
+	rows, _ := db.Pool.Query("select account,username from user where role_id=1||role_id=3")
 	defer rows.Close()
 	for rows.Next() {
 		countTime.Start()
-		rows.Scan(&handle)
+		rows.Scan(&handle, &username)
 		results, err := request(handle)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		count := 0
-		for _, result := range results {
-			result := result.(map[string]any)
-			var table db.Cf_all_submissions
-			fillTable(result, &table)
-			err := db.Insert_cf_all_sub(table)
-			if err != nil {
-				break
-			}
-			count++
-		}
-		neverPassHandle(results, count)
+		subcount := allSubHandle(results)
+		nePaCont, delCount := neverPassHandle(results)
+		fmt.Printf("新增提交:%d 新增未过题:%d 删除未过题中已过题:%d  %s\n", subcount, nePaCont, delCount, username)
 	}
 }

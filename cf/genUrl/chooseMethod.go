@@ -1,7 +1,6 @@
 package genUrl
 
-type User struct {
-}
+type User struct{}
 
 func (u *User) Info(query User_info) (string, error) {
 	handleArr := ""
@@ -33,3 +32,8 @@ func (u *User) Status(useApikey bool, query User_status) (string, error) {
 }
 
 type Contest struct{}
+type ProblemSet struct{}
+
+func (p ProblemSet) Problems() (string, error) {
+	return defaultUrl("problemset.problems", nil)
+}
