@@ -32,7 +32,7 @@ func request(handle string) ([]any, error) {
 
 	results, ok := response["result"].([]any)
 	if !ok {
-		return []any{}, errors.New("handle不正确")
+		return []any{}, errors.New(fmt.Sprintf("%s的cf账号不存在", username))
 	}
 	return results, nil
 }

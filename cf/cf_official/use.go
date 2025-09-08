@@ -22,9 +22,9 @@ func Use() {
 		fillTable(v, &table)
 		err := db.Insert_cf_official(table)
 		if err != nil {
-			fmt.Println(err)
 			break
 		}
 		count++
 	}
+	fmt.Println("官方题库新增", count, "\n")
 }

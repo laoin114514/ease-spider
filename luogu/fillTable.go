@@ -14,9 +14,10 @@ func fillTable(obj map[string]any, table *db.Luogu_all_submissions) {
 	user := obj["user"].(map[string]any)
 	difficulty := problem["difficulty"].(float64)
 	table.Difficulty = difficultys[int(difficulty)]
-	if obj["status"].(float64) != 14 {
+	if obj["status"].(float64) != 12 {
 		table.IsPass = false
 	} else {
+		pass++
 		table.IsPass = true
 	}
 	table.ProblemName = problem["title"].(string)

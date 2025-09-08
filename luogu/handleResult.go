@@ -5,7 +5,7 @@ import (
 	"spider/db"
 )
 
-func handle(result []any) error {
+func handle(result []any, count *int) error {
 	for _, v := range result {
 		v := v.(map[string]any)
 		var table db.Luogu_all_submissions
@@ -14,6 +14,7 @@ func handle(result []any) error {
 		if err != nil {
 			return err
 		}
+		*count++
 	}
 	return nil
 }

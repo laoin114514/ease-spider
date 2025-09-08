@@ -36,7 +36,7 @@ type Contest_hacks struct {
 type Contest_list struct {
 	Handle    string `while apikey`
 	Gym       bool
-	GroupCode int
+	GroupCode string
 }
 type Contest_rating struct {
 	Handle    string `while apikey`

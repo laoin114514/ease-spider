@@ -77,3 +77,17 @@ func Insert_cf_official(table Cf_contest_official) error {
 	}
 	return nil
 }
+
+func Insert_team_trainning(table Cf_team_trainning) error {
+	_, err := Pool.Exec(
+		"insert into cf_team_training (id, name, startTime, prepareBy) values (?,?,?,?)",
+		table.Id,
+		table.Name,
+		table.StartTime,
+		table.PrePareBy,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}

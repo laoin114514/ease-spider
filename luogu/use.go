@@ -7,20 +7,27 @@ import (
 )
 
 var tempDB component.TempDB
+var pass int
 
 func Use() {
 	fmt.Println("洛谷提交情况:")
-	rows, err := db.Pool.Query("select id from luoguac")
+	rows, err := db.Pool.Query("SELECT u.username,p.luogu FROM user as u,platform_id as p WHERE u.id=p.user_id&&(u.role_id=1||u.role_id=3);")
 	defer rows.Close()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	for rows.Next() {
+		var username string
 		var uid string
-		rows.Scan(&uid)
+		rows.Scan(&username, &uid)
 		result := request(uid, 1)
+		if uid == "" {
+			fmt.Println(username + "uid不存在")
+			continue
+		}
 		if result == nil {
+			fmt.Println(username + "uid不存在")
 			continue
 		}
 		page := countPage(result)
@@ -31,14 +38,14 @@ func Use() {
 			if !ok {
 				continue
 			}
-			err := handle(result)
+			err := handle(result, &count)
 			if err != nil {
 				break
 			}
-			count++
 		}
-		fmt.Println(uid, count)
+		fmt.Printf("新增提交%d %s\n", count, username)
 	}
+	fmt.Printf("\n")
 }
 
 // {

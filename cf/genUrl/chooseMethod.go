@@ -32,6 +32,20 @@ func (u *User) Status(useApikey bool, query User_status) (string, error) {
 }
 
 type Contest struct{}
+
+func (c Contest) List(query Contest_list) string {
+	pararms := map[string]any{
+		"handle":    query.Handle,
+		"gym":       query.Gym,
+		"groupCode": query.GroupCode,
+	}
+	url, err := apiKeyUrl("contest.list", pararms)
+	if err != nil {
+		return ""
+	}
+	return url
+}
+
 type ProblemSet struct{}
 
 func (p ProblemSet) Problems() (string, error) {

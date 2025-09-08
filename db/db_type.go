@@ -51,7 +51,7 @@ type Cf_team_question struct {
 type Cf_team_trainning struct {
 	Id        int
 	Name      string
-	StartTime string
+	StartTime time.Time
 	PrePareBy string
 }
 
