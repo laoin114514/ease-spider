@@ -21,6 +21,7 @@ func Use() {
 		if err != nil {
 			continue
 		}
+		fmt.Println(table)
 		count++
 	}
 	fmt.Printf("插入%d条打卡记录\n", count)

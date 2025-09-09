@@ -22,7 +22,6 @@ var former int64 = 0
 func main() {
 	db.Init()
 	defer db.Pool.Close()
-
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 
@@ -33,9 +32,9 @@ func main() {
 		now = time.Now()
 		current := now.Unix()
 		if (now.Day() == 1 || now.Day() == 10 || now.Day() == 20) && now.Hour() == 23 && now.Minute() == 59 {
-			updatecookie.Use()
 		}
 		if (current - former) > 5*3000 {
+			updatecookie.Use()
 			component.SenEamil("2908451607@qq.com")
 			former = current
 			action()

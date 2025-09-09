@@ -11,7 +11,7 @@ func neverPassHandle(results []any) (int, int) {
 	for _, table := range insertArr {
 		err := db.Insert_never_pass(table)
 		if err != nil {
-			break
+			continue
 		}
 		nePaCount++
 	}

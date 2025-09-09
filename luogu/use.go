@@ -8,6 +8,7 @@ import (
 
 var tempDB component.TempDB
 var pass int
+var has map[string]bool
 
 func Use() {
 	fmt.Println("洛谷提交情况:")
@@ -32,6 +33,7 @@ func Use() {
 		}
 		page := countPage(result)
 		count := 0
+		has = getOldData(uid)
 		for i := 1; i <= page; i++ {
 			data := request(uid, i)
 			result, ok := data["result"].([]any)
@@ -40,7 +42,7 @@ func Use() {
 			}
 			err := handle(result, &count)
 			if err != nil {
-				break
+				continue
 			}
 		}
 		fmt.Printf("新增提交%d %s\n", count, username)
