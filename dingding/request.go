@@ -1,12 +1,13 @@
 package dingding
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/go-resty/resty/v2"
 )
 
-func request(token string, from string, to string) []any {
+func request(token string, from string, to string) ([]any, error) {
 	userObject := tempDB.Get("dingUserId").(map[string]any)
 	userId := []string{}
 	for k, _ := range userObject {
@@ -25,10 +26,13 @@ func request(token string, from string, to string) []any {
 		Post("https://oapi.dingtalk.com/attendance/listRecord?access_token=" + token)
 	if err != nil {
 		fmt.Println(err)
-		return nil
+		return nil, err
+	}
+	if result["errcode"].(float64) != 0 {
+		return nil, errors.New("错误")
 	}
 	if response.StatusCode() != 200 {
 		fmt.Println("请求失败，状态码", response.StatusCode())
 	}
-	return result["recordresult"].([]any)
+	return result["recordresult"].([]any), nil
 }

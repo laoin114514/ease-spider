@@ -23,8 +23,6 @@ var former int64 = 0
 func main() {
 	db.Init()
 	defer db.Pool.Close()
-	dingding.Use()
-	return
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 
