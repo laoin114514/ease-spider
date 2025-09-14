@@ -1,23 +1,23 @@
 package luogu
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"spider/db"
 )
 
-func handle(result []any, count *int) error {
+func handle(result []any, count *int, allCatch bool, hasMap map[string]bool) error {
 	for _, v := range result {
 		v := v.(map[string]any)
 		var table db.Luogu_all_submissions
 		fillTable(v, &table)
-		if has[table.SubId] {
+		if hasMap[table.SubId] && !allCatch {
+			return errors.New("重复")
+		} else if hasMap[table.SubId] && allCatch {
 			continue
 		}
-		err := db.Insert_luogu_sub(table)
-		if err != nil {
-			return err
-		}
+		db.Insert_luogu_sub(table)
 		*count++
 	}
 	return nil
@@ -37,8 +37,8 @@ func getOldData(uid string) map[string]bool {
 	return has
 }
 func countPage(data map[string]any) int {
-	count := data["count"].(float64)
+	totalCount = data["count"].(float64)
 	perPage := data["perPage"].(float64)
-	page := int(math.Ceil(count / perPage))
+	page := int(math.Ceil(totalCount / perPage))
 	return page
 }

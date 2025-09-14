@@ -44,7 +44,7 @@ type Contest_rating struct {
 }
 type Contest_standings struct {
 	Handle           string `while apikey`
-	ContestId        string
+	ContestId        int
 	AsManager        bool
 	From             int
 	Count            int

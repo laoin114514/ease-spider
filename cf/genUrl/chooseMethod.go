@@ -46,6 +46,24 @@ func (c Contest) List(query Contest_list) string {
 	return url
 }
 
+func (c Contest) Standings(query Contest_standings) string {
+	pararms := map[string]any{
+		"handles":   query.Handle,
+		"contestId": query.ContestId,
+		"asManager": query.AsManager,
+		"from":      query.From,
+		"count":     query.Count,
+		// "room":             query.Room,
+		// "showUnofficial":   query.ShowUnofficial,
+		// "participantTypes": query.ParticipantTypes,
+	}
+	url, err := apiKeyUrl("contest.standings", pararms)
+	if err != nil {
+		return ""
+	}
+	return url
+}
+
 type ProblemSet struct{}
 
 func (p ProblemSet) Problems() (string, error) {

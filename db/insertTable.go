@@ -91,3 +91,18 @@ func Insert_team_trainning(table Cf_team_trainning) error {
 	}
 	return nil
 }
+
+func Insert_team_questions(table Cf_team_question) error {
+	_, err := Pool.Exec(
+		"insert into cf_team_question (In_team_ID, contest_name, official_ID, question_name, rating) values (?,?,?,?,?)",
+		table.In_team_ID,
+		table.Contest_name,
+		table.Official_ID,
+		table.Question_name,
+		table.Rating,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -6,9 +6,9 @@ import (
 )
 
 func fillTable(checkUpData map[string]any, table *db.DingCheckUp) {
-	userObject := tempDB.Get("dingUserId").(map[string]any)
+
 	table.UserId = checkUpData["userId"].(string)
-	table.Time = time.UnixMilli(int64(checkUpData["userCheckTime"].(float64)))
-	table.Name = userObject[table.UserId].(string)
+	table.Time = time.UnixMilli(int64(checkUpData["userCheckTime"].(float64)) + int64(8*time.Hour)).UTC()
+	table.Name = obj[table.UserId].(string)
 	table.CheckType = checkUpData["checkType"].(string)
 }

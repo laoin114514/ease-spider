@@ -12,9 +12,13 @@ const Baseurl = "https://codeforces.com/api/"
 
 func apiKeyUrl(method string, pararms map[string]any) (string, error) {
 	//通过参数中的handle查询apikey
-	ok, apiKey := findApikey(pararms["handle"].(string))
+	handle, has := pararms["handle"].(string)
+	if !has {
+		handle = pararms["handles"].(string)
+	}
+	ok, apiKey := findApikey(handle)
 	if !ok {
-		return "", errors.New(fmt.Sprintf("%s的apiKey不存在", pararms["handle"].(string)))
+		return "", errors.New(fmt.Sprintf("%s的apiKey不存在", handle))
 	}
 	pararms["apiKey"] = apiKey.ApiKey
 	pararms["time"] = time.Now().Unix()

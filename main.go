@@ -6,6 +6,7 @@ import (
 	cfOfficial "spider/cf/cf_official"
 	"spider/cf/genUrl"
 	teamtainning "spider/cf/teamTainning"
+	"spider/cf/teamquestions"
 	"spider/component"
 	"spider/db"
 	"spider/dingding"
@@ -22,6 +23,8 @@ var former int64 = 0
 func main() {
 	db.Init()
 	defer db.Pool.Close()
+	dingding.Use()
+	return
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 
@@ -48,6 +51,7 @@ func action() {
 	//功能区
 	dingding.Use()
 	teamtainning.Use()
+	teamquestions.Use()
 	cfOfficial.Use()
 	cfBetterSub.Use()
 	luogu.Use()

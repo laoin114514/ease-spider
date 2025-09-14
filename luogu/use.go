@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"spider/component"
 	"spider/db"
+	"time"
 )
 
 var tempDB component.TempDB
 var pass int
 var has map[string]bool
+var totalCount float64
+var username string
+var uid string
 
 func Use() {
 	fmt.Println("洛谷提交情况:")
@@ -19,8 +23,6 @@ func Use() {
 		return
 	}
 	for rows.Next() {
-		var username string
-		var uid string
 		rows.Scan(&username, &uid)
 		result := request(uid, 1)
 		if uid == "" {
@@ -32,22 +34,37 @@ func Use() {
 			continue
 		}
 		page := countPage(result)
-		count := 0
 		has = getOldData(uid)
-		for i := 1; i <= page; i++ {
-			data := request(uid, i)
-			result, ok := data["result"].([]any)
-			if !ok {
-				continue
-			}
-			err := handle(result, &count)
-			if err != nil {
-				continue
-			}
+		count := loopRequest(page, false)
+		if len(has) != int(totalCount) {
+			fmt.Printf("%s少插入%d条 重新获取中...\n", username, int(totalCount)-len(has))
+			go loopRequest(page, true)
+			time.Sleep(2 * time.Second)
+			continue
 		}
 		fmt.Printf("新增提交%d %s\n", count, username)
 	}
 	fmt.Printf("\n")
+}
+func loopRequest(page int, allCatch bool) int {
+	uid1, username1 := uid, username
+	hasMap := has
+	count := 0
+	for i := 1; i <= page; i++ {
+		data := request(uid1, i)
+		result, ok := data["result"].([]any)
+		if !ok {
+			continue
+		}
+		err := handle(result, &count, allCatch, hasMap)
+		if err != nil && !allCatch {
+			break
+		}
+	}
+	if allCatch {
+		fmt.Printf("重新插入%d条 %s\n", count, username1)
+	}
+	return count
 }
 
 // {
