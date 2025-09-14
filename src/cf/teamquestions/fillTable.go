@@ -2,7 +2,7 @@ package teamquestions
 
 import (
 	"fmt"
-	"spider/db"
+	"spider/config/db"
 )
 
 func fillTable(problem map[string]any, table *db.Cf_team_question) {

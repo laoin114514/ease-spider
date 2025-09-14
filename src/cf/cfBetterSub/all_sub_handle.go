@@ -2,7 +2,7 @@ package cfBetterSub
 
 import (
 	"fmt"
-	"spider/db"
+	db2 "spider/config/db"
 )
 
 func allSubHandle(results []any) int {
@@ -10,12 +10,12 @@ func allSubHandle(results []any) int {
 	oldData := getOldData()
 	for _, result := range results {
 		result := result.(map[string]any)
-		var table db.Cf_all_submissions
+		var table db2.Cf_all_submissions
 		fillSubTable(result, &table)
 		if oldData[table.SubId] {
 			continue
 		}
-		err := db.Insert_cf_all_sub(table)
+		err := db2.Insert_cf_all_sub(table)
 		if err != nil {
 			continue
 		}
@@ -24,7 +24,7 @@ func allSubHandle(results []any) int {
 	return count
 }
 func getOldData() map[int]bool {
-	rows, err := db.Pool.Query("select subId from cf_all_submissions where handle=?", handle)
+	rows, err := db2.Pool.Query("select subId from cf_all_submissions where handle=?", handle)
 	if err != nil {
 		fmt.Println(err)
 		return nil

@@ -2,7 +2,7 @@ package cfBetterSub
 
 import (
 	"fmt"
-	"spider/db"
+	"spider/config/db"
 	"time"
 )
 

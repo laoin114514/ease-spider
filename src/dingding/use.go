@@ -3,7 +3,7 @@ package dingding
 import (
 	"fmt"
 	"spider/component"
-	"spider/db"
+	db2 "spider/config/db"
 )
 
 var tempDB component.TempDB
@@ -21,9 +21,9 @@ func Use() {
 		obj = tempDB.Get("dingUserId").(map[string]any)
 		for _, v := range checkUpDatas {
 			v := v.(map[string]any)
-			var table db.DingCheckUp
+			var table db2.DingCheckUp
 			fillTable(v, &table)
-			err := db.Insert_checkup(table)
+			err := db2.Insert_checkup(table)
 			if err != nil {
 				continue
 			}

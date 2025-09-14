@@ -2,8 +2,8 @@ package teamquestions
 
 import (
 	"fmt"
-	"spider/cf/genUrl"
-	"spider/db"
+	db2 "spider/config/db"
+	"spider/src/cf/genUrl"
 )
 
 var contest genUrl.Contest
@@ -12,7 +12,7 @@ var name string
 var prepareBy string
 
 func Use() {
-	rows, err := db.Pool.Query("select id,name,prepareBy from cf_team_training")
+	rows, err := db2.Pool.Query("select id,name,prepareBy from cf_team_training")
 	if err != nil {
 		return
 	}
@@ -23,9 +23,9 @@ func Use() {
 		problems := request(id, name, prepareBy)
 		for _, v := range problems {
 			v := v.(map[string]any)
-			var table db.Cf_team_question
+			var table db2.Cf_team_question
 			fillTable(v, &table)
-			err := db.Insert_team_questions(table)
+			err := db2.Insert_team_questions(table)
 			if err != nil {
 				continue
 			}

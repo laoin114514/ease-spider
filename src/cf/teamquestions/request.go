@@ -1,7 +1,7 @@
 package teamquestions
 
 import (
-	"spider/cf/genUrl"
+	"spider/src/cf/genUrl"
 
 	"github.com/go-resty/resty/v2"
 )

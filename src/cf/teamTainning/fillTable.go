@@ -1,7 +1,7 @@
 package teamtainning
 
 import (
-	"spider/db"
+	"spider/config/db"
 	"time"
 )
 

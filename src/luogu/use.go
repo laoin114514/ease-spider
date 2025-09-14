@@ -3,7 +3,7 @@ package luogu
 import (
 	"fmt"
 	"spider/component"
-	"spider/db"
+	"spider/config/db"
 	"time"
 )
 

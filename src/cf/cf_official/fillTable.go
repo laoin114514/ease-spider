@@ -2,7 +2,7 @@ package cfOfficial
 
 import (
 	"fmt"
-	"spider/db"
+	"spider/config/db"
 )
 
 func fillTable(result map[string]any, table *db.Cf_contest_official) {

@@ -1,7 +1,7 @@
 package dingding
 
 import (
-	"spider/db"
+	"spider/config/db"
 	"time"
 )
 

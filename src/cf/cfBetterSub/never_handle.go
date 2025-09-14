@@ -1,7 +1,7 @@
 package cfBetterSub
 
 import (
-	"spider/db"
+	db2 "spider/config/db"
 )
 
 func neverPassHandle(results []any) (int, int) {
@@ -9,7 +9,7 @@ func neverPassHandle(results []any) (int, int) {
 	insertArr := calInsertArr(results, passSet)
 	nePaCount := 0
 	for _, table := range insertArr {
-		err := db.Insert_never_pass(table)
+		err := db2.Insert_never_pass(table)
 		if err != nil {
 			continue
 		}
@@ -19,13 +19,13 @@ func neverPassHandle(results []any) (int, int) {
 	return nePaCount, delCount
 }
 
-func calInsertArr(results []any, passSet map[string]bool) []db.Cf_never_pass {
+func calInsertArr(results []any, passSet map[string]bool) []db2.Cf_never_pass {
 	//返回需要插入的从未通过的题目数组
-	insertArr := []db.Cf_never_pass{}
+	insertArr := []db2.Cf_never_pass{}
 	has := map[string]bool{}
 	for _, result := range results {
 		result := result.(map[string]any)
-		var neverPassTable db.Cf_never_pass
+		var neverPassTable db2.Cf_never_pass
 		fiilNeverPass(result, &neverPassTable)
 		if passSet[neverPassTable.ProblemId] {
 			continue
@@ -42,7 +42,7 @@ func calPassSet(results []any) map[string]bool {
 	passSet := map[string]bool{}
 	for _, result := range results {
 		result := result.(map[string]any)
-		var table db.Cf_all_submissions
+		var table db2.Cf_all_submissions
 		fillSubTable(result, &table)
 		if table.Verdict == "OK" {
 			passSet[table.ProblemId] = true
@@ -52,7 +52,7 @@ func calPassSet(results []any) map[string]bool {
 }
 
 func deletePass(handle string, passSet map[string]bool) int {
-	rows, _ := db.Pool.Query("select problemId from cf_never_pass where handle=?", handle)
+	rows, _ := db2.Pool.Query("select problemId from cf_never_pass where handle=?", handle)
 	count := 0
 	for rows.Next() {
 		var problemId string
@@ -60,7 +60,7 @@ func deletePass(handle string, passSet map[string]bool) int {
 		if !passSet[problemId] {
 			continue
 		}
-		db.Pool.Exec("delete from cf_never_pass where problemId=?", problemId)
+		db2.Pool.Exec("delete from cf_never_pass where problemId=?", problemId)
 		count++
 	}
 	return count

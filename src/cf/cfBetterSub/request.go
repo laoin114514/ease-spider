@@ -3,15 +3,15 @@ package cfBetterSub
 import (
 	"errors"
 	"fmt"
-	"spider/cf/genUrl"
+	genUrl2 "spider/src/cf/genUrl"
 
 	"github.com/go-resty/resty/v2"
 )
 
 func request(handle string) ([]any, error) {
 	c := resty.New()
-	var user genUrl.User
-	url, genErr := user.Status(true, genUrl.User_status{
+	var user genUrl2.User
+	url, genErr := user.Status(true, genUrl2.User_status{
 		Handle:         handle,
 		From:           1,
 		Count:          50000,

@@ -4,26 +4,26 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"spider/db"
+	db2 "spider/config/db"
 )
 
 func handle(result []any, count *int, allCatch bool, hasMap map[string]bool) error {
 	for _, v := range result {
 		v := v.(map[string]any)
-		var table db.Luogu_all_submissions
+		var table db2.Luogu_all_submissions
 		fillTable(v, &table)
 		if hasMap[table.SubId] && !allCatch {
 			return errors.New("重复")
 		} else if hasMap[table.SubId] && allCatch {
 			continue
 		}
-		db.Insert_luogu_sub(table)
+		db2.Insert_luogu_sub(table)
 		*count++
 	}
 	return nil
 }
 func getOldData(uid string) map[string]bool {
-	rows, err := db.Pool.Query("select subid from luogu_all_submissions where uid=?", uid)
+	rows, err := db2.Pool.Query("select subid from luogu_all_submissions where uid=?", uid)
 	if err != nil {
 		fmt.Println(err)
 		return nil

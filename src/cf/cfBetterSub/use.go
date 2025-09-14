@@ -3,7 +3,7 @@ package cfBetterSub
 import (
 	"fmt"
 	"spider/component"
-	"spider/db"
+	"spider/config/db"
 )
 
 var countTime component.CountTime

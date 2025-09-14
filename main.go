@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"spider/cf/cfBetterSub"
-	cfOfficial "spider/cf/cf_official"
-	"spider/cf/genUrl"
-	teamtainning "spider/cf/teamTainning"
-	"spider/cf/teamquestions"
 	"spider/component"
-	"spider/db"
-	"spider/dingding"
-	"spider/luogu"
+	"spider/config/db"
+	"spider/src/cf/cfBetterSub"
+	cfOfficial "spider/src/cf/cf_official"
+	"spider/src/cf/genUrl"
+	teamtainning "spider/src/cf/teamTainning"
+	"spider/src/cf/teamquestions"
+	"spider/src/dingding"
+	"spider/src/luogu"
 	updatecookie "spider/updateCookie"
 	"time"
 )
@@ -23,6 +23,7 @@ var former int64 = 0
 func main() {
 	db.Init()
 	defer db.Pool.Close()
+	action()
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 
@@ -35,6 +36,7 @@ func main() {
 		if (now.Day() == 1 || now.Day() == 10 || now.Day() == 20) && now.Hour() == 23 && now.Minute() == 59 {
 		}
 		if (current - former) > 5*3000 {
+			fmt.Println(component.NowDateTime())
 			updatecookie.Use()
 			component.SenEamil("2908451607@qq.com")
 			former = current
@@ -43,7 +45,6 @@ func main() {
 	}
 }
 func action() {
-	fmt.Println(component.NowDateTime())
 	countTime.Start()
 
 	//功能区
