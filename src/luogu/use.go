@@ -66,36 +66,3 @@ func loopRequest(page int, allCatch bool) int {
 	}
 	return count
 }
-
-// {
-//     time: 41,
-//     memory: 832,
-//     problem: {
-//       pid: 'P1113',
-//       title: '杂务',
-//       difficulty: 3,
-//       fullScore: 100,
-//       type: 'P'
-//     },
-//     contest: null,
-//     sourceCodeLength: 453,
-//     submitTime: 1756215408,
-//     language: 28,
-//     user: {
-//       uid: 1811873,
-//       name: 'lllllllke',
-//       avatar: 'https://cdn.luogu.com.cn/upload/usericon/1811873.png',
-//       slogan: '',
-//       badge: null,
-//       isAdmin: false,
-//       isBanned: false,
-//       color: 'Blue',
-//       ccfLevel: 0,
-//       xcpcLevel: 0,
-//       background: ''
-//     },
-//     id: 233308785,
-//     status: 14,
-//     enableO2: true,
-//     score: 0
-//   }

@@ -7,8 +7,6 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-var tempDB TempDB
-
 func SenEamil(to ...string) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", "2908451607@qq.com")

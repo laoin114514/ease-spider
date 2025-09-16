@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+var tempDB TempDB
+
 type TempDB struct {
 }
 

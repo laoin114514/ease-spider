@@ -6,23 +6,33 @@ type User struct {
 	Id          int
 	Account     string
 	Password    string
-	Username    string
+	Real_name   string
 	Email       string
-	Ranking     int
-	Role_id     int
-	Create_time string
-	Update_time string
 	School      string
+	Role_id     int
+	Enter_time  string
+	Retire_time string
+	Create_time string
+}
+
+type Oj_account struct {
+	User_id          int
+	Cf_account       string
+	Cf_apikey        string
+	Cf_secret        string
+	Luogu_uid        string
+	Nowcoder_account string
+	Vjudge_account   string
 }
 
 type Cf_all_submissions struct {
-	SubId        int
-	ProblemId    string
-	Handle       string
-	ProblemName  string
-	Rating       int
-	Verdict      string
-	CreationTime time.Time
+	Sub_id        int
+	Account       string
+	Problem_id    string
+	Problem_name  string
+	Rating        int
+	Verdict       string
+	Creation_time time.Time
 }
 
 type Cf_contest_official struct {

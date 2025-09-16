@@ -11,7 +11,7 @@ import (
 	"spider/src/cf/teamquestions"
 	"spider/src/dingding"
 	"spider/src/luogu"
-	updatecookie "spider/updateCookie"
+	updatecookie "spider/src/luogu/updateCookie"
 	"time"
 )
 
@@ -24,6 +24,7 @@ func main() {
 	db.Init()
 	defer db.Pool.Close()
 	action()
+	return
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 
