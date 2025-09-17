@@ -2,8 +2,11 @@ package component
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
+
+var Wg *sync.WaitGroup
 
 type CountTime struct {
 	StartTime int64

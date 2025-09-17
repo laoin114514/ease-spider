@@ -13,9 +13,10 @@ var has map[string]bool
 var totalCount float64
 var username string
 var uid string
+var outputs []string
+var errs []string
 
 func Use() {
-	fmt.Println("洛谷提交情况:")
 	rows, err := db.Pool.Query("SELECT u.real_name,p.luogu_uid FROM user as u,oj_account as p WHERE u.id=p.user_id&&(u.role_id=1||u.role_id=3);")
 	defer rows.Close()
 	if err != nil {
@@ -26,26 +27,31 @@ func Use() {
 		rows.Scan(&username, &uid)
 		result := request(uid, 1)
 		if uid == "" {
-			fmt.Println(username + "uid不存在")
+			errs = append(errs, username+"uid不存在")
 			continue
 		}
 		if result == nil {
-			fmt.Println(username + "uid不存在")
+			errs = append(errs, username+"uid不存在")
 			continue
 		}
 		page := countPage(result)
-		count := loopRequest(page, false)
 		has = getOldData(uid)
-		if len(has) != int(totalCount) {
-			fmt.Println(len(has))
-			fmt.Printf("%s少插入%d条 重新获取中...\n", username, int(totalCount)-len(has))
+		count := loopRequest(page, false)
+		if len(has) != int(totalCount)+count {
+			errs = append(errs, fmt.Sprintf("%s少插入%d条 重新获取中...\n", username, int(totalCount)-len(has)))
 			go loopRequest(page, true)
 			time.Sleep(2 * time.Second)
 			continue
 		}
-		fmt.Printf("新增提交%d %s\n", count, username)
+		outputs = append(outputs, fmt.Sprintf("新增提交%d %s", count, username))
 	}
-	fmt.Printf("\n")
+	fmt.Println("洛谷提交情况:")
+	for _, v := range outputs {
+		fmt.Println(v)
+	}
+	for _, v := range errs {
+		fmt.Println(v)
+	}
 }
 func loopRequest(page int, allCatch bool) int {
 	uid1, username1 := uid, username
@@ -63,7 +69,7 @@ func loopRequest(page int, allCatch bool) int {
 		}
 	}
 	if allCatch {
-		fmt.Printf("重新插入%d条 %s\n", count, username1)
+		fmt.Printf("洛谷重新插入%d条 %s\n", count, username1)
 	}
 	return count
 }

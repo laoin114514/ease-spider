@@ -30,7 +30,7 @@ func Use() {
 		}
 		count++
 	}
-	fmt.Println("官方题库新增", count, "\n")
+	fmt.Println("官方题库新增", count)
 }
 func getOldData() map[string]bool {
 	rows, err := db2.Pool.Query("select problem_id from cf_official_problems")

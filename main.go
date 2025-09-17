@@ -12,6 +12,7 @@ import (
 	"spider/src/dingding"
 	"spider/src/luogu"
 	updatecookie "spider/src/luogu/updateCookie"
+	"sync"
 	"time"
 )
 
@@ -23,12 +24,11 @@ var former int64 = 0
 func main() {
 	db.Init()
 	defer db.Pool.Close()
-	action()
-	return
+
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 
-	ticker := time.NewTicker(60 * time.Second)
+	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
@@ -46,15 +46,41 @@ func main() {
 	}
 }
 func action() {
+	var wg sync.WaitGroup
 	countTime.Start()
 
 	//功能区
-	dingding.Use()
-	teamtainning.Use()
-	teamquestions.Use()
-	cfOfficial.Use()
-	cfBetterSub.Use()
-	luogu.Use()
-
+	go func() {
+		wg.Add(1)
+		dingding.Use()
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		teamtainning.Use()
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		teamquestions.Use()
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		cfOfficial.Use()
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		cfBetterSub.Use()
+		wg.Done()
+	}()
+	go func() {
+		wg.Add(1)
+		luogu.Use()
+		wg.Done()
+	}()
+	time.Sleep(2 * time.Second)
+	wg.Wait()
 	countTime.End()
 }
