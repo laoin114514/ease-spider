@@ -27,12 +27,12 @@ func calInsertArr(results []any, passSet map[string]bool) []db2.Cf_never_pass {
 		result := result.(map[string]any)
 		var neverPassTable db2.Cf_never_pass
 		fiilNeverPass(result, &neverPassTable)
-		if passSet[neverPassTable.ProblemId] {
+		if passSet[neverPassTable.Problem_id] {
 			continue
 		}
-		if !has[neverPassTable.ProblemId] {
+		if !has[neverPassTable.Problem_id] {
 			insertArr = append(insertArr, neverPassTable)
-			has[neverPassTable.ProblemId] = true
+			has[neverPassTable.Problem_id] = true
 		}
 	}
 	return insertArr
@@ -45,14 +45,14 @@ func calPassSet(results []any) map[string]bool {
 		var table db2.Cf_all_submissions
 		fillSubTable(result, &table)
 		if table.Verdict == "OK" {
-			passSet[table.ProblemId] = true
+			passSet[table.Problem_id] = true
 		}
 	}
 	return passSet
 }
 
 func deletePass(handle string, passSet map[string]bool) int {
-	rows, _ := db2.Pool.Query("select problemId from cf_never_pass where handle=?", handle)
+	rows, _ := db2.Pool.Query("select problem_id from cf_never_pass where account=?", handle)
 	count := 0
 	for rows.Next() {
 		var problemId string
@@ -60,7 +60,7 @@ func deletePass(handle string, passSet map[string]bool) int {
 		if !passSet[problemId] {
 			continue
 		}
-		db2.Pool.Exec("delete from cf_never_pass where problemId=?", problemId)
+		db2.Pool.Exec("delete from cf_never_pass where problem_id=?", problemId)
 		count++
 	}
 	return count

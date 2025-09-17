@@ -5,15 +5,15 @@ import (
 	"time"
 )
 
-func fillTable(checkUpData map[string]any, table *db.DingCheckUp) {
+func fillTable(checkUpData map[string]any, table *db.Ding_checkUp) {
 
-	table.UserId = checkUpData["userId"].(string)
+	table.Ding_id = checkUpData["userId"].(string)
 	table.Time = time.UnixMilli(int64(checkUpData["userCheckTime"].(float64)) + int64(8*3600*1000)).UTC()
-	table.Name = obj[table.UserId].(string)
+	table.Name = obj[table.Ding_id].(string)
 	_, ok := checkUpData["checkType"].(string)
 	if !ok {
-		table.CheckType = ""
+		table.Check_type = ""
 		return
 	}
-	table.CheckType = checkUpData["checkType"].(string)
+	table.Check_type = checkUpData["checkType"].(string)
 }

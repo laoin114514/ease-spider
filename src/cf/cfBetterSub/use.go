@@ -12,8 +12,12 @@ var username string
 
 func Use() {
 	fmt.Println("cf提交情况:")
-	rows, _ := db.Pool.Query("SELECT p.codeforces,u.username FROM user as u,platform_id as p WHERE p.user_id=u.id&&(role_id=1||role_id=3)")
+	rows, err := db.Pool.Query("SELECT p.cf_account,u.real_name FROM user as u,oj_account as p WHERE p.user_id=u.id&&(role_id=1||role_id=3)")
 	defer rows.Close()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	for rows.Next() {
 		countTime.Start()
 		rows.Scan(&handle, &username)

@@ -16,7 +16,7 @@ var uid string
 
 func Use() {
 	fmt.Println("洛谷提交情况:")
-	rows, err := db.Pool.Query("SELECT u.username,p.luogu FROM user as u,platform_id as p WHERE u.id=p.user_id&&(u.role_id=1||u.role_id=3);")
+	rows, err := db.Pool.Query("SELECT u.real_name,p.luogu_uid FROM user as u,oj_account as p WHERE u.id=p.user_id&&(u.role_id=1||u.role_id=3);")
 	defer rows.Close()
 	if err != nil {
 		fmt.Println(err)
@@ -34,9 +34,10 @@ func Use() {
 			continue
 		}
 		page := countPage(result)
-		has = getOldData(uid)
 		count := loopRequest(page, false)
+		has = getOldData(uid)
 		if len(has) != int(totalCount) {
+			fmt.Println(len(has))
 			fmt.Printf("%s少插入%d条 重新获取中...\n", username, int(totalCount)-len(has))
 			go loopRequest(page, true)
 			time.Sleep(2 * time.Second)

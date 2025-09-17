@@ -35,49 +35,46 @@ type Cf_all_submissions struct {
 	Creation_time time.Time
 }
 
-type Cf_contest_official struct {
-	Id     string
-	Title  string
-	Points int
-	Rating int
-	Tags   string
+type Cf_official_problems struct {
+	Problem_id string
+	Title      string
+	Points     int
+	Rating     int
+	Tags       string
+}
+type Cf_team_problems struct {
+	Team_contest_id     int
+	Team_contest_name   string
+	Official_contest_ID string
+	Problem_name        string
+	Rating              int
 }
 
+type Cf_team_contests struct {
+	Contest_id   int
+	Contest_name string
+	Start_time   time.Time
+	PrePare_by   string
+}
 type Cf_never_pass struct {
-	ProblemId   string
-	Handle      string
-	ProblemName string
-	Rating      int
-}
-
-type Cf_team_question struct {
-	In_team_ID    int
-	Contest_name  string
-	Official_ID   string
-	Question_name string
-	Rating        int
-}
-
-type Cf_team_trainning struct {
-	Id        int
-	Name      string
-	StartTime time.Time
-	PrePareBy string
+	Account      string
+	Problem_id   string
+	Problem_name string
+	Rating       int
 }
 
 type Luogu_all_submissions struct {
-	SubId       string
-	Pid         string
-	Username    string
-	Uid         string
-	IsPass      bool
-	SubTime     time.Time
-	ProblemName string
-	Difficulty  string
+	Sub_id        string
+	Uid           string
+	Problem_id    string
+	Problem_name  string
+	Difficulty    string
+	Is_pass       bool
+	Creation_time time.Time
 }
-type DingCheckUp struct {
-	Name      string
-	UserId    string
-	Time      time.Time
-	CheckType string
+type Ding_checkUp struct {
+	Name       string
+	Ding_id    string
+	Time       time.Time
+	Check_type string
 }

@@ -21,9 +21,9 @@ func Use() {
 	has := getOldData()
 	for _, v := range result {
 		v := v.(map[string]any)
-		var table db2.Cf_team_trainning
+		var table db2.Cf_team_contests
 		fillTable(v, &table)
-		if has[table.Id] {
+		if has[table.Contest_id] {
 			continue
 		}
 		err := db2.Insert_team_trainning(table)
@@ -35,7 +35,7 @@ func Use() {
 	fmt.Printf("训练题单新增:%d\n", count)
 }
 func getOldData() map[int]bool {
-	rows, err := db2.Pool.Query("select id from cf_team_training")
+	rows, err := db2.Pool.Query("select contest_id from cf_team_contests")
 	if err != nil {
 		fmt.Println(err)
 		return nil

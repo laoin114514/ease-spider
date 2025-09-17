@@ -15,13 +15,13 @@ func Use() {
 		return
 	}
 	result := reuquest(url)
-	var table db2.Cf_contest_official
+	var table db2.Cf_official_problems
 	count := 0
 	has := getOldData()
 	for _, v := range result {
 		v := v.(map[string]any)
 		fillTable(v, &table)
-		if has[table.Id] {
+		if has[table.Problem_id] {
 			continue
 		}
 		err := db2.Insert_cf_official(table)
@@ -33,7 +33,7 @@ func Use() {
 	fmt.Println("官方题库新增", count, "\n")
 }
 func getOldData() map[string]bool {
-	rows, err := db2.Pool.Query("select id from cf_contest_official")
+	rows, err := db2.Pool.Query("select problem_id from cf_official_problems")
 	if err != nil {
 		fmt.Println(err)
 		return nil

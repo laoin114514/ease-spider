@@ -5,8 +5,8 @@ import (
 	"spider/config/db"
 )
 
-func fillTable(result map[string]any, table *db.Cf_contest_official) {
-	table.Id = fmt.Sprintf("%d%s", int(result["contestId"].(float64)), result["index"])
+func fillTable(result map[string]any, table *db.Cf_official_problems) {
+	table.Problem_id = fmt.Sprintf("%d%s", int(result["contestId"].(float64)), result["index"])
 	table.Title = result["name"].(string)
 	if result["points"] == nil {
 		table.Points = -1

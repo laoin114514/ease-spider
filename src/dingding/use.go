@@ -21,7 +21,7 @@ func Use() {
 		obj = tempDB.Get("dingUserId").(map[string]any)
 		for _, v := range checkUpDatas {
 			v := v.(map[string]any)
-			var table db2.DingCheckUp
+			var table db2.Ding_checkUp
 			fillTable(v, &table)
 			err := db2.Insert_checkup(table)
 			if err != nil {
