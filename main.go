@@ -7,8 +7,8 @@ import (
 	"spider/src/cf/cfBetterSub"
 	cfOfficial "spider/src/cf/cf_official"
 	"spider/src/cf/genUrl"
-	teamtainning "spider/src/cf/teamTainning"
-	"spider/src/cf/teamquestions"
+	"spider/src/cf/team_contest_problems"
+	teamtainning "spider/src/cf/team_contests"
 	"spider/src/dingding"
 	"spider/src/luogu"
 	updatecookie "spider/src/luogu/updateCookie"
@@ -24,7 +24,8 @@ var former int64 = 0
 func main() {
 	db.Init()
 	defer db.Pool.Close()
-
+	team_contest_problems.Use()
+	return
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 
@@ -34,8 +35,6 @@ func main() {
 	for range ticker.C {
 		now = time.Now()
 		current := now.Unix()
-		if (now.Day() == 1 || now.Day() == 10 || now.Day() == 20) && now.Hour() == 23 && now.Minute() == 59 {
-		}
 		if (current - former) > 5*3000 {
 			fmt.Println(component.NowDateTime())
 			updatecookie.Use()
@@ -62,7 +61,7 @@ func action() {
 	}()
 	go func() {
 		wg.Add(1)
-		teamquestions.Use()
+		team_contest_problems.Use()
 		wg.Done()
 	}()
 	go func() {

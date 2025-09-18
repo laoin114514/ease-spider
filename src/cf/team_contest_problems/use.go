@@ -1,4 +1,4 @@
-package teamquestions
+package team_contest_problems
 
 import (
 	"fmt"
