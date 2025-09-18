@@ -93,7 +93,7 @@ func Insert_team_trainning(table Cf_team_contests) error {
 
 func Insert_team_questions(table Cf_team_problems) error {
 	_, err := Pool.Exec(
-		"insert into Cf_team_problems (Team_contest_id,Team_contest_name, Official_contest_ID, Problem_name, Rating) values (?,?,?,?,?)",
+		"insert into cf_team_problems (Team_contest_id,Team_contest_name, Official_contest_ID, Problem_name, Rating) values (?,?,?,?,?)",
 		table.Team_contest_id,
 		table.Team_contest_name,
 		table.Official_contest_ID,

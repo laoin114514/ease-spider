@@ -1,7 +1,6 @@
 package team_contest_problems
 
 import (
-	"fmt"
 	"spider/src/cf/genUrl"
 
 	"github.com/go-resty/resty/v2"
@@ -16,7 +15,6 @@ func request(id int, name string, prepareBy string) []any {
 		From:      1,
 		Count:     50000,
 	})
-	fmt.Println(url)
 	var result map[string]any
 	_, err := c.R().
 		SetResult(&result).

@@ -1,16 +1,19 @@
 package team_contest_problems
 
-import "spider/config/db"
+import (
+	"spider/config/db"
+)
 
-func getOfficialProblems() (arr []db.Cf_official_problems) {
-	rows, err := db.Pool.Query("select * from cf_official_problems")
+func getOfficialProblems() (arr map[string]string) {
+	arr = make(map[string]string)
+	rows, err := db.Pool.Query("select Problem_id,Title from cf_official_problems")
 	if err != nil {
 		return nil
 	}
 	for rows.Next() {
 		var table db.Cf_official_problems
 		rows.Scan(&table.Problem_id, &table.Title)
-		arr = append(arr, table)
+		arr[table.Title] = table.Problem_id
 	}
 	return arr
 }

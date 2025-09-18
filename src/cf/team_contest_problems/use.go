@@ -10,8 +10,10 @@ var contest genUrl.Contest
 var id int
 var name string
 var prepareBy string
+var officialProblems map[string]string
 
 func Use() {
+	officialProblems = getOfficialProblems()
 	rows, err := db2.Pool.Query("select contest_id,contest_name,prepare_by from cf_team_contests")
 	if err != nil {
 		return
@@ -27,6 +29,7 @@ func Use() {
 			fillTable(v, &table)
 			err := db2.Insert_team_questions(table)
 			if err != nil {
+				fmt.Println(err)
 				continue
 			}
 			count++
