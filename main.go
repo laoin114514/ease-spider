@@ -24,8 +24,7 @@ var former int64 = 0
 func main() {
 	db.Init()
 	defer db.Pool.Close()
-	team_contest_problems.Use()
-	return
+
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 

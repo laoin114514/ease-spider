@@ -38,7 +38,7 @@ func Use() {
 		has = getOldData(uid)
 		count := loopRequest(page, false)
 		if len(has) != int(totalCount)+count {
-			errs = append(errs, fmt.Sprintf("%s少插入%d条 重新获取中...\n", username, int(totalCount)-len(has)))
+			errs = append(errs, fmt.Sprintf("%s少插入%d条 重新获取中...", username, int(totalCount)-len(has)))
 			go loopRequest(page, true)
 			time.Sleep(2 * time.Second)
 			continue

@@ -29,7 +29,6 @@ func Use() {
 			fillTable(v, &table)
 			err := db2.Insert_team_questions(table)
 			if err != nil {
-				fmt.Println(err)
 				continue
 			}
 			count++
