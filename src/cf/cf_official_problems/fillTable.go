@@ -1,4 +1,4 @@
-package cfOfficial
+package cf_official_problems
 
 import (
 	"fmt"

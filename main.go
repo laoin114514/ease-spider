@@ -5,7 +5,7 @@ import (
 	"spider/component"
 	"spider/config/db"
 	"spider/src/cf/cfBetterSub"
-	cfOfficial "spider/src/cf/cf_official"
+	"spider/src/cf/cf_official_problems"
 	"spider/src/cf/genUrl"
 	"spider/src/cf/team_contest_problems"
 	teamtainning "spider/src/cf/team_contests"
@@ -24,7 +24,8 @@ var former int64 = 0
 func main() {
 	db.Init()
 	defer db.Pool.Close()
-
+	team_contest_problems.Use()
+	return
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 
@@ -65,7 +66,7 @@ func action() {
 	}()
 	go func() {
 		wg.Add(1)
-		cfOfficial.Use()
+		cf_official_problems.Use()
 		wg.Done()
 	}()
 	go func() {

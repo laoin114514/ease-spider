@@ -16,9 +16,13 @@ func request(id int, name string, prepareBy string) []any {
 		Count:     50000,
 	})
 	var result map[string]any
-	_, err := c.R().
+	resp, err := c.R().
 		SetResult(&result).
 		Get(url)
+	status := resp.StatusCode()
+	if status == 429 {
+		errorCount++
+	}
 	if err != nil {
 		return []any{}
 	}
