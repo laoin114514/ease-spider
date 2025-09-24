@@ -20,9 +20,8 @@ type chParm struct {
 	prepareBy string
 }
 
-func Use() {
+func Use(concurrency int) {
 	countTime.Start()
-	concurrency := 3
 	ch := make(chan chParm, concurrency)
 	officialProblems = getOfficialProblems()
 

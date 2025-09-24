@@ -7,14 +7,14 @@ import (
 	db2 "spider/config/db"
 )
 
-func handle(result []any, count *int, allCatch bool, hasMap map[string]bool) error {
+func handle(result []any, count *int, allCatch bool, parm parm) error {
 	for _, v := range result {
 		v := v.(map[string]any)
 		var table db2.Luogu_all_submissions
 		fillTable(v, &table)
-		if hasMap[table.Sub_id] && !allCatch {
+		if parm.has[table.Sub_id] && !allCatch {
 			return errors.New("重复")
-		} else if hasMap[table.Sub_id] && allCatch {
+		} else if parm.has[table.Sub_id] && allCatch {
 			continue
 		}
 		err := db2.Insert_luogu_sub(table)
@@ -41,9 +41,9 @@ func getOldData(uid string) map[string]bool {
 	}
 	return has
 }
-func countPage(data map[string]any) int {
-	totalCount = data["count"].(float64)
+func countPage(data map[string]any, parm *parm) int {
+	parm.totalCount = data["count"].(float64)
 	perPage := data["perPage"].(float64)
-	page := int(math.Ceil(totalCount / perPage))
+	page := int(math.Ceil(parm.totalCount / perPage))
 	return page
 }
