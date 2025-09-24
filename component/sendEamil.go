@@ -7,6 +7,11 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
+func initEmail() *gomail.Message {
+	m := gomail.NewMessage()
+	m.SetHeader("From", "2908451607@qq.com")
+	return m
+}
 func SenEamil(to ...string) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", "2908451607@qq.com")

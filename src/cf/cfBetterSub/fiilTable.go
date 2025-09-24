@@ -23,8 +23,8 @@ func fillSubTable(result map[string]any, table *db.Cf_all_submissions) {
 	} else {
 		table.Verdict = result["verdict"].(string)
 	}
-	t := int(result["creationTimeSeconds"].(float64))
-	table.Creation_time = time.Unix(int64(t), 0)
+	t := int64(result["creationTimeSeconds"].(float64))
+	table.Creation_time = time.Unix(t+8*3600, 0)
 }
 func fiilNeverPass(result map[string]any, table *db.Cf_never_pass) {
 	table.Problem_id = fmt.Sprintf("%d", int(result["problem"].(map[string]any)["contestId"].(float64))) + result["problem"].(map[string]any)["index"].(string)

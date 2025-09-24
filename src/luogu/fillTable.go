@@ -12,10 +12,6 @@ var difficultys = []string{"grey", "red", "brown", "yellow", "green", "blue", "p
 func fillTable(obj map[string]any, table *db.Luogu_all_submissions) error {
 	table.Sub_id = fmt.Sprintf("%d", int(obj["id"].(float64)))
 	problem := obj["problem"].(map[string]any)
-	user, ok := obj["user"].(map[string]any)
-	if !ok {
-		return errors.New("不存在user")
-	}
 	difficulty := problem["difficulty"].(float64)
 	table.Difficulty = difficultys[int(difficulty)]
 	if obj["status"].(float64) != 12 {
@@ -25,9 +21,12 @@ func fillTable(obj map[string]any, table *db.Luogu_all_submissions) error {
 		table.Is_pass = true
 	}
 	table.Problem_name = problem["title"].(string)
-	table.Uid = fmt.Sprintf("%d", int(user["uid"].(float64)))
-	stamp := time.Unix(int64(obj["submitTime"].(float64)), 1)
-	table.Creation_time = stamp
+	table.Creation_time = time.Unix(int64(obj["submitTime"].(float64))+8*3600, 1)
 	table.Problem_id = problem["pid"].(string)
+	user, ok := obj["user"].(map[string]any)
+	if !ok {
+		return errors.New("不存在user")
+	}
+	table.Uid = fmt.Sprintf("%d", int(user["uid"].(float64)))
 	return nil
 }

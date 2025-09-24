@@ -17,6 +17,7 @@ func allSubHandle(results []any) int {
 		}
 		err := db2.Insert_cf_all_sub(table)
 		if err != nil {
+			fmt.Println(err)
 			continue
 		}
 		count++

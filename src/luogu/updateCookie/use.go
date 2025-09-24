@@ -12,7 +12,7 @@ func Use() {
 	request2.ChooseMth("luo2908451607")
 	request2.GetCaptcha()
 	request2.RedirCaptcha()
-	captcha, err := component.Identify(false)
+	captcha, err := component.Identify(true)
 	if err != nil {
 		return
 	}

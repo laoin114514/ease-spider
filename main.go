@@ -28,7 +28,7 @@ func main() {
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 
-	ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(60 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
@@ -78,7 +78,8 @@ func action() {
 		luogu.Use()
 		wg.Done()
 	}()
-	time.Sleep(2 * time.Second)
+	time.Sleep(5 * time.Second) //等待wg.Add生效
 	wg.Wait()
+
 	countTime.End()
 }

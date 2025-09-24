@@ -1,7 +1,5 @@
 package db
 
-import "errors"
-
 func Insert_luogu_sub(table Luogu_all_submissions) error {
 	_, err := Pool.Exec("insert into luogu_all_submissions (Sub_id, Uid,Is_pass, Creation_time, Problem_name, Difficulty, Problem_id) values (?,?,?,?,?,?,?)",
 		table.Sub_id,
@@ -43,7 +41,7 @@ func Insert_cf_all_sub(table Cf_all_submissions) error {
 		table.Creation_time,
 	)
 	if err != nil {
-		return errors.New("数据更新完毕")
+		return err
 	}
 	return nil
 }

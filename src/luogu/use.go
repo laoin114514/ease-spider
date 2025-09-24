@@ -37,9 +37,9 @@ func Use() {
 		page := countPage(result)
 		has = getOldData(uid)
 		count := loopRequest(page, false)
-		if len(has) != int(totalCount)+count {
+		if len(has)+count != int(totalCount) {
 			errs = append(errs, fmt.Sprintf("%s少插入%d条 重新获取中...", username, int(totalCount)-len(has)))
-			go loopRequest(page, true)
+			loopRequest(page, true)
 			time.Sleep(2 * time.Second)
 			continue
 		}
@@ -69,7 +69,7 @@ func loopRequest(page int, allCatch bool) int {
 		}
 	}
 	if allCatch {
-		fmt.Printf("洛谷重新插入%d条 %s\n", count, username1)
+		errs = append(errs, fmt.Sprintf("洛谷重新插入%d条 %s\n", count, username1))
 	}
 	return count
 }
