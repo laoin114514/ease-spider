@@ -5,6 +5,7 @@ import (
 	"spider/component"
 	db2 "spider/config/db"
 	"spider/src/cf/genUrl"
+	"sync"
 	"time"
 )
 
@@ -13,6 +14,7 @@ var contest genUrl.Contest
 var count int
 var officialProblems map[string]string
 var countTime component.CountTime
+var wg sync.WaitGroup
 
 type chParm struct {
 	id        int
@@ -51,12 +53,14 @@ func Use(concurrency int) {
 	}
 
 	close(ch)
-	fmt.Printf("插入%d条训练赛题目  请求超频 %d 次\n", count, errorCount)
+	wg.Wait()
+	fmt.Printf("插入%d条训练赛题目  请求超频 %d 次   ", count, errorCount)
 	countTime.End()
 }
 
 func worker(ch <-chan chParm) {
 	for parm := range ch {
+		wg.Add(1)
 		problems := request(parm.id, parm.name, parm.prepareBy)
 		for _, v := range problems {
 			v := v.(map[string]any)
@@ -69,5 +73,6 @@ func worker(ch <-chan chParm) {
 			}
 			count++
 		}
+		wg.Done()
 	}
 }

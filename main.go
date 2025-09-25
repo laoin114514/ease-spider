@@ -24,24 +24,20 @@ var former int64 = 0
 func main() {
 	db.Init()
 	defer db.Pool.Close()
-	updatecookie.Use(false)
-	// team_contest_problems.Use(3)
-	// return
-	luogu.Use(10)
-	return
+
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 
-	ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
 		now = time.Now()
 		current := now.Unix()
-		if (current - former) > 5*3000 {
+		if (current - former) > 2*3600 {
 			fmt.Println(component.NowDateTime())
-			updatecookie.Use(false)
-			component.SenEamil("2908451607@qq.com")
+			updatecookie.Use(true)
+			component.SenEamil("3247428622@qq.com")
 			former = current
 			action()
 		}
@@ -79,7 +75,7 @@ func action() {
 	}()
 	go func() {
 		wg.Add(1)
-		luogu.Use(3)
+		luogu.Use(10)
 		wg.Done()
 	}()
 	time.Sleep(2 * time.Second) //等待wg.Add生效

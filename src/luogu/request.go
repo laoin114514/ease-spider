@@ -6,7 +6,10 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+var reqTimes []int
+
 func request(uid string, page int) map[string]any {
+	countTime.Start()
 	cookie := tempDB.Get("Cookie").(string)
 	c := resty.New()
 	var result map[string]any
@@ -33,5 +36,6 @@ func request(uid string, page int) map[string]any {
 	if result["code"].(float64) != 200 {
 		return nil
 	}
+	reqTimes = append(reqTimes, int(countTime.EndWithInt()))
 	return result["currentData"].(map[string]any)["records"].(map[string]any)
 }

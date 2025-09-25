@@ -59,6 +59,11 @@ func Use(concurrency int) {
 		fmt.Println(v)
 	}
 	countTime.End()
+	timeSum := 0
+	for _, v := range reqTimes {
+		timeSum += v
+	}
+	fmt.Printf("请求平均时长 %dms\n", timeSum/len(reqTimes))
 	fmt.Println("=====================================================================")
 }
 func worker(ch <-chan parm) {
