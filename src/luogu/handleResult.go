@@ -39,6 +39,7 @@ func getOldData(uid string) map[string]bool {
 		rows.Scan(&id)
 		has[id] = true
 	}
+	rows.Close()
 	return has
 }
 func countPage(data map[string]any, parm *parm) int {

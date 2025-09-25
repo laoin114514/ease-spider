@@ -22,8 +22,12 @@ func request(uid string, page int) map[string]any {
 		errs = append(errs, fmt.Sprintf("请求失败  %d", resp.StatusCode()))
 		return nil
 	}
-	if result["code"].(float64) != 200 {
-		errs = append(errs, fmt.Sprintf("请求失败  %.0f", result["code"]))
+	code, ok := result["code"].(float64)
+	if !ok {
+		return nil
+	}
+	if code != 200 {
+		errs = append(errs, fmt.Sprintf("请求失败  %.0f", code))
 		return nil
 	}
 	if err != nil {

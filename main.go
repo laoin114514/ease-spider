@@ -22,31 +22,51 @@ var tempDB component.TempDB
 var former int64 = 0
 
 func main() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+
 	db.Init()
 	defer db.Pool.Close()
 
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
-
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
-
-	for range ticker.C {
-		now = time.Now()
-		current := now.Unix()
-		if (current - former) > 2*3600 {
-			fmt.Println(component.NowDateTime())
-			updatecookie.Use(true)
-			component.SenEamil("3247428622@qq.com")
-			former = current
-			action()
+	go func() {
+		//该计时器按天爬取打卡、官方题、团队赛等
+		fmt.Println("计时器1启动")
+		updatecookie.Use(false)
+		ticker := time.NewTicker(24 * time.Hour)
+		defer ticker.Stop()
+		for range ticker.C {
+			action1()
 		}
-	}
+	}()
+	go func() {
+		//该计时器爬取洛谷过题记录
+		fmt.Println("计时器2启动")
+		ticker := time.NewTicker(60 * time.Second)
+		defer ticker.Stop()
+		for range ticker.C {
+			luogu.Use(10)
+		}
+	}()
+	go func() {
+		//该计时器爬取cf提交记录
+		fmt.Println("计时器3启动")
+		ticker := time.NewTicker(4 * time.Hour)
+		defer ticker.Stop()
+		for range ticker.C {
+			cfBetterSub.Use()
+		}
+	}()
+
+	wg.Wait()
 }
-func action() {
+func action1() {
 	var wg sync.WaitGroup
 	countTime.Start()
-
+	fmt.Println(component.NowDateTime())
+	updatecookie.Use(true)
+	component.SenEamil("3247428622@qq.com")
 	//功能区
 	go func() {
 		wg.Add(1)
@@ -66,16 +86,6 @@ func action() {
 	go func() {
 		wg.Add(1)
 		cf_official_problems.Use()
-		wg.Done()
-	}()
-	go func() {
-		wg.Add(1)
-		cfBetterSub.Use()
-		wg.Done()
-	}()
-	go func() {
-		wg.Add(1)
-		luogu.Use(10)
 		wg.Done()
 	}()
 	time.Sleep(2 * time.Second) //等待wg.Add生效

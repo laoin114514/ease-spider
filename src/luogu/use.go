@@ -24,6 +24,8 @@ type parm struct {
 var wg sync.WaitGroup
 
 func Use(concurrency int) {
+	errs = []string{}
+	outputs = []string{}
 	countTime.Start()
 	ch := make(chan parm, concurrency)
 	rows, err := db.Pool.Query("SELECT u.real_name,p.luogu_uid FROM user as u,oj_account as p WHERE u.id=p.user_id&&(u.role_id=1||u.role_id=3);")
@@ -50,21 +52,28 @@ func Use(concurrency int) {
 	}
 	close(ch)
 	wg.Wait()
-	fmt.Println("============================洛谷提交情况============================")
+	content := ""
+	dateTime := component.NowDateTime()
+	content += "============================ " + dateTime + " ============================\n"
 	for _, v := range outputs {
-		fmt.Println(v)
+		content += v + "\n"
 	}
 	fmt.Println()
 	for _, v := range errs {
-		fmt.Println(v)
+		content += v + "\n"
 	}
-	countTime.End()
 	timeSum := 0
 	for _, v := range reqTimes {
 		timeSum += v
 	}
-	fmt.Printf("请求平均时长 %dms\n", timeSum/len(reqTimes))
-	fmt.Println("=====================================================================")
+	content += fmt.Sprintf("请求平均时长 %dms\n", timeSum/len(reqTimes))
+	content += countTime.EndWithStr()
+	err1 := component.CoverFile("log/luogu.log", content)
+	if err1 != nil {
+		fmt.Println(err1)
+		return
+	}
+	fmt.Println("获取洛谷过题成功")
 }
 func worker(ch <-chan parm) {
 	for c := range ch {

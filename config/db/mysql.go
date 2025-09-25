@@ -32,3 +32,24 @@ func Init() {
 	fmt.Println("数据库连接成功")
 
 }
+func New() *sql.DB {
+	godotenv.Load()
+	account := os.Getenv("ACCOUNT")
+	password := os.Getenv("PASSWORD")
+	url := os.Getenv("URL")
+	mysqldb := os.Getenv("DATEBASE")
+	dataSource := fmt.Sprintf("%v:%v@tcp(%v)/%v?charset=utf8mb4&parseTime=True", account, password, url, mysqldb)
+	var err error
+	pool, err := sql.Open(
+		"mysql",
+		dataSource,
+	)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if err := pool.Ping(); err != nil {
+		fmt.Println("数据库连接失败: ", err)
+	}
+	fmt.Println("数据库连接成功")
+	return pool
+}
