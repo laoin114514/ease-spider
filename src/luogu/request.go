@@ -2,6 +2,7 @@ package luogu
 
 import (
 	"fmt"
+	"spider/component"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -9,6 +10,7 @@ import (
 var reqTimes []int
 
 func request(uid string, page int) map[string]any {
+	var countTime component.CountTime
 	countTime.Start()
 	cookie := tempDB.Get("Cookie").(string)
 	c := resty.New()

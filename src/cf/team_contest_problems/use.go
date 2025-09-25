@@ -13,6 +13,7 @@ var errorCount int
 var contest genUrl.Contest
 var count int
 var officialProblems map[string]string
+
 var countTime component.CountTime
 var wg sync.WaitGroup
 
@@ -22,10 +23,15 @@ type chParm struct {
 	prepareBy string
 }
 
+func initData() {
+	errorCount = 0
+	count = 0
+	officialProblems = getOfficialProblems()
+}
 func Use(concurrency int) {
+	initData()
 	countTime.Start()
 	ch := make(chan chParm, concurrency)
-	officialProblems = getOfficialProblems()
 
 	rows, err := db2.Pool.Query("select contest_id,contest_name,prepare_by from cf_team_contests")
 	if err != nil {

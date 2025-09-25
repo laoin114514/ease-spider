@@ -12,8 +12,6 @@ var pass int
 var outputs []string
 var errs []string
 
-var countTime component.CountTime
-
 type parm struct {
 	username   string
 	uid        string
@@ -23,11 +21,16 @@ type parm struct {
 
 var wg sync.WaitGroup
 
-func Use(concurrency int) {
-	errs = []string{}
+func initData() {
+	pass = 0
 	outputs = []string{}
+	errs = []string{}
+}
+func Use(concurrency int) {
+	var countTime component.CountTime
 	countTime.Start()
 	ch := make(chan parm, concurrency)
+	initData()
 	rows, err := db.Pool.Query("SELECT u.real_name,p.luogu_uid FROM user as u,oj_account as p WHERE u.id=p.user_id&&(u.role_id=1||u.role_id=3);")
 	defer rows.Close()
 	if err != nil {

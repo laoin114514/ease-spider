@@ -4,9 +4,9 @@ import (
 	db2 "spider/config/db"
 )
 
-func neverPassHandle(results []any) (int, int) {
-	passSet := calPassSet(results)
-	insertArr := calInsertArr(results, passSet)
+func neverPassHandle(results []any, parm chanParm) (int, int) {
+	passSet := calPassSet(results, parm)
+	insertArr := calInsertArr(results, passSet, parm)
 	nePaCount := 0
 	for _, table := range insertArr {
 		err := db2.Insert_never_pass(table)
@@ -15,18 +15,18 @@ func neverPassHandle(results []any) (int, int) {
 		}
 		nePaCount++
 	}
-	delCount := deletePass(handle, passSet)
+	delCount := deletePass(parm.handle, passSet)
 	return nePaCount, delCount
 }
 
-func calInsertArr(results []any, passSet map[string]bool) []db2.Cf_never_pass {
+func calInsertArr(results []any, passSet map[string]bool, parm chanParm) []db2.Cf_never_pass {
 	//返回需要插入的从未通过的题目数组
 	insertArr := []db2.Cf_never_pass{}
 	has := map[string]bool{}
 	for _, result := range results {
 		result := result.(map[string]any)
 		var neverPassTable db2.Cf_never_pass
-		fiilNeverPass(result, &neverPassTable)
+		fiilNeverPass(result, &neverPassTable, parm)
 		if passSet[neverPassTable.Problem_id] {
 			continue
 		}
@@ -38,12 +38,12 @@ func calInsertArr(results []any, passSet map[string]bool) []db2.Cf_never_pass {
 	return insertArr
 }
 
-func calPassSet(results []any) map[string]bool {
+func calPassSet(results []any, parm chanParm) map[string]bool {
 	passSet := map[string]bool{}
 	for _, result := range results {
 		result := result.(map[string]any)
 		var table db2.Cf_all_submissions
-		fillSubTable(result, &table)
+		fillSubTable(result, &table, parm)
 		if table.Verdict == "OK" {
 			passSet[table.Problem_id] = true
 		}

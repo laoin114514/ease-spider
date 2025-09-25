@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func fillSubTable(result map[string]any, table *db.Cf_all_submissions) {
-	table.Account = handle
+func fillSubTable(result map[string]any, table *db.Cf_all_submissions, parm chanParm) {
+	table.Account = parm.handle
 	table.Sub_id = int(result["id"].(float64))
 	table.Problem_id = fmt.Sprintf("%d", int(result["problem"].(map[string]any)["contestId"].(float64))) + result["problem"].(map[string]any)["index"].(string)
 	table.Problem_name = result["problem"].(map[string]any)["name"].(string)
@@ -26,9 +26,9 @@ func fillSubTable(result map[string]any, table *db.Cf_all_submissions) {
 	t := int64(result["creationTimeSeconds"].(float64))
 	table.Creation_time = time.Unix(t+8*3600, 0)
 }
-func fiilNeverPass(result map[string]any, table *db.Cf_never_pass) {
+func fiilNeverPass(result map[string]any, table *db.Cf_never_pass, parm chanParm) {
 	table.Problem_id = fmt.Sprintf("%d", int(result["problem"].(map[string]any)["contestId"].(float64))) + result["problem"].(map[string]any)["index"].(string)
-	table.Account = handle
+	table.Account = parm.handle
 	table.Problem_name = result["problem"].(map[string]any)["name"].(string)
 	rating := result["problem"].(map[string]any)["rating"]
 	if rating != nil {

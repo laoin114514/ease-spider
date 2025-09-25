@@ -43,7 +43,7 @@ func main() {
 	go func() {
 		//该计时器爬取洛谷过题记录
 		fmt.Println("计时器2启动")
-		ticker := time.NewTicker(60 * time.Second)
+		ticker := time.NewTicker(10 * time.Minute)
 		defer ticker.Stop()
 		for range ticker.C {
 			luogu.Use(10)
@@ -52,10 +52,10 @@ func main() {
 	go func() {
 		//该计时器爬取cf提交记录
 		fmt.Println("计时器3启动")
-		ticker := time.NewTicker(4 * time.Hour)
+		ticker := time.NewTicker(5 * time.Minute)
 		defer ticker.Stop()
 		for range ticker.C {
-			cfBetterSub.Use()
+			cfBetterSub.Use(5)
 		}
 	}()
 

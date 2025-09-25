@@ -5,13 +5,13 @@ import (
 	db2 "spider/config/db"
 )
 
-func allSubHandle(results []any) int {
+func allSubHandle(results []any, parm chanParm) int {
 	count := 0
-	oldData := getOldData()
+	oldData := getOldData(parm)
 	for _, result := range results {
 		result := result.(map[string]any)
 		var table db2.Cf_all_submissions
-		fillSubTable(result, &table)
+		fillSubTable(result, &table, parm)
 		if oldData[table.Sub_id] {
 			continue
 		}
@@ -24,8 +24,8 @@ func allSubHandle(results []any) int {
 	}
 	return count
 }
-func getOldData() map[int]bool {
-	rows, err := db2.Pool.Query("select sub_id from cf_all_submissions where account=?", handle)
+func getOldData(parm chanParm) map[int]bool {
+	rows, err := db2.Pool.Query("select sub_id from cf_all_submissions where account=?", parm.handle)
 	if err != nil {
 		fmt.Println(err)
 		return nil
