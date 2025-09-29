@@ -45,16 +45,19 @@ func Use(concurrency int) {
 		has := getOldData(uid)
 		parms = append(parms, parm{username: username, uid: uid, has: has})
 	}
-	//构建并发函数
+
+	//构建并发池
 	for i := 0; i < concurrency && i < len(parms); i++ {
 		go worker(ch)
 	}
+
 	//发布所有任务
 	for _, v := range parms {
 		ch <- v
 	}
 	close(ch)
 	wg.Wait()
+
 	content := ""
 	dateTime := component.NowDateTime()
 	content += "============================ " + dateTime + " ============================\n"
