@@ -9,7 +9,7 @@ import (
 func Use(isInServer bool) {
 	request.Init()
 	request.InitRedirect()
-	request.ChooseMth("luo2908451607")
+	request.ChooseMth("laoi请问")
 	request.GetCaptcha()
 	request.RedirCaptcha()
 	captcha, err := component.Identify(isInServer)

@@ -11,8 +11,8 @@ func Login(captcha string) {
 	cookie := tempDB.Get("cookie1").(string) + "; " + tempDB.Get("cookie2").(string)
 	resp, err := c.R().
 		SetBody(map[string]any{
-			"username": "luo2908451607",
-			"password": "683305SAO",
+			"username": "laoin",
+			"password": "683305SAo",
 			"captcha":  captcha,
 		}).
 		SetHeader("Cookie", cookie).

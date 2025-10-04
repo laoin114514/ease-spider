@@ -14,6 +14,9 @@ type CountTime struct {
 	Duration  int64 `ms`
 }
 
+func NewCountTimer() *CountTime {
+	return &CountTime{}
+}
 func (c *CountTime) Start() {
 	c.StartTime = time.Now().UnixMilli()
 }
@@ -32,6 +35,13 @@ func (c *CountTime) EndWithStr() string {
 	c.EndTime = time.Now().UnixMilli()
 	c.Duration = c.EndTime - c.StartTime
 	return fmt.Sprintf("总耗时:%ds/%dms   \n", c.Duration/1000, c.Duration)
+}
+
+type DateFormat struct {
+}
+
+func NewDateFormat() *DateFormat {
+	return &DateFormat{}
 }
 func DateTime(rawStamp int64) string {
 	stamp := time.Unix(rawStamp, 1)

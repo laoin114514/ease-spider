@@ -14,6 +14,8 @@ import (
 	updatecookie "spider/src/luogu/updateCookie"
 	"sync"
 	"time"
+
+	"github.com/go-resty/resty/v2"
 )
 
 var User genUrl.User
@@ -24,10 +26,21 @@ var former int64 = 0
 func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
-
+	func() {
+		c := resty.New()
+		for i := 0; i < 100; i++ {
+			resp, err := c.R().Get("https://laoin.work/api/blogs/848044096939?userId=552390554345")
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println(string(resp.Body()))
+		}
+	}()
+	return
 	db.Init()
+	action1()
 	defer db.Pool.Close()
-
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 	go func() {
@@ -43,7 +56,7 @@ func main() {
 	go func() {
 		//该计时器爬取洛谷过题记录
 		fmt.Println("计时器2启动")
-		ticker := time.NewTicker(10 * time.Minute)
+		ticker := time.NewTicker(1 * time.Minute)
 		defer ticker.Stop()
 		for range ticker.C {
 			luogu.Use(10)
@@ -52,7 +65,7 @@ func main() {
 	go func() {
 		//该计时器爬取cf提交记录
 		fmt.Println("计时器3启动")
-		ticker := time.NewTicker(5 * time.Minute)
+		ticker := time.NewTicker(1 * time.Minute)
 		defer ticker.Stop()
 		for range ticker.C {
 			cfBetterSub.Use(5)
@@ -65,7 +78,7 @@ func action1() {
 	var wg sync.WaitGroup
 	countTime.Start()
 	fmt.Println(component.NowDateTime())
-	updatecookie.Use(true)
+	updatecookie.Use(false)
 	component.SenEamil("3247428622@qq.com")
 	//功能区
 	go func() {

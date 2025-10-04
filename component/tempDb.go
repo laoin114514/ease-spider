@@ -11,6 +11,9 @@ var tempDB TempDB
 type TempDB struct {
 }
 
+func NewTempDB() TempDB {
+	return TempDB{}
+}
 func getOldData() map[string]any {
 	oldDataStr, err := os.ReadFile("tempDB.json")
 	if err != nil {
