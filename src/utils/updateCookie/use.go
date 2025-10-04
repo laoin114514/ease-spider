@@ -2,8 +2,8 @@ package updatecookie
 
 import (
 	"fmt"
-	"spider/src/luogu/updateCookie/component"
-	"spider/src/luogu/updateCookie/request"
+	"spider/src/utils/updateCookie/component"
+	"spider/src/utils/updateCookie/request"
 )
 
 func Use(isInServer bool) {

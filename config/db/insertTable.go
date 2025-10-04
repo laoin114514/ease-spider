@@ -16,6 +16,27 @@ func Insert_luogu_sub(table Luogu_all_submissions) error {
 	return nil
 }
 
+// 批量插入，性能更好
+func BatchInsert_luogu_sub(tables []Luogu_all_submissions) error {
+	if len(tables) == 0 {
+		return nil
+	}
+
+	query := "insert into luogu_all_submissions (Sub_id, Uid, Is_pass, Creation_time, Problem_name, Difficulty, Problem_id) values "
+	args := make([]interface{}, 0, len(tables)*7)
+
+	for i, table := range tables {
+		if i > 0 {
+			query += ","
+		}
+		query += "(?,?,?,?,?,?,?)"
+		args = append(args, table.Sub_id, table.Uid, table.Is_pass, table.Creation_time, table.Problem_name, table.Difficulty, table.Problem_id)
+	}
+
+	_, err := Pool.Exec(query, args...)
+	return err
+}
+
 func Insert_checkup(table Ding_checkUp) error {
 	_, err := Pool.Exec("insert into ding_checkup (name,ding_id,time,check_type) values (?,?,?,?)",
 		table.Name,

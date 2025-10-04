@@ -11,11 +11,11 @@ import (
 	teamtainning "spider/src/cf/team_contests"
 	"spider/src/dingding"
 	"spider/src/luogu"
-	updatecookie "spider/src/luogu/updateCookie"
+	"spider/src/services"
+	"spider/src/utils"
+	updatecookie "spider/src/utils/updateCookie"
 	"sync"
 	"time"
-
-	"github.com/go-resty/resty/v2"
 )
 
 var User genUrl.User
@@ -24,23 +24,15 @@ var tempDB component.TempDB
 var former int64 = 0
 
 func main() {
-	var wg sync.WaitGroup
-	wg.Add(1)
-	func() {
-		c := resty.New()
-		for i := 0; i < 100; i++ {
-			resp, err := c.R().Get("https://laoin.work/api/blogs/848044096939?userId=552390554345")
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			fmt.Println(string(resp.Body()))
-		}
-	}()
-	return
+	utils.InitGlobalJSONDB("tempDB.json")
+	wg := sync.WaitGroup{}
 	db.Init()
-	action1()
 	defer db.Pool.Close()
+	updatecookie.Use(false)
+	luoguService := services.NewLuoguService()
+	luoguService.GetLuoguUsersRecords(10)
+	luoguService.Log()
+	return
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 	go func() {
