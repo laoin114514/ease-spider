@@ -10,7 +10,6 @@ import (
 	"spider/src/cf/team_contest_problems"
 	teamtainning "spider/src/cf/team_contests"
 	"spider/src/dingding"
-	"spider/src/luogu"
 	"spider/src/services"
 	"spider/src/utils"
 	updatecookie "spider/src/utils/updateCookie"
@@ -30,7 +29,7 @@ func main() {
 	defer db.Pool.Close()
 	updatecookie.Use(false)
 	luoguService := services.NewLuoguService()
-	luoguService.GetLuoguUsersRecords(10)
+	luoguService.GetLuoguUsersRecords(4)
 	luoguService.Log()
 	return
 	now := time.Now()
@@ -51,7 +50,7 @@ func main() {
 		ticker := time.NewTicker(1 * time.Minute)
 		defer ticker.Stop()
 		for range ticker.C {
-			luogu.Use(10)
+			luoguService.GetLuoguUsersRecords(10)
 		}
 	}()
 	go func() {

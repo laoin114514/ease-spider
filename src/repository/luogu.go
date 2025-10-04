@@ -13,19 +13,20 @@ func NewLuoguRepository() *LuoguRepository {
 }
 
 // 获取用户姓名和洛谷UID
-func (r *LuoguRepository) GetUserNameMap() ([]map[string]string, error) {
-	rows, err := db.Pool.Query("SELECT u.real_name,p.luogu_uid FROM user as u,oj_account as p WHERE u.id=p.user_id&&(u.role_id=1||u.role_id=3);")
+func (r *LuoguRepository) GetUserNameMap() ([]models.LuoguUserDeliver, error) {
+	rows, err := db.Pool.Query("SELECT u.real_name,p.luogu_uid FROM user as u,oj_account as p WHERE u.id=p.user_id&&(u.role_id=1||u.role_id=3) and p.luogu_uid is not null and p.luogu_uid != '';")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	userNameMaps := make([]map[string]string, 0)
+	userNameMaps := make([]models.LuoguUserDeliver, 0)
 	for rows.Next() {
 		var realName, luoguUid string
 		rows.Scan(&realName, &luoguUid)
-		userNameMaps = append(userNameMaps, map[string]string{
-			"real_name": realName,
-			"luogu_uid": luoguUid,
+		userNameMaps = append(userNameMaps, models.LuoguUserDeliver{
+			RealName: realName,
+			Uid:      luoguUid,
+			Count:    0,
 		})
 	}
 	return userNameMaps, nil

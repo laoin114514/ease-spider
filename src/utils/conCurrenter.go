@@ -23,8 +23,6 @@ func (c *ConCurrenter[T]) Run(parms []T, f func(T)) {
 	for _, parm := range parms {
 		ch <- parm
 	}
-
-	close(ch)
 	c.wg.Wait()
 }
 
