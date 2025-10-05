@@ -33,42 +33,49 @@ func (l *Luogu) GetLuoguUsersRecords(concurrency int) error {
 	if err != nil {
 		return err
 	}
+
 	//通过并发器来获取洛谷用户提交记录
 	conCurrenter.Run(luoguUserDelivers, func(luoguUser models.LuoguUserDeliver) error {
+
 		//获取初始化数据：总数和每页数量
 		initData, err := l.req.Get("https://www.luogu.com.cn/record/list", map[string]string{"user": luoguUser.Uid, "page": "1", "_contentOnly": "1"})
 		if err != nil {
 			l.log.AddErr(fmt.Sprintf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error()))
 			return err
 		}
-		if initData.CurrentData.Records.Count == 0 {
-			l.log.AddErr(fmt.Sprintf("%s获取提交记录数量为0 %d", luoguUser.RealName, initData.CurrentData.Records.Count))
+		if initData.Code == 404 {
+			l.log.AddErr(fmt.Sprintf("%s的uid不存在", luoguUser.RealName))
 			return err
 		}
-		page := int(math.Ceil(float64(initData.CurrentData.Records.Count) / float64(initData.CurrentData.Records.PerPage)))
+		//计算页数
+		page := l.calculatePage(&initData)
+
+		//增量爬取
 		err = l.loopRequestIncrement(&luoguUser, page)
 		if err != nil {
 			l.log.AddErr(fmt.Sprintf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error()))
 		}
 
-		fmt.Printf("%s爬取实际数量%d，数据库已爬取数量%d\n", luoguUser.RealName, initData.CurrentData.Records.Count, len(luoguUser.OldDataSet)+luoguUser.Count)
-		if len(luoguUser.OldDataSet)+luoguUser.Count < initData.CurrentData.Records.Count {
-			l.log.AddErr(fmt.Sprintf("%s爬取实际数量%d，数据库已爬取数量%d", luoguUser.RealName, initData.CurrentData.Records.Count, len(luoguUser.OldDataSet)+luoguUser.Count))
-			err = l.loopRequestAll(&luoguUser, page)
-			if err != nil {
-				l.log.AddErr(fmt.Sprintf("%s重新获取提交记录失败 %s", luoguUser.RealName, err.Error()))
-				return err
-			}
-			l.log.AddLog(fmt.Sprintf("%s重新获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
+		if len(luoguUser.OldDataSet)+luoguUser.Count == initData.CurrentData.Records.Count {
+			l.log.AddLog(fmt.Sprintf("%s获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
 			return err
 		}
-		l.log.AddLog(fmt.Sprintf("%s获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
+
+		//爬取数据与数据库已爬取数据不一致，进行全量爬取
+		l.log.AddErr(fmt.Sprintf("%s爬取实际数量%d，数据库已爬取数量%d", luoguUser.RealName, initData.CurrentData.Records.Count, len(luoguUser.OldDataSet)+luoguUser.Count))
+		err = l.loopRequestAll(&luoguUser, page)
+		if err != nil {
+			l.log.AddErr(fmt.Sprintf("%s重新获取提交记录失败 %s", luoguUser.RealName, err.Error()))
+			return err
+		}
+
+		l.log.AddLog(fmt.Sprintf("%s重新获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
 		return err
 	})
 	return nil
 }
 
-// 循环获取所有页数的数据
+// 增量爬取不重复数据
 func (l *Luogu) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
 	for i := 1; i <= page; i++ {
@@ -92,6 +99,7 @@ func (l *Luogu) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, page in
 			if strconv.Itoa(int(record.User.UID)) != luoguUser.Uid {
 				record.User.UID, _ = strconv.ParseInt(luoguUser.Uid, 10, 64)
 			}
+
 			if luoguUser.OldDataSet[record.Problem.PID] {
 				fmt.Printf("%s第%d页提交记录已存在 %s\n", luoguUser.RealName, i, record.Problem.PID)
 				return fmt.Errorf("%s第%d页提交记录已存在 %s", luoguUser.RealName, i, record.Problem.PID)
@@ -106,6 +114,8 @@ func (l *Luogu) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, page in
 	}
 	return nil
 }
+
+// 全量爬取所有页数的数据
 func (l *Luogu) loopRequestAll(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
 	for i := 1; i <= page; i++ {
@@ -146,6 +156,11 @@ func (l *Luogu) buildTable(record *models.LuoguRecord) db.Luogu_all_submissions 
 		Is_pass:       record.Status == 12,
 		Creation_time: time.Unix(record.SubmitTime, 0).Add(8 * time.Hour),
 	}
+}
+
+// 计算页数
+func (l *Luogu) calculatePage(luoguRecordsResponse *models.LuoguRecordsResponse) int {
+	return int(math.Ceil(float64(luoguRecordsResponse.CurrentData.Records.Count) / float64(luoguRecordsResponse.CurrentData.Records.PerPage)))
 }
 
 // 打印日志

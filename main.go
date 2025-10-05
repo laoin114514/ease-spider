@@ -26,9 +26,14 @@ func main() {
 	utils.InitGlobalJSONDB("tempDB.json")
 	timer := utils.NewTimer()
 	luoguService := services.NewLuoguService()
+	dingdingService := services.NewDingdingService()
 	wg := sync.WaitGroup{}
 	db.Init()
 	defer db.Pool.Close()
+	dingdingService.GetDingdingCheckUpData()
+	fmt.Println(dingdingService.GetLog())
+	fmt.Println(dingdingService.GetErr())
+	return
 	// updatecookie.Use(false)
 	str := timer.CountDurationStr(func() {
 		luoguService.GetLuoguUsersRecords(10)

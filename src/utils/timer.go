@@ -1,7 +1,11 @@
 package utils
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
+// 计时器
 type Timer struct{}
 
 func NewTimer() *Timer {
@@ -24,4 +28,33 @@ func (t *Timer) CountDurationStr(f func()) string {
 	f()
 	end := time.Since(start).String()
 	return end
+}
+
+// 日期格式化工具
+type DateFormat struct {
+}
+
+func NewDateFormat() *DateFormat {
+	return &DateFormat{}
+}
+func (d *DateFormat) DateTimeWithSecond(rawStamp int64) string {
+	stamp := time.Unix(rawStamp, 1)
+	str := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", stamp.Year(), stamp.Month(), stamp.Day(), stamp.Hour(), stamp.Minute(), stamp.Second())
+	return str
+}
+func (d *DateFormat) NowDateTime() string {
+	now := time.Now()
+	str := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second())
+	return str
+}
+func (d *DateFormat) NowDate() string {
+	now := time.Now()
+	str := fmt.Sprintf("%04d-%02d-%02d", now.Year(), now.Month(), now.Day())
+	return str
+}
+func (d *DateFormat) BeforDateTimeWithDay(day int64) string {
+	now := time.Now()
+	befor := time.Unix(now.Unix()-day*24*3600, 1)
+	str := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", befor.Year(), befor.Month(), befor.Day(), befor.Hour(), befor.Minute(), befor.Second())
+	return str
 }

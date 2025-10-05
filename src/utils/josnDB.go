@@ -7,6 +7,7 @@ import (
 	"sync"
 )
 
+// 文件数据库
 type JSONDB struct {
 	data  map[string]any
 	mutex sync.RWMutex
@@ -64,4 +65,36 @@ func (j *JSONDB) Delete(key string) {
 	defer j.mutex.Unlock()
 	j.data = j.getOldData()
 	delete(j.data, key)
+}
+
+// 内存数据库
+type RAMDB struct {
+	data  map[string]any
+	mutex sync.RWMutex
+}
+
+var RamDB *RAMDB
+
+func InitGlobalRAMDB() {
+	RamDB = NewRAMDB()
+}
+func NewRAMDB() *RAMDB {
+	return &RAMDB{
+		data: make(map[string]any),
+	}
+}
+func (t *RAMDB) Set(key string, value any) {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+	t.data[key] = value
+}
+func (t *RAMDB) Get(key string) any {
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
+	return t.data[key]
+}
+func (t *RAMDB) Delete(key string) {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+	delete(t.data, key)
 }
