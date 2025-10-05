@@ -12,6 +12,10 @@ import (
 	"time"
 )
 
+const (
+	LuoguStatusAccepted = 12
+)
+
 type Luogu struct {
 	repo *repository.LuoguRepository
 	req  *utils.Request[models.LuoguRecordsResponse]
@@ -146,6 +150,7 @@ func (l *Luogu) loopRequestAll(luoguUser *models.LuoguUserDeliver, page int) err
 
 // 构建提交记录表
 func (l *Luogu) buildTable(record *models.LuoguRecord) db.Luogu_all_submissions {
+
 	var difficulty = []string{"grey", "red", "brown", "yellow", "green", "blue", "purple", "black"}
 	return db.Luogu_all_submissions{
 		Sub_id:        fmt.Sprintf("%d", record.ID),
@@ -153,7 +158,7 @@ func (l *Luogu) buildTable(record *models.LuoguRecord) db.Luogu_all_submissions 
 		Problem_id:    record.Problem.PID,
 		Problem_name:  record.Problem.Title,
 		Difficulty:    difficulty[record.Problem.Difficulty],
-		Is_pass:       record.Status == 12,
+		Is_pass:       record.Status == LuoguStatusAccepted,
 		Creation_time: time.Unix(record.SubmitTime, 0).Add(8 * time.Hour),
 	}
 }

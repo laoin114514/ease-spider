@@ -8,7 +8,7 @@ import (
 
 func Login(captcha string) {
 	c := resty.New()
-	cookie := tempDB.Get("cookie1").(string) + "; " + tempDB.Get("cookie2").(string)
+	cookie := JsonDB.Get("cookie1").(string) + "; " + JsonDB.Get("cookie2").(string)
 	resp, err := c.R().
 		SetBody(map[string]any{
 			"username": "laoin",
@@ -28,6 +28,6 @@ func Login(captcha string) {
 	arr := resp.Cookies()
 	uid := arr[0].Name + "=" + arr[0].Value
 	Cookie := cookie + ";" + uid
-	tempDB.Set("Cookie", Cookie)
+	JsonDB.Set("Cookie", Cookie)
 	fmt.Println("登录成功")
 }

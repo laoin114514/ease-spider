@@ -2,6 +2,9 @@ package genUrl
 
 type User struct{}
 
+func NewUser() *User {
+	return &User{}
+}
 func (u *User) Info(query User_info) (string, error) {
 	handleArr := ""
 	for _, handle := range query.Handles {

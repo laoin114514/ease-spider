@@ -3,7 +3,7 @@ package genUrl
 import (
 	"errors"
 	"fmt"
-	"spider/component"
+	"spider/src/utils"
 	"time"
 )
 
@@ -23,7 +23,7 @@ func apiKeyUrl(method string, pararms map[string]any) (string, error) {
 	pararms["apiKey"] = apiKey.ApiKey
 	pararms["time"] = time.Now().Unix()
 	tail := buildPararms(pararms)
-	hashCode := component.Hash(fmt.Sprintf("%v/%v?%v#%v", randomKey, method, tail, apiKey.Secret))
+	hashCode := utils.NewHashEncoder().Hash512(fmt.Sprintf("%v/%v?%v#%v", randomKey, method, tail, apiKey.Secret))
 	return fmt.Sprintf("https://codeforces.com/api/%v?%v&apiSig=%v%v", method, tail, randomKey, hashCode), nil
 }
 func defaultUrl(method string, pararms map[string]any) (string, error) {
