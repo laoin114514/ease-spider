@@ -24,13 +24,17 @@ var former int64 = 0
 
 func main() {
 	utils.InitGlobalJSONDB("tempDB.json")
+	timer := utils.NewTimer()
+	luoguService := services.NewLuoguService()
 	wg := sync.WaitGroup{}
 	db.Init()
 	defer db.Pool.Close()
-	updatecookie.Use(false)
-	luoguService := services.NewLuoguService()
-	luoguService.GetLuoguUsersRecords(4)
-	luoguService.Log()
+	// updatecookie.Use(false)
+	str := timer.CountDurationStr(func() {
+		luoguService.GetLuoguUsersRecords(10)
+		luoguService.Log()
+	})
+	fmt.Println(str)
 	return
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
@@ -50,7 +54,7 @@ func main() {
 		ticker := time.NewTicker(1 * time.Minute)
 		defer ticker.Stop()
 		for range ticker.C {
-			luoguService.GetLuoguUsersRecords(10)
+			luoguService.GetLuoguUsersRecords(1)
 		}
 	}()
 	go func() {

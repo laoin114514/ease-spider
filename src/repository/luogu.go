@@ -23,10 +23,15 @@ func (r *LuoguRepository) GetUserNameMap() ([]models.LuoguUserDeliver, error) {
 	for rows.Next() {
 		var realName, luoguUid string
 		rows.Scan(&realName, &luoguUid)
+		oldDataSet, err := r.GetUserOldDataSet(luoguUid)
+		if err != nil {
+			return nil, err
+		}
 		userNameMaps = append(userNameMaps, models.LuoguUserDeliver{
-			RealName: realName,
-			Uid:      luoguUid,
-			Count:    0,
+			RealName:   realName,
+			Uid:        luoguUid,
+			Count:      0,
+			OldDataSet: oldDataSet,
 		})
 	}
 	return userNameMaps, nil
@@ -40,6 +45,21 @@ func (r *LuoguRepository) GetUserRecordsLength(uid string) (int, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+func (r *LuoguRepository) GetUserOldDataSet(uid string) (map[string]bool, error) {
+	rows, err := db.Pool.Query("select sub_id from luogu_all_submissions where uid=?", uid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	oldDataSet := make(map[string]bool)
+	for rows.Next() {
+		var subId string
+		rows.Scan(&subId)
+		oldDataSet[subId] = true
+	}
+	return oldDataSet, nil
 }
 
 // 批量插入用户提交记录
