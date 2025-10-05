@@ -2,7 +2,15 @@ package component
 
 import "os"
 
-func AppendFile(path, content string) error {
+type FileCtrl struct {
+	path string
+}
+
+func NewFileCtrl(path string) *FileCtrl {
+	return &FileCtrl{path: path}
+}
+func (f *FileCtrl) AppendFile(content string) error {
+	path := f.path
 	file, err1 := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err1 != nil {
 		return err1
@@ -14,7 +22,8 @@ func AppendFile(path, content string) error {
 	}
 	return nil
 }
-func CoverFile(path, content string) error {
+func (f *FileCtrl) CoverFile(content string) error {
+	path := f.path
 	err := os.WriteFile(path, []byte(content), 0644)
 	if err != nil {
 		return err

@@ -9,7 +9,6 @@ import (
 	"spider/src/cf/genUrl"
 	"spider/src/cf/team_contest_problems"
 	teamtainning "spider/src/cf/team_contests"
-	"spider/src/dingding"
 	"spider/src/services"
 	"spider/src/utils"
 	updatecookie "spider/src/utils/updateCookie"
@@ -30,17 +29,14 @@ func main() {
 	wg := sync.WaitGroup{}
 	db.Init()
 	defer db.Pool.Close()
-	dingdingService.GetDingdingCheckUpData()
+	str := timer.CountDurationStr(func() {
+		dingdingService.GetDingdingCheckUpData()
+	})
 	fmt.Println(dingdingService.GetLog())
 	fmt.Println(dingdingService.GetErr())
-	return
-	// updatecookie.Use(false)
-	str := timer.CountDurationStr(func() {
-		luoguService.GetLuoguUsersRecords(10)
-		luoguService.Log()
-	})
 	fmt.Println(str)
 	return
+
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 	go func() {
@@ -81,11 +77,6 @@ func action1() {
 	updatecookie.Use(false)
 	component.SenEamil("3247428622@qq.com")
 	//功能区
-	go func() {
-		wg.Add(1)
-		dingding.Use()
-		wg.Done()
-	}()
 	go func() {
 		wg.Add(1)
 		teamtainning.Use()
