@@ -65,7 +65,7 @@ func Use(concurrency int) {
 	}
 	content += fmt.Sprintf("超频次数%d\n", errCount)
 	content += countTime.EndWithStr()
-	component.CoverFile("log/cf.log", content)
+	// component.CoverFile("log/cf.log", content)
 	fmt.Println("cf获取成功")
 }
 func worker(ch <-chan chanParm) {

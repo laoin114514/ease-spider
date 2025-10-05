@@ -20,6 +20,7 @@ func request(parm chanParm) ([]any, error) {
 		Count:          50000,
 		IncludeSources: false,
 	})
+	fmt.Println(url)
 	if genErr != nil {
 		return nil, genErr
 	}

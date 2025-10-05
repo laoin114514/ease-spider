@@ -23,20 +23,14 @@ var former int64 = 0
 
 func main() {
 	utils.InitGlobalJSONDB("tempDB.json")
-	timer := utils.NewTimer()
+	// timer := utils.NewTimer()
 	luoguService := services.NewLuoguService()
-	dingdingService := services.NewDingdingService()
 	wg := sync.WaitGroup{}
 	db.Init()
 	defer db.Pool.Close()
-	str := timer.CountDurationStr(func() {
-		dingdingService.GetDingdingCheckUpData()
-	})
-	fmt.Println(dingdingService.GetLog())
-	fmt.Println(dingdingService.GetErr())
-	fmt.Println(str)
-	return
 
+	cfBetterSub.Use(5)
+	return
 	now := time.Now()
 	tempDB.Set("startTime", now.Unix())
 	go func() {

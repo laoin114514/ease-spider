@@ -30,7 +30,7 @@ func NewConCurrenterWithTimeout[T any](concurrency int, timeout time.Duration) *
 }
 
 // 并发器主函数
-func (c *ConCurrenter[T]) Run(params []T, f func(T) error) error {
+func (c *ConCurrenter[T]) Run(params []T, handler func(T) error) error {
 	if len(params) == 0 {
 		return nil
 	}
@@ -46,7 +46,7 @@ func (c *ConCurrenter[T]) Run(params []T, f func(T) error) error {
 	// 启动工作协程
 	for i := 0; i < c.concurrency && i < len(params); i++ {
 		c.wg.Add(1)
-		go c.worker(ctx, taskCh, errCh, f)
+		go c.worker(ctx, taskCh, errCh, handler)
 	}
 
 	// 发送任务
@@ -84,7 +84,7 @@ func (c *ConCurrenter[T]) Run(params []T, f func(T) error) error {
 }
 
 // 工作协程
-func (c *ConCurrenter[T]) worker(ctx context.Context, taskCh <-chan T, errCh chan<- error, f func(T) error) {
+func (c *ConCurrenter[T]) worker(ctx context.Context, taskCh <-chan T, errCh chan<- error, handler func(T) error) {
 	defer c.wg.Done()
 
 	for {
@@ -95,7 +95,7 @@ func (c *ConCurrenter[T]) worker(ctx context.Context, taskCh <-chan T, errCh cha
 			}
 
 			// 执行任务
-			if err := f(task); err != nil {
+			if err := handler(task); err != nil {
 				select {
 				case errCh <- err:
 				case <-ctx.Done():
