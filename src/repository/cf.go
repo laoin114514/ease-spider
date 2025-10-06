@@ -46,3 +46,8 @@ func (r *CfRepository) GetCfRecordsInDbToset(account string) (map[int]bool, erro
 	}
 	return cfRecords, nil
 }
+func (r *CfRepository) GetCfApikey(handle string) (string, string, error) {
+	var apikey, secret string
+	db.Pool.QueryRow("SELECT cf_apikey, cf_secret FROM oj_account WHERE cf_account = ?", handle).Scan(&apikey, &secret)
+	return apikey, secret, nil
+}

@@ -13,9 +13,12 @@ func main() {
 	godotenv.Load()
 	db.Init()
 	utils.InitGlobalJSONDB("tempDB.json")
-	structFunc := utils.NewStructFunc(models.User_info{
-		Handles:              []string{"tourist", "test123"},
-		CheckHistoricHandles: true,
+	structFunc := utils.NewStructFunc(models.ContestStandingsParams{
+		Handles:   "tourist",
+		ContestID: 1000,
+		AsManager: true,
+		From:      1,
+		Count:     10,
 	})
 	str, err := structFunc.StructToOrderParams()
 	if err != nil {
