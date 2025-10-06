@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"spider/config/db"
-	"spider/src/models"
+	"spider/src/services"
 	"spider/src/utils"
 
 	"github.com/joho/godotenv"
@@ -13,16 +13,15 @@ func main() {
 	godotenv.Load()
 	db.Init()
 	utils.InitGlobalJSONDB("tempDB.json")
-	structFunc := utils.NewStructFunc(models.ContestStandingsParams{
-		Handles:   "tourist",
-		ContestID: 1000,
-		AsManager: true,
-		From:      1,
-		Count:     10,
-	})
-	str, err := structFunc.StructToOrderParams()
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(str)
+	timer := utils.NewTimer()
+	cfService := services.NewCfService()
+	cfService.CfUserStatus.GetCfRecords(5)
+	fmt.Println(cfService.CfUserStatus.GetLog())
+	fmt.Println(cfService.CfUserStatus.GetErr())
+	fmt.Println("--------------------------------")
+	fmt.Println(timer.CountDurationStr(func() {
+		cfService.CfOfficialProblems.GetCfOfficialProblems()
+	}))
+	fmt.Println(cfService.CfOfficialProblems.GetLog())
+	fmt.Println(cfService.CfOfficialProblems.GetErr())
 }

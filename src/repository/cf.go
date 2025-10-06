@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"spider/config/db"
 	"spider/src/models"
 )
@@ -49,5 +50,8 @@ func (r *CfRepository) GetCfRecordsInDbToset(account string) (map[int]bool, erro
 func (r *CfRepository) GetCfApikey(handle string) (string, string, error) {
 	var apikey, secret string
 	db.Pool.QueryRow("SELECT cf_apikey, cf_secret FROM oj_account WHERE cf_account = ?", handle).Scan(&apikey, &secret)
+	if apikey == "" || secret == "" {
+		return "", "", errors.New("apikey不存在")
+	}
 	return apikey, secret, nil
 }

@@ -6,14 +6,16 @@ import (
 	"spider/src/models"
 	"spider/src/repository"
 	"spider/src/utils"
-	"spider/src/utils/genUrl"
+	"strings"
 	"time"
 )
 
 type CfService struct {
-	CfUserStatus cfUserStatus
+	CfUserStatus       cfUserStatus
+	CfOfficialProblems cfOfficialProblems
 }
 
+// T类型是请求响应的结构体
 type moduleDetail[T any] struct {
 	repo *repository.CfRepository
 	req  *utils.Request[T]
@@ -28,6 +30,14 @@ func NewCfService() *CfService {
 				req:  utils.NewRequest[models.CfUserStatusResponse](),
 				log:  utils.NewLogContainer(),
 			},
+		},
+		CfOfficialProblems: cfOfficialProblems{
+			moduleDetail: moduleDetail[models.CfOfficialProblemsResponse]{
+				repo: repository.NewCfRepository(),
+				req:  utils.NewRequest[models.CfOfficialProblemsResponse](),
+				log:  utils.NewLogContainer(),
+			},
+			count: 0,
 		},
 	}
 }
@@ -48,10 +58,8 @@ func (r *cfUserStatus) GetCfRecords(concurrency int) error {
 		r.log.AddErr(fmt.Sprintf("获取cf用户数据失败 %v", err.Error()))
 		return err
 	}
-
 	//并发获取cf提交记录
 	conCurrenter.Run(cfUserDatas, func(cfUserData models.CfUserData) error {
-
 		//获取db中已有的提交记录
 		var err error
 		cfUserData.OldDataSet, err = r.repo.GetCfRecordsInDbToset(cfUserData.Account)
@@ -59,13 +67,11 @@ func (r *cfUserStatus) GetCfRecords(concurrency int) error {
 			r.log.AddErr(fmt.Sprintf("%s 获取db中已有的提交记录失败 %v", cfUserData.RealName, err))
 			return err
 		}
-
 		//按照cf规则拼接url
-		url, err := genUrl.NewUser().Status(true, genUrl.User_status{
-			Handle:         cfUserData.Account,
-			From:           1,
-			Count:          50000,
-			IncludeSources: false,
+		url, err := utils.NewGenerateCFurl().User.Status(&models.UserStatusParams{
+			Handle: cfUserData.Account,
+			From:   1,
+			Count:  50000,
 		})
 		if err != nil {
 			r.log.AddErr(fmt.Sprintf("%s 获取url失败 %v", cfUserData.RealName, err))
@@ -134,4 +140,53 @@ func (r *cfUserStatus) GetErr() []string {
 // //////////////////////////////////////////////// 获取cf官方题目////////////////////////////////////////////////////////
 type cfOfficialProblems struct {
 	moduleDetail[models.CfOfficialProblemsResponse]
+	count int
+}
+
+func (r *cfOfficialProblems) GetCfOfficialProblems() error {
+	url, err := utils.NewGenerateCFurl().ProblemSet.Problems(&models.ProblemsetProblemsParams{})
+	if err != nil {
+		r.log.AddErr(fmt.Sprintf("获取url失败 %v", err))
+		return err
+	}
+	resp, err := r.req.Get(url, map[string]string{})
+	if err != nil {
+		r.log.AddErr(fmt.Sprintf("获取数据失败 %v", err))
+		return err
+	}
+	err = r.handleCfOfficialProblems(&resp)
+	if err != nil {
+		r.log.AddErr(fmt.Sprintf("处理数据失败 %v", err))
+		return err
+	}
+	r.log.AddLog(fmt.Sprintf("插入%d条官方题目", r.count))
+	return nil
+}
+func (r *cfOfficialProblems) handleCfOfficialProblems(resp *models.CfOfficialProblemsResponse) error {
+	for _, cfProblem := range resp.Result.Problems {
+		table := r.buildTable(&cfProblem)
+		err := db.Insert_cf_official(table)
+		if err != nil {
+			continue
+		}
+		r.count++
+	}
+	return nil
+}
+func (r *cfOfficialProblems) buildTable(cfProblem *models.CfProblem) db.Cf_official_problems {
+	tags := strings.Join(cfProblem.Tags, "\",\"")
+	tagsArr := fmt.Sprintf("[\"%s\"]", tags)
+	return db.Cf_official_problems{
+		Problem_id: fmt.Sprintf("%d%s", cfProblem.ContestId, cfProblem.Index),
+		Title:      cfProblem.Name,
+		Points:     int(cfProblem.Points),
+		Rating:     int(cfProblem.Rating),
+		Tags:       tagsArr,
+	}
+}
+func (r *cfOfficialProblems) GetLog() []string {
+	return r.log.GetLog()
+}
+func (r *cfOfficialProblems) GetErr() []string {
+	return r.log.GetErr()
 }
