@@ -51,6 +51,7 @@ func (r *cfUserStatus) GetCfRecords(concurrency int) error {
 
 	//并发获取cf提交记录
 	conCurrenter.Run(cfUserDatas, func(cfUserData models.CfUserData) error {
+
 		//获取db中已有的提交记录
 		var err error
 		cfUserData.OldDataSet, err = r.repo.GetCfRecordsInDbToset(cfUserData.Account)
@@ -58,6 +59,7 @@ func (r *cfUserStatus) GetCfRecords(concurrency int) error {
 			r.log.AddErr(fmt.Sprintf("%s 获取db中已有的提交记录失败 %v", cfUserData.RealName, err))
 			return err
 		}
+
 		//按照cf规则拼接url
 		url, err := genUrl.NewUser().Status(true, genUrl.User_status{
 			Handle:         cfUserData.Account,
@@ -76,12 +78,14 @@ func (r *cfUserStatus) GetCfRecords(concurrency int) error {
 			r.log.AddErr(fmt.Sprintf("%s 请求数据失败 %v", cfUserData.RealName, err))
 			return err
 		}
+
+		// 处理cf提交记录
 		err = r.handleCfRecords(&cfUserData, &resp)
 		if err != nil {
 			r.log.AddErr(fmt.Sprintf("%s 处理提交记录失败 %v", cfUserData.RealName, err))
 			return err
 		}
-		// fmt.Printf("cf用户数据 %s 处理提交记录成功 %d\n", cfUserData.Account, cfUserData.InsertCount)
+
 		r.log.AddLog(fmt.Sprintf("%s 处理提交记录成功 %d", cfUserData.RealName, cfUserData.InsertCount))
 		return nil
 	})
@@ -125,4 +129,9 @@ func (r *cfUserStatus) GetLog() []string {
 }
 func (r *cfUserStatus) GetErr() []string {
 	return r.log.GetErr()
+}
+
+// //////////////////////////////////////////////// 获取cf官方题目////////////////////////////////////////////////////////
+type cfOfficialProblems struct {
+	moduleDetail[models.CfOfficialProblemsResponse]
 }

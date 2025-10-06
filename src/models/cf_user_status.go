@@ -10,8 +10,7 @@ type CfUserData struct {
 
 // Codeforces用户状态响应结构体
 type CfUserStatusResponse struct {
-	Status string         `json:"status"` // 响应状态：OK
-	Result []CfSubmission `json:"result"` // 提交记录数组
+	CfResponse[[]CfSubmission]
 }
 
 // Codeforces提交记录结构体
@@ -28,17 +27,6 @@ type CfSubmission struct {
 	PassedTestCount     int       `json:"passedTestCount"`     // 通过的测试用例数
 	TimeConsumedMillis  int64     `json:"timeConsumedMillis"`  // 时间消耗（毫秒）
 	MemoryConsumedBytes int64     `json:"memoryConsumedBytes"` // 内存消耗（字节）
-}
-
-// Codeforces题目信息结构体
-type CfProblem struct {
-	ContestId int64    `json:"contestId"` // 比赛ID
-	Index     string   `json:"index"`     // 题目索引（如A、B、C）
-	Name      string   `json:"name"`      // 题目名称
-	Type      string   `json:"type"`      // 题目类型：PROGRAMMING
-	Tags      []string `json:"tags"`      // 题目标签
-	Points    float64  `json:"points"`    // 题目分数
-	Rating    int64    `json:"rating"`    // 题目难度
 }
 
 // Codeforces作者信息结构体

@@ -3,7 +3,7 @@ package cf_official_problems
 import (
 	"fmt"
 	db2 "spider/config/db"
-	"spider/src/cf/genUrl"
+	"spider/src/utils/genUrl"
 )
 
 var ProblemSet genUrl.ProblemSet

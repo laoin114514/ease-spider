@@ -13,7 +13,7 @@ func NewCfRepository() *CfRepository {
 }
 
 func (r *CfRepository) GetCfAccountData() ([]models.CfUserData, error) {
-	rows, err := db.Pool.Query("SELECT p.cf_account,u.real_name FROM user as u,oj_account as p WHERE p.user_id=u.id and(role_id=1||role_id=3) and p.cf_account is not null and p.cf_account != ' '")
+	rows, err := db.Pool.Query("SELECT o.cf_account,u.real_name from user as u,oj_account as o where u.id=o.user_id and cf_account !=' ' and cf_account is not null and cf_account!='' and (u.role_id=1 or u.role_id=3)")
 	if err != nil {
 		return nil, err
 	}
