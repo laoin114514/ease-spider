@@ -3,25 +3,29 @@ package utils
 import "sync"
 
 type LogContainer struct {
-	logs  []string
-	errs  []string
-	mutex sync.RWMutex
+	logs       []string
+	errs       []string
+	mutex      sync.RWMutex
+	dateFormat *DateFormat
 }
 
 func NewLogContainer() *LogContainer {
 	return &LogContainer{
-		logs: []string{},
-		errs: []string{},
+		logs:       []string{},
+		errs:       []string{},
+		dateFormat: NewDateFormat(),
 	}
 }
 func (l *LogContainer) AddLog(log string) {
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
+	log = l.dateFormat.NowDateTime() + " " + log
 	l.logs = append(l.logs, log+"\n")
 }
 func (l *LogContainer) AddErr(err string) {
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
+	err = l.dateFormat.NowDateTime() + " " + err
 	l.errs = append(l.errs, err+"\n")
 }
 func (l *LogContainer) GetLog() []string {

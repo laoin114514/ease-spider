@@ -12,7 +12,7 @@ func Init() {
 	c := RestyInit()
 	resp, _ := c.R().Get("https://www.luogu.com.cn/auth/login")
 	cookie := resp.Cookies()
-	JsonDB = utils.NewJSONDB("tempDB.json")
+	JsonDB = utils.JsonDB
 	JsonDB.Set("cookie2", cookie[0].Name+"="+cookie[0].Value)
 }
 

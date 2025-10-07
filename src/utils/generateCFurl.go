@@ -12,22 +12,25 @@ const BaseUrl = "https://codeforces.com/api/"
 
 type GenerateCFurl struct {
 	baseUrl    string
-	repository *repository.CfRepository
 	User       *user
 	Contest    *contest
 	ProblemSet *problemSet
 	*models.CfUserData
 }
 type user struct{}
-type contest struct{}
+type contest struct {
+}
 type problemSet struct{}
 
-func NewGenerateCFurl() *GenerateCFurl {
+var GenerateCFurlInstance *GenerateCFurl
+
+func InitGenerateCFurl() {
+	GenerateCFurlInstance = newGenerateCFurl()
+}
+func newGenerateCFurl() *GenerateCFurl {
 	return &GenerateCFurl{
 		baseUrl:    BaseUrl,
-		repository: repository.NewCfRepository(),
 		User:       &user{},
-		Contest:    &contest{},
 		ProblemSet: &problemSet{},
 	}
 }
@@ -38,14 +41,12 @@ func combineUrlWithApikey[T any](handle string, method string, pararms T) (strin
 	repository := repository.NewCfRepository()
 	//获取apikey
 	apikey, secret, err := repository.GetCfApikey(handle)
-	fmt.Printf("参数：%v,账号：%v\n", pararms, handle)
 	if err != nil {
 		return combineUrlWithNoApikey(method, pararms)
 	}
 	now := time.Now()
 	time := now.Unix()
-	rand.Seed(now.UnixNano())
-	randomKey := rand.Intn(999999)
+	randomKey := randomNumber(6)
 	//将参数转换为字符串
 	pararmStr, err := NewStructTransfer(pararms).
 		AddParam("apiKey", apikey).
@@ -55,8 +56,8 @@ func combineUrlWithApikey[T any](handle string, method string, pararms T) (strin
 		return "", err
 	}
 	tail := fmt.Sprintf("%v?%v", method, pararmStr)
-	hashCode := NewHashEncoder().Hash512(fmt.Sprintf("%v/%v?%v#%v", randomKey, method, tail, secret))
-	url := fmt.Sprintf("%v%v?%v&apiSig=%v%v", baseUrl, method, tail, randomKey, hashCode)
+	hashCode := NewHashEncoder().Hash512(fmt.Sprintf("%v/%v#%v", randomKey, tail, secret))
+	url := fmt.Sprintf("%v%v&apiSig=%v%v", baseUrl, tail, randomKey, hashCode)
 	return url, nil
 }
 func combineUrlWithNoApikey[T any](method string, pararms T) (string, error) {
@@ -68,6 +69,14 @@ func combineUrlWithNoApikey[T any](method string, pararms T) (string, error) {
 	}
 	tail := fmt.Sprintf("%v?%v", method, pararmStr)
 	return fmt.Sprintf("%v%v?%v", baseUrl, method, tail), nil
+}
+func randomNumber(n int) string {
+	str := ""
+	for i := 0; i < n; i++ {
+		rand.Seed(time.Now().UnixNano())
+		str += fmt.Sprintf("%d", rand.Intn(10))
+	}
+	return str
 }
 
 // ============================================User============================================//
@@ -98,14 +107,14 @@ func (u *user) RecentActions(query *models.RecentActionsParams) (string, error) 
 }
 
 // ============================================Contest============================================//
-func (c *contest) List(query *models.ContestListParams) (string, error) {
-	return combineUrlWithApikey("", "contest.list", query)
+func (c *contest) List(handle string, query *models.ContestListParams) (string, error) {
+	return combineUrlWithApikey(handle, "contest.list", query)
 }
-func (c *contest) Standings(query *models.ContestStandingsParams) (string, error) {
-	return combineUrlWithApikey("", "contest.standings", query)
+func (c *contest) Standings(handle string, query *models.ContestStandingsParams) (string, error) {
+	return combineUrlWithApikey(handle, "contest.standings", query)
 }
-func (c *contest) Status(query *models.ContestStatusParams) (string, error) {
-	return combineUrlWithApikey("", "contest.status", query)
+func (c *contest) Status(handle string, query *models.ContestStatusParams) (string, error) {
+	return combineUrlWithApikey(handle, "contest.status", query)
 }
 
 // ============================================ProblemSet============================================//

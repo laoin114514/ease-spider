@@ -96,7 +96,7 @@ func Insert_cf_official(table Cf_official_problems) error {
 	return nil
 }
 
-func Insert_team_trainning(table Cf_team_contests) error {
+func Insert_cf_team_contests(table Cf_team_contests) error {
 	_, err := Pool.Exec(
 		"insert into cf_team_contests (Contest_id, Contest_name, Start_time, PrePare_by) values (?,?,?,?)",
 		table.Contest_id,
@@ -118,6 +118,20 @@ func Insert_team_questions(table Cf_team_problems) error {
 		table.Official_contest_ID,
 		table.Problem_name,
 		table.Rating,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Insert_cf_official_contests(table Cf_official_contests) error {
+	_, err := Pool.Exec(
+		"insert into cf_official_contests (Official_contest_id, Official_contest_name, Phase, Start_time) values (?,?,?,?)",
+		table.Official_contest_id,
+		table.Official_contest_name,
+		table.Phase,
+		table.Start_time,
 	)
 	if err != nil {
 		return err

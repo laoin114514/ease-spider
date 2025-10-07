@@ -2,7 +2,6 @@ package services
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"spider/config/db"
 	"spider/src/models"
@@ -169,7 +168,14 @@ func (l *Luogu) calculatePage(luoguRecordsResponse *models.LuoguRecordsResponse)
 }
 
 // 打印日志
-func (l *Luogu) Log() {
-	log.Println("日志", l.log.GetLog())
-	log.Println("错误", l.log.GetErr())
+func (l *Luogu) GetLog() []string {
+	return l.log.GetLog()
+}
+func (l *Luogu) GetErr() []string {
+	return l.log.GetErr()
+}
+func (l *Luogu) Clear() error {
+	l.log.ClearLog()
+	l.log.ClearErr()
+	return nil
 }

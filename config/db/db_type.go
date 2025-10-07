@@ -78,3 +78,9 @@ type Ding_checkUp struct {
 	Time       time.Time
 	Check_type string
 }
+type Cf_official_contests struct {
+	Official_contest_id   int
+	Official_contest_name string
+	Phase                 string
+	Start_time            time.Time
+}

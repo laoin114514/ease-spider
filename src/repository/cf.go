@@ -4,6 +4,7 @@ import (
 	"errors"
 	"spider/config/db"
 	"spider/src/models"
+	"time"
 )
 
 type CfRepository struct {
@@ -30,7 +31,7 @@ func (r *CfRepository) GetCfAccountData() ([]models.CfUserData, error) {
 	}
 	return cfUserDatas, nil
 }
-func (r *CfRepository) GetCfRecordsInDbToset(account string) (map[int]bool, error) {
+func (r *CfRepository) GetCfRecordsIdToset(account string) (map[int]bool, error) {
 	rows, err := db.Pool.Query("SELECT sub_id FROM cf_all_submissions WHERE account=?", account)
 	if err != nil {
 		return nil, err
@@ -54,4 +55,50 @@ func (r *CfRepository) GetCfApikey(handle string) (string, string, error) {
 		return "", "", errors.New("apikey不存在")
 	}
 	return apikey, secret, nil
+}
+func (r *CfRepository) GetTeamContests() ([]db.Cf_team_contests, error) {
+	rows, err := db.Pool.Query("SELECT Contest_id, Contest_name, Start_time, PrePare_by FROM cf_team_contests")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	cfTeamContests := make([]db.Cf_team_contests, 0)
+	for rows.Next() {
+		var id int
+		var name, prepareBy string
+		var startTime time.Time
+		rows.Scan(&id, &name, &startTime, &prepareBy)
+		cfTeamContests = append(cfTeamContests, db.Cf_team_contests{
+			Contest_id:   id,
+			Contest_name: name,
+			PrePare_by:   prepareBy,
+			Start_time:   startTime,
+		})
+	}
+	return cfTeamContests, nil
+}
+func (r *CfRepository) GetCfSubmissions(account string) ([]db.Cf_all_submissions, error) {
+	rows, err := db.Pool.Query("SELECT sub_id, account, problem_id, problem_name, rating, verdict, creation_time FROM cf_all_submissions WHERE account = ?", account)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	cfSubmissions := make([]db.Cf_all_submissions, 0)
+	for rows.Next() {
+		var subId int
+		var account, problemId, problemName, verdict string
+		var rating int
+		var creationTime time.Time
+		rows.Scan(&subId, &account, &problemId, &problemName, &rating, &verdict, &creationTime)
+		cfSubmissions = append(cfSubmissions, db.Cf_all_submissions{
+			Sub_id:        subId,
+			Account:       account,
+			Problem_id:    problemId,
+			Problem_name:  problemName,
+			Rating:        rating,
+			Verdict:       verdict,
+			Creation_time: creationTime,
+		})
+	}
+	return cfSubmissions, nil
 }

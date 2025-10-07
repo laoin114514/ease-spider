@@ -22,7 +22,7 @@ type Dingding struct {
 
 // 创建钉钉服务
 func NewDingdingService() *Dingding {
-	JsonDB := utils.NewJSONDB("tempDB.json")
+	JsonDB := utils.JsonDB
 	return &Dingding{
 		repo:        repository.NewDingdingRepository(),
 		log:         utils.NewLogContainer(),
@@ -34,7 +34,7 @@ func NewDingdingService() *Dingding {
 
 // 获取钉钉打卡数据
 func (d *Dingding) GetDingdingCheckUpData() error {
-
+	d.insertCount = 0
 	// 获取钉钉token
 	var err error
 	d.token, err = d.getDingdingToken()
@@ -120,4 +120,10 @@ func (d *Dingding) GetLog() []string {
 }
 func (d *Dingding) GetErr() []string {
 	return d.log.GetErr()
+}
+func (d *Dingding) Clear() error {
+	d.log.ClearLog()
+	d.log.ClearErr()
+	d.insertCount = 0
+	return nil
 }

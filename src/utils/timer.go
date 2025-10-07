@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -28,6 +29,34 @@ func (t *Timer) CountDurationStr(f func()) string {
 	f()
 	end := time.Since(start).String()
 	return end
+}
+func (t *Timer) RunWithTimer(duration time.Duration, f func() error) {
+	ticker := time.NewTicker(duration)
+	go func() {
+		for range ticker.C {
+			err := f()
+			if err != nil {
+				log.Println(err)
+			}
+		}
+	}()
+	log.Println("定时器启动(单任务)")
+}
+func (t *Timer) MultiRunWithTimer(duration time.Duration, f ...func() error) {
+	ticker := time.NewTicker(duration)
+	go func() {
+		for range ticker.C {
+			for _, f := range f {
+				go func() {
+					err := f()
+					if err != nil {
+						log.Println(err)
+					}
+				}()
+			}
+		}
+	}()
+	log.Println("定时器启动(多任务)")
 }
 
 // 日期格式化工具
