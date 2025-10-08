@@ -12,12 +12,13 @@ func TimeTask() {
 	cfService := services.NewCfService()
 	luoguService := services.NewLuoguService()
 	dingService := services.NewDingdingService()
-
+	luoguUpdateCookieService := services.NewLuoguUpdateCookie()
+	luoguUpdateCookieService.UpdateLuoguCookie()
 	//每小时执行一次，更新洛谷Cookie
 	timer.RunWithTimer(
 		time.Hour,
 		func() error {
-			luoguService.UpdateLuoguCookie()
+			luoguUpdateCookieService.UpdateLuoguCookie()
 			return nil
 		},
 	)
@@ -69,22 +70,9 @@ func TimeTask() {
 			return nil
 		},
 	)
-	//获取洛谷用户提交记录
-	timer.RunWithTimer(
-		time.Second*10,
-		func() error {
-			err := luoguService.GetLuoguUsersRecords(10)
-			if err != nil {
-				return err
-			}
-			fmt.Println(luoguService.GetLog())
-			fmt.Println(luoguService.GetErr())
-			luoguService.Clear()
-			return nil
-		})
 	//获取Cf提交记录
 	timer.RunWithTimer(
-		time.Second*10,
+		time.Second*120,
 		func() error {
 			err := cfService.CfUserStatus.GetCfRecords(3)
 			if err != nil {
@@ -93,6 +81,19 @@ func TimeTask() {
 			fmt.Println(cfService.CfUserStatus.GetLog())
 			fmt.Println(cfService.CfUserStatus.GetErr())
 			cfService.CfUserStatus.Clear()
+			return nil
+		})
+	//获取洛谷用户提交记录
+	timer.RunWithTimer(
+		time.Second*120,
+		func() error {
+			err := luoguService.GetLuoguUsersRecords(5)
+			if err != nil {
+				return err
+			}
+			fmt.Println(luoguService.GetLog())
+			fmt.Println(luoguService.GetErr())
+			luoguService.Clear()
 			return nil
 		})
 }

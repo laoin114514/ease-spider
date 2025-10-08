@@ -8,19 +8,21 @@ import (
 )
 
 type Request[T any] struct {
-	c *resty.Client
+	c       *resty.Client
+	rawResp *resty.Response
 }
 
 func NewRequest[T any]() *Request[T] {
 	return &Request[T]{
-		c: resty.New(),
+		c:       resty.New(),
+		rawResp: nil,
 	}
 }
 func (r *Request[T]) Get(url string, params map[string]string) (T, error) {
 	var result T
-	cookie := JsonDB.Get("Cookie").(string)
+	userAgent := JsonDB.Get("user_agent").(string)
 	resp, err := r.c.R().
-		SetHeader("Cookie", cookie).
+		SetHeader("User-Agent", userAgent).
 		SetQueryParams(params).
 		Get(url)
 	if err != nil {
@@ -33,14 +35,15 @@ func (r *Request[T]) Get(url string, params map[string]string) (T, error) {
 	if err != nil {
 		return result, err
 	}
+	r.rawResp = resp
 	// fmt.Println("[Debug]", string(resp.Body()))
 	return result, nil
 }
 func (r *Request[T]) Post(url string, body any) (T, error) {
 	var result T
-	cookie := JsonDB.Get("Cookie").(string)
+	userAgent := JsonDB.Get("user_agent").(string)
 	resp, err := r.c.R().
-		SetHeader("Cookie", cookie).
+		SetHeader("User-Agent", userAgent).
 		SetBody(body).
 		Post(url)
 	if err != nil {
@@ -53,5 +56,16 @@ func (r *Request[T]) Post(url string, body any) (T, error) {
 	if err != nil {
 		return result, err
 	}
+	r.rawResp = resp
 	return result, nil
+}
+func (r *Request[T]) SetCookie(cookie string) *Request[T] {
+	r.c.SetHeader("Cookie", cookie)
+	return r
+}
+func (r *Request[T]) GetRawResp() *resty.Response {
+	return r.rawResp
+}
+func (r *Request[T]) GetRawRespBody() []byte {
+	return r.rawResp.Body()
 }

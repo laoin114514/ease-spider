@@ -3,13 +3,16 @@ package services
 import (
 	"fmt"
 	"math"
+	"os"
+	"os/exec"
 	"spider/config/db"
 	"spider/src/models"
 	"spider/src/repository"
 	"spider/src/utils"
-	updatecookie "spider/src/utils/updateCookie"
 	"strconv"
 	"time"
+
+	"github.com/go-resty/resty/v2"
 )
 
 const (
@@ -121,15 +124,18 @@ func (l *Luogu) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, page in
 // 全量爬取所有页数的数据
 func (l *Luogu) loopRequestAll(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
+	cookie := utils.JsonDB.Get("Cookie").(string)
 	for i := 1; i <= page; i++ {
-		data, _ := l.req.Get(
-			"https://www.luogu.com.cn/record/list",
-			map[string]string{
-				"user":         luoguUser.Uid,
-				"page":         strconv.Itoa(i),
-				"_contentOnly": "1",
-			},
-		)
+		data, _ := l.req.
+			SetCookie(cookie).
+			Get(
+				"https://www.luogu.com.cn/record/list",
+				map[string]string{
+					"user":         luoguUser.Uid,
+					"page":         strconv.Itoa(i),
+					"_contentOnly": "1",
+				},
+			)
 
 		for _, record := range data.CurrentData.Records.Result {
 			// 如果洛谷UID不匹配，则更新洛谷UID
@@ -180,8 +186,128 @@ func (l *Luogu) Clear() error {
 	return nil
 }
 
-// ================================更新洛谷Cookie===============================================
-func (l *Luogu) UpdateLuoguCookie() error {
-	updatecookie.Use(false)
+// ================================更新洛谷Cookie(屎山代码，勿动)===============================================
+type LuoguUpdateCookie struct {
+	cookiePool map[string]string
+}
+
+func NewLuoguUpdateCookie() *LuoguUpdateCookie {
+	return &LuoguUpdateCookie{}
+}
+func (l *LuoguUpdateCookie) UpdateLuoguCookie() error {
+	l.init()
+	l.initRedirect()
+	l.GetCaptcha()
+	l.RedirCaptcha()
+	captcha, err := l.Identify(false)
+	if err != nil {
+		return err
+	}
+	fmt.Println(captcha)
+	l.Login(captcha)
 	return nil
+}
+func (l *LuoguUpdateCookie) init() {
+	c := l.restyInit()
+	resp, _ := c.R().Get("https://www.luogu.com.cn/auth/login")
+	cookie := resp.Cookies()
+	utils.JsonDB.Set("cookie2", cookie[0].Name+"="+cookie[0].Value)
+}
+
+func (l *LuoguUpdateCookie) initRedirect() {
+	c := l.restyInit()
+	resp, _ := c.R().
+		SetHeader("Cookie", utils.JsonDB.Get("cookie2").(string)).
+		Get("https://www.luogu.com.cn/auth/login")
+	cookie := resp.Cookies()
+	utils.JsonDB.Set("cookie1", cookie[0].Name+"="+cookie[0].Value)
+}
+
+func (l *LuoguUpdateCookie) restyInit() *resty.Client {
+	c := resty.New()
+	c.SetRedirectPolicy(resty.NoRedirectPolicy()).
+		SetHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0")
+	return c
+}
+func (l *LuoguUpdateCookie) GetCaptcha() {
+	c := l.restyInit()
+	now := time.Now()
+	stamp := float64(now.UnixMicro()) / 1000
+	// cookie := tempDB.Get("cookie1").(string) + "; " + tempDB.Get("cookie2").(string)
+	resp, _ := c.R().
+		// SetHeader("Cookie", cookie).
+		Get(fmt.Sprintf("https://www.luogu.com.cn/lg4/captcha?_t=%f", stamp))
+	newCookie := resp.Cookies()
+	cookie2 := newCookie[0].Name + "=" + newCookie[0].Value
+	utils.JsonDB.Set("cookie2", cookie2)
+}
+func (l *LuoguUpdateCookie) RedirCaptcha() {
+	c := l.restyInit()
+	now := time.Now()
+	stamp := float64(now.UnixMicro()) / 1000
+	cookie := utils.JsonDB.Get("cookie1").(string) + "; " + utils.JsonDB.Get("cookie2").(string)
+	resp, _ := c.R().
+		SetHeader("Cookie", cookie).
+		Get(fmt.Sprintf("https://www.luogu.com.cn/lg4/captcha?_t=%f", stamp))
+	newCookie := resp.Cookies()
+	cookie2 := newCookie[0].Name + "=" + newCookie[0].Value
+	utils.JsonDB.Set("cookie2", cookie2)
+	l.saveImage(resp.Body())
+}
+func (l *LuoguUpdateCookie) saveImage(content []byte) {
+	file, err := os.OpenFile(fmt.Sprintf("ocr/captcha.jpg"), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
+	file.Write(content)
+}
+func (l *LuoguUpdateCookie) Login(captcha string) {
+	c := l.restyInit()
+	cookie := utils.JsonDB.Get("cookie1").(string) + "; " + utils.JsonDB.Get("cookie2").(string)
+	resp, err := c.R().
+		SetBody(map[string]any{
+			"username": utils.JsonDB.Get("username_luogu").(string),
+			"password": utils.JsonDB.Get("password_luogu").(string),
+			"captcha":  captcha,
+		}).
+		SetHeader("Cookie", cookie).
+		Post("https://www.luogu.com.cn/do-auth/password")
+	fmt.Println(resp.Status())
+	if resp.StatusCode() != 200 {
+		fmt.Println("验证码错误")
+		return
+	}
+	if err != nil {
+		fmt.Println(err)
+	}
+	arr := resp.Cookies()
+	uid := arr[0].Name + "=" + arr[0].Value
+	Cookie := cookie + ";" + uid
+	utils.JsonDB.Set("Cookie", Cookie)
+	fmt.Println("登录成功")
+}
+func (l *LuoguUpdateCookie) Identify(isInServer bool) (string, error) {
+	if isInServer {
+		cmd := exec.Command("python3", "./ocr/main.py")
+		outPut, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Println("请检查是否是服务器环境！")
+			return "", err
+		}
+		str := string(outPut)
+		str = str[len(str)-5 : len(str)-1]
+		return str, nil
+	} else {
+		cmd := exec.Command("python", "./ocr/main.py")
+		outPut, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Println("请检查是否是测试环境以及虚拟环境是否激活，关键包：ddddocr\n激活指令：./ocr/.venv/Scripts/activate")
+			return "", err
+		}
+		str := string(outPut)
+		str = str[len(str)-6 : len(str)-2]
+		return str, nil
+	}
 }
