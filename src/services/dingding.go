@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"spider/config"
 	"spider/config/db"
+	"spider/src/constants"
 	"spider/src/models"
 	"spider/src/repository"
 	"spider/src/utils"
@@ -11,11 +12,9 @@ import (
 )
 
 type Dingding struct {
+	*LogService
 	repo        *repository.DingdingRepository
-	log         *utils.LogContainer
 	token       string
-	logPath     string
-	errPath     string
 	dingUserMap map[string]any
 	insertCount int
 }
@@ -24,11 +23,9 @@ type Dingding struct {
 func NewDingdingService() *Dingding {
 	JsonDB := utils.JsonDB
 	return &Dingding{
+		LogService:  NewLogService("logs/dingding.log", "logs/dingding.err.log"),
 		repo:        repository.NewDingdingRepository(),
-		log:         utils.NewLogContainer(),
 		token:       "",
-		logPath:     "logs/dingding.log",
-		errPath:     "logs/dingding.err.log",
 		dingUserMap: JsonDB.Get("dingUserId").(map[string]any),
 		insertCount: 0,
 	}
@@ -45,11 +42,11 @@ func (d *Dingding) GetDingdingCheckUpData() error {
 	}
 
 	// 获取钉钉打卡数据（周）
-	err = d.getDataWithWeek(60)
+	err = d.getDataWithWeek(constants.DingdingWeekRange)
 	if err != nil {
 		return err
 	}
-	d.log.AddLog(fmt.Sprintf("插入钉钉打卡数据：%d", d.insertCount))
+	d.AddLog(fmt.Sprintf("插入钉钉打卡数据：%d", d.insertCount))
 	return nil
 }
 
@@ -100,7 +97,7 @@ func (d *Dingding) getDataWithWeek(week int) error {
 			if err != nil {
 				continue
 			}
-			d.log.AddLog(fmt.Sprintf("插入钉钉打卡数据：%v", table))
+			d.AddLog(fmt.Sprintf("插入钉钉打卡数据：%v", table))
 			d.insertCount++
 		}
 	}
@@ -111,26 +108,13 @@ func (d *Dingding) getDataWithWeek(week int) error {
 func (d *Dingding) buildDingdingCheckUpTable(checkUpData models.DingdingCheckRecord) db.Ding_checkUp {
 	var table db.Ding_checkUp
 	table.Ding_id = checkUpData.UserId
-	table.Time = time.UnixMilli(checkUpData.UserCheckTime).Add(8 * time.Hour)
+	table.Time = time.UnixMilli(checkUpData.UserCheckTime).Add(constants.TimeZoneOffsetHours * time.Hour)
 	table.Name = d.dingUserMap[checkUpData.UserId].(string)
 	table.Check_type = checkUpData.CheckType
 	return table
 }
-func (d *Dingding) GetLog() []string {
-	return d.log.GetLog()
-}
-func (d *Dingding) GetErr() []string {
-	return d.log.GetErr()
-}
-func (d *Dingding) SaveLog() error {
-	return SaveLog(d.logPath, d.log.GetLog())
-}
-func (d *Dingding) SaveErr() error {
-	return SaveErr(d.errPath, d.log.GetErr())
-}
 func (d *Dingding) Clear() error {
-	d.log.ClearLog()
-	d.log.ClearErr()
+	d.LogService.Clear()
 	d.insertCount = 0
 	return nil
 }

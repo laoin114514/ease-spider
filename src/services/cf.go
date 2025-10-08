@@ -2,9 +2,9 @@ package services
 
 import (
 	"fmt"
-	"os"
 	"spider/config"
 	"spider/config/db"
+	"spider/src/constants"
 	"spider/src/models"
 	"spider/src/repository"
 	"spider/src/utils"
@@ -22,82 +22,48 @@ type CfService struct {
 
 // T类型是请求响应的结构体
 type moduleDetail[T any] struct {
-	repo    *repository.CfRepository
-	log     *utils.LogContainer
-	logPath string
-	errPath string
+	*LogService
+	repo *repository.CfRepository
 }
 
 func NewCfService() *CfService {
 	return &CfService{
 		CfUserStatus: cfUserStatus{
 			moduleDetail: moduleDetail[models.CfUserStatusResponse]{
-				repo:    repository.NewCfRepository(),
-				log:     utils.NewLogContainer(),
-				logPath: "logs/cfUserStatus.log",
-				errPath: "logs/cfUserStatus.err.log",
+				LogService: NewLogService("logs/cfUserStatus.log", "logs/cfUserStatus.err.log"),
+				repo:       repository.NewCfRepository(),
 			},
 		},
 		CfOfficialProblems: cfOfficialProblems{
 			moduleDetail: moduleDetail[models.CfOfficialProblemsResponse]{
-				repo:    repository.NewCfRepository(),
-				log:     utils.NewLogContainer(),
-				logPath: "logs/cfOfficialProblems.log",
-				errPath: "logs/cfOfficialProblems.err.log",
+				LogService: NewLogService("logs/cfOfficialProblems.log", "logs/cfOfficialProblems.err.log"),
+				repo:       repository.NewCfRepository(),
 			},
 			count: 0,
 		},
 		CfTeamContests: cfTeamContests{
 			moduleDetail: moduleDetail[models.CfTeamContestsResponse]{
-				repo:    repository.NewCfRepository(),
-				log:     utils.NewLogContainer(),
-				logPath: "logs/cfTeamContests.log",
-				errPath: "logs/cfTeamContests.err.log",
+				LogService: NewLogService("logs/cfTeamContests.log", "logs/cfTeamContests.err.log"),
+				repo:       repository.NewCfRepository(),
 			},
 			count:      0,
-			useAccount: "233zhang",
+			useAccount: config.AppConfig.Cf.ManagerAccount,
 		},
 		CfTeamContestsProblems: cfTeamContestsProblems{
 			moduleDetail: moduleDetail[models.CfTeamContestProblemsResponse]{
-				repo:    repository.NewCfRepository(),
-				log:     utils.NewLogContainer(),
-				logPath: "logs/cfTeamContestsProblems.log",
-				errPath: "logs/cfTeamContestsProblems.err.log",
+				LogService: NewLogService("logs/cfTeamContestsProblems.log", "logs/cfTeamContestsProblems.err.log"),
+				repo:       repository.NewCfRepository(),
 			},
 			count: 0,
 		},
 		CfOfficialContests: cfOfficialContests{
 			moduleDetail: moduleDetail[models.CfOfficialContestsResponse]{
-				repo:    repository.NewCfRepository(),
-				log:     utils.NewLogContainer(),
-				logPath: "logs/cfOfficialContests.log",
-				errPath: "logs/cfOfficialContests.err.log",
+				LogService: NewLogService("logs/cfOfficialContests.log", "logs/cfOfficialContests.err.log"),
+				repo:       repository.NewCfRepository(),
 			},
 			count: 0,
 		},
 	}
-}
-func SaveLog(logPath string, log []string) error {
-	file, err := os.OpenFile(logPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	for _, log := range log {
-		file.WriteString(log)
-	}
-	return nil
-}
-func SaveErr(errPath string, errs []string) error {
-	file, err := os.OpenFile(errPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	for _, err := range errs {
-		file.WriteString(err)
-	}
-	return nil
 }
 
 // //////////////////////////////////////////////// 获取cf用户提交记录////////////////////////////////////////////////////////
@@ -106,9 +72,9 @@ type cfUserStatus struct {
 }
 
 // 获取cf用户提交记录
-func (r *cfUserStatus) GetCfRecords(concurrency int) error {
+func (r *cfUserStatus) GetCfRecords() error {
 	//构建工具类
-	conCurrenter := utils.NewConCurrenter[models.CfUserData](concurrency)
+	conCurrenter := utils.NewConCurrenter[models.CfUserData](config.AppConfig.Cf.CfRecordsConcurrency)
 
 	//获取cf用户数据
 	cfUserDatas, err := r.repo.GetCfAccountData()
@@ -122,7 +88,7 @@ func (r *cfUserStatus) GetCfRecords(concurrency int) error {
 		var err error
 		cfUserData.OldDataSet, err = r.repo.GetCfRecordsIdToset(cfUserData.Account)
 		if err != nil {
-			r.log.AddErr(fmt.Sprintf("%s 获取db中已有的提交记录失败 %v", cfUserData.RealName, err))
+			r.AddErr(fmt.Sprintf("%s 获取db中已有的提交记录失败 %v", cfUserData.RealName, err))
 			return err
 		}
 		//按照cf规则拼接url
@@ -131,42 +97,42 @@ func (r *cfUserStatus) GetCfRecords(concurrency int) error {
 			&models.UserStatusParams{
 				Handle: cfUserData.Account,
 				From:   1,
-				Count:  50000,
+				Count:  constants.CfMaxRecords,
 			},
 		)
 		if err != nil {
-			r.log.AddErr(fmt.Sprintf("%s 获取url失败,尝试使用无apikey", cfUserData.RealName))
+			r.AddErr(fmt.Sprintf("%s 获取url失败,尝试使用无apikey", cfUserData.RealName))
 			url, err = utils.GenerateCFurlInstance.User.Status(
 				false,
 				&models.UserStatusParams{
 					Handle: cfUserData.Account,
 					From:   1,
-					Count:  50000,
+					Count:  constants.CfMaxRecords,
 				},
 			)
 			if err != nil {
-				r.log.AddErr(fmt.Sprintf("%s 获取url失败 %v", cfUserData.RealName, err))
+				r.AddErr(fmt.Sprintf("%s 获取url失败 %v", cfUserData.RealName, err))
 				return err
 			}
-			r.log.AddErr(fmt.Sprintf("%s 获取url失败,尝试使用无apikey成功", cfUserData.RealName))
+			r.AddErr(fmt.Sprintf("%s 获取url失败,尝试使用无apikey成功", cfUserData.RealName))
 		}
 
 		//发起请求
 		req := utils.NewRequest[models.CfUserStatusResponse]()
 		resp, err := req.Get(url, map[string]string{})
 		if err != nil {
-			r.log.AddErr(fmt.Sprintf("%s 请求数据失败 %v", cfUserData.RealName, err))
+			r.AddErr(fmt.Sprintf("%s 请求数据失败 %v", cfUserData.RealName, err))
 			return err
 		}
 
 		// 处理cf提交记录
 		err = r.handleCfRecords(&cfUserData, &resp)
 		if err != nil {
-			r.log.AddErr(fmt.Sprintf("%s 处理提交记录失败 %v", cfUserData.RealName, err))
+			r.AddErr(fmt.Sprintf("%s 处理提交记录失败 %v", cfUserData.RealName, err))
 			return err
 		}
 
-		r.log.AddLog(fmt.Sprintf("%s 处理提交记录成功 %d", cfUserData.RealName, cfUserData.InsertCount))
+		r.AddLog(fmt.Sprintf("%s 处理提交记录成功 %d", cfUserData.RealName, cfUserData.InsertCount))
 		return nil
 	})
 	return nil
@@ -204,25 +170,8 @@ func (r *cfUserStatus) buildTable(cfRecord *models.CfSubmission, cfUserData *mod
 		Problem_name:  cfRecord.Problem.Name,
 		Verdict:       cfRecord.Verdict,
 		Rating:        int(cfRecord.Problem.Rating),
-		Creation_time: time.Unix(cfRecord.CreationTimeSeconds, 0).Add(8 * time.Hour),
+		Creation_time: time.Unix(cfRecord.CreationTimeSeconds, 0).Add(constants.TimeZoneOffsetHours * time.Hour),
 	}
-}
-func (r *cfUserStatus) GetLog() []string {
-	return r.log.GetLog()
-}
-func (r *cfUserStatus) GetErr() []string {
-	return r.log.GetErr()
-}
-func (r *cfUserStatus) SaveLog() error {
-	return SaveLog(r.logPath, r.log.GetLog())
-}
-func (r *cfUserStatus) SaveErr() error {
-	return SaveErr(r.errPath, r.log.GetErr())
-}
-func (r *cfUserStatus) Clear() error {
-	r.log.ClearLog()
-	r.log.ClearErr()
-	return nil
 }
 
 // //////////////////////////////////////////////// 获取cf官方题目////////////////////////////////////////////////////////
@@ -277,24 +226,6 @@ func (r *cfOfficialProblems) buildTable(cfProblem *models.CfProblem) db.Cf_offic
 		Tags:       tagsArr,
 	}
 }
-func (r *cfOfficialProblems) GetLog() []string {
-	return r.log.GetLog()
-}
-func (r *cfOfficialProblems) GetErr() []string {
-	return r.log.GetErr()
-}
-func (r *cfOfficialProblems) SaveLog() error {
-	return SaveLog(r.logPath, r.log.GetLog())
-}
-func (r *cfOfficialProblems) SaveErr() error {
-	return SaveErr(r.errPath, r.log.GetErr())
-}
-func (r *cfOfficialProblems) Clear() error {
-	r.log.ClearLog()
-	r.log.ClearErr()
-	r.count = 0
-	return nil
-}
 
 // //////////////////////////////////////////////// 获取cf团队比赛////////////////////////////////////////////////////////
 type cfTeamContests struct {
@@ -347,26 +278,8 @@ func (r *cfTeamContests) buildTable(cfTeamContest *models.CfContest) db.Cf_team_
 		Contest_id:   int(cfTeamContest.Id),
 		Contest_name: cfTeamContest.Name,
 		PrePare_by:   cfTeamContest.PreparedBy,
-		Start_time:   time.Unix(cfTeamContest.StartTimeSeconds, 0).Add(8 * time.Hour),
+		Start_time:   time.Unix(cfTeamContest.StartTimeSeconds, 0).Add(constants.TimeZoneOffsetHours * time.Hour),
 	}
-}
-func (r *cfTeamContests) GetLog() []string {
-	return r.log.GetLog()
-}
-func (r *cfTeamContests) GetErr() []string {
-	return r.log.GetErr()
-}
-func (r *cfTeamContests) SaveLog() error {
-	return SaveLog(r.logPath, r.log.GetLog())
-}
-func (r *cfTeamContests) SaveErr() error {
-	return SaveErr(r.errPath, r.log.GetErr())
-}
-func (r *cfTeamContests) Clear() error {
-	r.log.ClearLog()
-	r.log.ClearErr()
-	r.count = 0
-	return nil
 }
 
 // //////////////////////////////////////////////// 获取cf团队比赛题目////////////////////////////////////////////////////////
@@ -375,10 +288,10 @@ type cfTeamContestsProblems struct {
 	count int
 }
 
-func (r *cfTeamContestsProblems) GetCfTeamContestsProblems(concurrency int) error {
+func (r *cfTeamContestsProblems) GetCfTeamContestsProblems() error {
 	r.count = 0
 	teamContests, err := r.repo.GetTeamContests()
-	conCurrenter := utils.NewConCurrenter[db.Cf_team_contests](concurrency)
+	conCurrenter := utils.NewConCurrenter[db.Cf_team_contests](config.AppConfig.Cf.CfTeamContestsConcurrency)
 	if err != nil {
 		r.log.AddErr(fmt.Sprintf("获取团队比赛失败 %v", err))
 		return err
@@ -389,7 +302,7 @@ func (r *cfTeamContestsProblems) GetCfTeamContestsProblems(concurrency int) erro
 			ContestID:      teamContest.Contest_id,
 			AsManager:      true,
 			From:           1,
-			Count:          50000,
+			Count:          constants.CfMaxRecords,
 			ShowUnofficial: true,
 		})
 		if err != nil {
@@ -434,62 +347,6 @@ func (r *cfTeamContestsProblems) buildTable(cfProblem *models.CfProblem) db.Cf_t
 		Rating:            int(cfProblem.Rating),
 	}
 }
-func (r *cfTeamContestsProblems) GetLog() []string {
-	return r.log.GetLog()
-}
-func (r *cfTeamContestsProblems) GetErr() []string {
-	return r.log.GetErr()
-}
-func (r *cfTeamContestsProblems) SaveLog() error {
-	return SaveLog(r.logPath, r.log.GetLog())
-}
-func (r *cfTeamContestsProblems) SaveErr() error {
-	return SaveErr(r.errPath, r.log.GetErr())
-}
-func (r *cfTeamContestsProblems) Clear() error {
-	r.log.ClearLog()
-	r.log.ClearErr()
-	r.count = 0
-	return nil
-}
-
-// ////////////////////////////////////////////// 计算cf未过题////////////////////////////////////////////////////////
-// type cfUnsolvedProblems struct {
-// 	moduleDetail[db.Cf_all_submissions]
-// 	count int
-// }
-
-// func (r *cfUnsolvedProblems) CalCfUnsolvedProblems(concurrency int) error {
-// 	cfUserDatas, err := r.repo.GetCfAccountData()
-// 	if err != nil {
-// 		r.log.AddErr(fmt.Sprintf("获取cf用户数据失败 %v", err))
-// 		return err
-// 	}
-// 	conCurrenter := utils.NewConCurrenter[models.CfUserData](concurrency)
-// 	conCurrenter.Run(cfUserDatas, func(cfUserData models.CfUserData) error {
-// 		cfSubmissions, err := r.repo.GetCfSubmissions(cfUserData.Account)
-// 		if err != nil {
-// 			r.log.AddErr(fmt.Sprintf("获取cf用户提交记录失败 %v", err))
-// 			return err
-// 		}
-// 		err = r.handleCfUnsolvedProblems(&cfSubmissions)
-// 		if err != nil {
-// 			r.log.AddErr(fmt.Sprintf("处理cf用户提交记录失败 %v", err))
-// 			return err
-// 		}
-// 		r.log.AddLog(fmt.Sprintf("新增%s %d条cf未过题", cfUserData.RealName, r.count))
-// 		return nil
-// 	})
-// 	return nil
-// }
-// func (r *cfUnsolvedProblems) handleCfUnsolvedProblems(cfSubmissions *[]db.Cf_all_submissions) error {
-// 	for _, cfSubmission := range *cfSubmissions {
-// 		if cfSubmission.Verdict != "OK" {
-// 			r.count++
-// 		}
-// 	}
-// 	return nil
-// }
 
 // ////////////////////////////////////////////// 获取cf官方比赛////////////////////////////////////////////////////////
 type cfOfficialContests struct {
@@ -538,24 +395,6 @@ func (r *cfOfficialContests) buildTable(cfTeamContest *models.CfContest) db.Cf_o
 		Official_contest_id:   int(cfTeamContest.Id),
 		Official_contest_name: cfTeamContest.Name,
 		Phase:                 cfTeamContest.Phase,
-		Start_time:            time.Unix(cfTeamContest.StartTimeSeconds, 0).Add(8 * time.Hour),
+		Start_time:            time.Unix(cfTeamContest.StartTimeSeconds, 0).Add(constants.TimeZoneOffsetHours * time.Hour),
 	}
-}
-func (r *cfOfficialContests) GetLog() []string {
-	return r.log.GetLog()
-}
-func (r *cfOfficialContests) GetErr() []string {
-	return r.log.GetErr()
-}
-func (r *cfOfficialContests) SaveLog() error {
-	return SaveLog(r.logPath, r.log.GetLog())
-}
-func (r *cfOfficialContests) SaveErr() error {
-	return SaveErr(r.errPath, r.log.GetErr())
-}
-func (r *cfOfficialContests) Clear() error {
-	r.log.ClearLog()
-	r.log.ClearErr()
-	r.count = 0
-	return nil
 }

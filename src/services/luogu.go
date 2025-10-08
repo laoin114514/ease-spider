@@ -4,42 +4,37 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"net/http"
 	"os"
 	"os/exec"
 	"spider/config"
 	"spider/config/db"
+	"spider/src/constants"
 	"spider/src/models"
 	"spider/src/repository"
 	"spider/src/utils"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-resty/resty/v2"
 )
 
-const (
-	LuoguStatusAccepted = 12
-)
-
 type Luogu struct {
-	repo    *repository.LuoguRepository
-	log     *utils.LogContainer
-	logPath string
-	errPath string
+	*LogService
+	repo *repository.LuoguRepository
 }
 
 func NewLuoguService() *Luogu {
 	return &Luogu{
-		repo:    repository.NewLuoguRepository(),
-		log:     utils.NewLogContainer(),
-		logPath: "logs/luogu.log",
-		errPath: "logs/luogu.err.log",
+		LogService: NewLogService("logs/luogu.log", "logs/luogu.err.log"),
+		repo:       repository.NewLuoguRepository(),
 	}
 }
 
 // 核心函数，获取洛谷用户提交记录
-func (l *Luogu) GetLuoguUsersRecords(concurrency int) error {
-	conCurrenter := utils.NewConCurrenter[models.LuoguUserDeliver](concurrency)
+func (l *Luogu) GetLuoguUsersRecords() error {
+	conCurrenter := utils.NewConCurrenter[models.LuoguUserDeliver](config.AppConfig.Luogu.LuoguRecordsConcurrency)
 	luoguUserDelivers, err := l.repo.GetUserNameMap()
 	if err != nil {
 		return err
@@ -51,11 +46,11 @@ func (l *Luogu) GetLuoguUsersRecords(concurrency int) error {
 		//获取初始化数据：总数和每页数量
 		initData, err := req.SetCookie(utils.JsonDB.Get("Cookie").(string)).Get("https://www.luogu.com.cn/record/list", map[string]string{"user": luoguUser.Uid, "page": "1", "_contentOnly": "1"})
 		if err != nil {
-			l.log.AddErr(fmt.Sprintf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error()))
+			l.AddErr(fmt.Sprintf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error()))
 			return err
 		}
-		if initData.Code == 404 {
-			l.log.AddErr(fmt.Sprintf("%s的uid不存在", luoguUser.RealName))
+		if initData.Code == http.StatusNotFound {
+			l.AddErr(fmt.Sprintf("%s的uid不存在", luoguUser.RealName))
 			return err
 		}
 		//计算页数
@@ -68,19 +63,19 @@ func (l *Luogu) GetLuoguUsersRecords(concurrency int) error {
 		}
 
 		if len(luoguUser.OldDataSet)+luoguUser.Count == initData.CurrentData.Records.Count {
-			l.log.AddLog(fmt.Sprintf("%s获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
+			l.AddLog(fmt.Sprintf("%s获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
 			return err
 		}
 
 		//爬取数据与数据库已爬取数据不一致，进行全量爬取
-		l.log.AddErr(fmt.Sprintf("%s爬取实际数量%d，数据库已爬取数量%d", luoguUser.RealName, initData.CurrentData.Records.Count, len(luoguUser.OldDataSet)+luoguUser.Count))
+		l.AddErr(fmt.Sprintf("%s爬取实际数量%d，数据库已爬取数量%d", luoguUser.RealName, initData.CurrentData.Records.Count, len(luoguUser.OldDataSet)+luoguUser.Count))
 		err = l.loopRequestAll(&luoguUser, page)
 		if err != nil {
-			l.log.AddErr(fmt.Sprintf("%s重新获取提交记录失败 %s", luoguUser.RealName, err.Error()))
+			l.AddErr(fmt.Sprintf("%s重新获取提交记录失败 %s", luoguUser.RealName, err.Error()))
 			return err
 		}
 
-		l.log.AddLog(fmt.Sprintf("%s重新获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
+		l.AddLog(fmt.Sprintf("%s重新获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
 		return err
 	})
 	return nil
@@ -162,16 +157,19 @@ func (l *Luogu) loopRequestAll(luoguUser *models.LuoguUserDeliver, page int) err
 
 // 构建提交记录表
 func (l *Luogu) buildTable(record *models.LuoguRecord) db.Luogu_all_submissions {
+	difficulty := constants.LuoguDifficultyMap
+	if record.Problem.Difficulty >= len(difficulty) {
+		difficulty = append(difficulty, "unknown")
+	}
 
-	var difficulty = []string{"grey", "red", "brown", "yellow", "green", "blue", "purple", "black"}
 	return db.Luogu_all_submissions{
 		Sub_id:        fmt.Sprintf("%d", record.ID),
 		Uid:           fmt.Sprintf("%d", record.User.UID),
 		Problem_id:    record.Problem.PID,
 		Problem_name:  record.Problem.Title,
 		Difficulty:    difficulty[record.Problem.Difficulty],
-		Is_pass:       record.Status == LuoguStatusAccepted,
-		Creation_time: time.Unix(record.SubmitTime, 0).Add(8 * time.Hour),
+		Is_pass:       record.Status == constants.LuoguStatusAccepted,
+		Creation_time: time.Unix(record.SubmitTime, 0).Add(constants.TimeZoneOffsetHours * time.Hour),
 	}
 }
 
@@ -180,39 +178,16 @@ func (l *Luogu) calculatePage(luoguRecordsResponse *models.LuoguRecordsResponse)
 	return int(math.Ceil(float64(luoguRecordsResponse.CurrentData.Records.Count) / float64(luoguRecordsResponse.CurrentData.Records.PerPage)))
 }
 
-// 打印日志
-func (l *Luogu) GetLog() []string {
-	return l.log.GetLog()
-}
-func (l *Luogu) GetErr() []string {
-	return l.log.GetErr()
-}
-func (l *Luogu) SaveLog() error {
-	return SaveLog(l.logPath, l.log.GetLog())
-}
-func (l *Luogu) SaveErr() error {
-	return SaveErr(l.errPath, l.log.GetErr())
-}
-func (l *Luogu) Clear() error {
-	l.log.ClearLog()
-	l.log.ClearErr()
-	return nil
-}
-
 // ================================更新洛谷Cookie===============================================
 type LuoguUpdateCookie struct {
+	*LogService
 	cookiePool map[string]string
-	log        *utils.LogContainer
-	logPath    string
-	errPath    string
 }
 
 func NewLuoguUpdateCookie() *LuoguUpdateCookie {
 	return &LuoguUpdateCookie{
+		LogService: NewLogService("logs/luoguUpdateCookie.log", "logs/luoguUpdateCookie.err.log"),
 		cookiePool: make(map[string]string),
-		log:        utils.NewLogContainer(),
-		logPath:    "logs/luoguUpdateCookie.log",
-		errPath:    "logs/luoguUpdateCookie.err.log",
 	}
 }
 func (l *LuoguUpdateCookie) UpdateLuoguCookie() error {
@@ -222,33 +197,16 @@ func (l *LuoguUpdateCookie) UpdateLuoguCookie() error {
 	l.RedirCaptcha()
 	captcha, err := l.Identify(config.AppConfig.Luogu.IsInServer)
 	if err != nil {
-		l.log.AddLog(fmt.Sprintf("验证码识别失败 %s", err.Error()))
+		l.AddLog(fmt.Sprintf("验证码识别失败 %s", err.Error()))
 		return err
 	}
-	l.log.AddLog(fmt.Sprintf("验证码：%s", captcha))
+	l.AddLog(fmt.Sprintf("验证码：%s", captcha))
 	err = l.Login(captcha)
 	if err != nil {
-		l.log.AddLog(fmt.Sprintf("登录失败 %s", err.Error()))
+		l.AddLog(fmt.Sprintf("登录失败 %s", err.Error()))
 		return err
 	}
-	l.log.AddLog("登录成功")
-	return nil
-}
-func (l *LuoguUpdateCookie) GetLog() []string {
-	return l.log.GetLog()
-}
-func (l *LuoguUpdateCookie) GetErr() []string {
-	return l.log.GetErr()
-}
-func (l *LuoguUpdateCookie) SaveLog() error {
-	return SaveLog(l.logPath, l.log.GetLog())
-}
-func (l *LuoguUpdateCookie) SaveErr() error {
-	return SaveErr(l.errPath, l.log.GetErr())
-}
-func (l *LuoguUpdateCookie) Clear() error {
-	l.log.ClearLog()
-	l.log.ClearErr()
+	l.AddLog("登录成功")
 	return nil
 }
 func (l *LuoguUpdateCookie) init() {
@@ -295,7 +253,7 @@ func (l *LuoguUpdateCookie) RedirCaptcha() {
 	l.saveImage(resp.Body())
 }
 func (l *LuoguUpdateCookie) saveImage(content []byte) {
-	file, err := os.OpenFile(fmt.Sprintf("ocr/captcha.jpg"), os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	file, err := os.OpenFile("ocr/captcha.jpg", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -304,27 +262,44 @@ func (l *LuoguUpdateCookie) saveImage(content []byte) {
 	file.Write(content)
 }
 func (l *LuoguUpdateCookie) Identify(isInServer bool) (string, error) {
+	var cmd *exec.Cmd
+	var expectedLength int
+
 	if isInServer {
-		cmd := exec.Command("python3", "./ocr/main.py")
-		outPut, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Println("请检查是否是服务器环境！")
-			return "", err
-		}
-		str := string(outPut)
-		str = str[len(str)-5 : len(str)-1]
-		return str, nil
+		cmd = exec.Command("python3", "./ocr/main.py")
+		expectedLength = constants.CaptchaLengthServer
 	} else {
-		cmd := exec.Command("python", "./ocr/main.py")
-		outPut, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Println("请检查是否是测试环境以及虚拟环境是否激活，关键包：ddddocr\n激活指令：./ocr/.venv/Scripts/activate")
-			return "", err
-		}
-		str := string(outPut)
-		str = str[len(str)-6 : len(str)-2]
-		return str, nil
+		cmd = exec.Command("python", "./ocr/main.py")
+		expectedLength = constants.CaptchaLengthLocal
 	}
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		if isInServer {
+			fmt.Println("请检查是否是服务器环境！")
+		} else {
+			fmt.Println("请检查是否是测试环境以及虚拟环境是否激活，关键包：ddddocr\n激活指令：./ocr/.venv/Scripts/activate")
+		}
+		return "", err
+	}
+
+	str := string(output)
+	str = strings.TrimSpace(str)
+
+	// 安全地提取验证码
+	if len(str) >= expectedLength {
+		startIndex := len(str) - expectedLength - 1
+		if startIndex < 0 {
+			startIndex = 0
+		}
+		endIndex := len(str) - 1
+		if endIndex > len(str) {
+			endIndex = len(str)
+		}
+		return str[startIndex:endIndex], nil
+	}
+
+	return str, nil
 }
 func (l *LuoguUpdateCookie) Login(captcha string) error {
 	c := l.restyInit()

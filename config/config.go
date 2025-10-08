@@ -25,13 +25,17 @@ type dingdingConfig struct {
 	AppSecret string `yaml:"appSecret"`
 }
 type luoguConfig struct {
-	Username   string `yaml:"username"`
-	Password   string `yaml:"password"`
-	UserAgent  string `yaml:"userAgent"`
-	IsInServer bool   `yaml:"isInServer"`
+	Username                string `yaml:"username"`
+	Password                string `yaml:"password"`
+	UserAgent               string `yaml:"userAgent"`
+	IsInServer              bool   `yaml:"isInServer"`
+	LuoguRecordsConcurrency int    `yaml:"luoguRecordsConcurrency"`
 }
 type cfConfig struct {
-	GroupCode string `yaml:"groupCode"`
+	GroupCode                 string `yaml:"groupCode"`
+	ManagerAccount            string `yaml:"managerAccount"`
+	CfRecordsConcurrency      int    `yaml:"cfRecordsConcurrency"`
+	CfTeamContestsConcurrency int    `yaml:"cfTeamContestsConcurrency"`
 }
 type timerFrequencyConfig struct {
 	CfOfficialContests     string `yaml:"cf_official_contests"`

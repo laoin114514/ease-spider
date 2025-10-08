@@ -9,10 +9,14 @@ dingding:
   appSecret: ding_appSecret
 luogu:
   isInServer: false
+  luoguRecordsConcurrency: 10
   username: luo2908451607
   password: 683305SAO
   userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0
 cf:
+  cfRecordsConcurrency: 4
+  cfTeamContestsConcurrency: 4
+  managerAccount: 233zhang
   groupCode: mczZWy5WU7
 #==================定时任务配置==================
 #每个任务的执行时间，单位填在数字后面，如30s，30m，30h，30d，默认分钟,更改后需要重启程序

@@ -85,7 +85,7 @@ func TimeTask() {
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfTeamContestsProblems),
 		"获取cf团队题目",
 		func() error {
-			err := cfService.CfTeamContestsProblems.GetCfTeamContestsProblems(4)
+			err := cfService.CfTeamContestsProblems.GetCfTeamContestsProblems()
 			if err != nil {
 				return err
 			}
@@ -130,7 +130,7 @@ func TimeTask() {
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfRecords),
 		"获取cf提交记录",
 		func() error {
-			err := cfService.CfUserStatus.GetCfRecords(3)
+			err := cfService.CfUserStatus.GetCfRecords()
 			if err != nil {
 				return err
 			}
@@ -145,7 +145,7 @@ func TimeTask() {
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguRecords),
 		"获取洛谷用户提交记录",
 		func() error {
-			err := luoguService.GetLuoguUsersRecords(5)
+			err := luoguService.GetLuoguUsersRecords()
 			if err != nil {
 				return err
 			}
