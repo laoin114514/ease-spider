@@ -42,7 +42,7 @@ func combineUrlWithApikey[T any](handle string, method string, pararms T) (strin
 	//获取apikey
 	apikey, secret, err := repository.GetCfApikey(handle)
 	if err != nil {
-		return combineUrlWithNoApikey(method, pararms)
+		return "", err
 	}
 	now := time.Now()
 	time := now.Unix()
@@ -80,8 +80,11 @@ func randomNumber(n int) string {
 }
 
 // ============================================User============================================//
-func (u *user) Status(query *models.UserStatusParams) (string, error) {
-	return combineUrlWithApikey(query.Handle, "user.status", query)
+func (u *user) Status(useApikey bool, query *models.UserStatusParams) (string, error) {
+	if useApikey {
+		return combineUrlWithApikey(query.Handle, "user.status", query)
+	}
+	return combineUrlWithNoApikey("user.status", query)
 }
 func (u *user) Rating(query *models.UserRatingParams) (string, error) {
 	return combineUrlWithApikey(query.Handle, "user.rating", query)

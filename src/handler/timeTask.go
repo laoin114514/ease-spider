@@ -12,6 +12,15 @@ func TimeTask() {
 	cfService := services.NewCfService()
 	luoguService := services.NewLuoguService()
 	dingService := services.NewDingdingService()
+
+	//每小时执行一次，更新洛谷Cookie
+	timer.RunWithTimer(
+		time.Hour,
+		func() error {
+			luoguService.UpdateLuoguCookie()
+			return nil
+		},
+	)
 	//每两小时执行一次，非高速度要求任务
 	timer.MultiRunWithTimer(
 		time.Hour*2,
@@ -62,9 +71,9 @@ func TimeTask() {
 	)
 	//获取洛谷用户提交记录
 	timer.RunWithTimer(
-		time.Minute*5,
+		time.Second*10,
 		func() error {
-			err := luoguService.GetLuoguUsersRecords(3)
+			err := luoguService.GetLuoguUsersRecords(10)
 			if err != nil {
 				return err
 			}
@@ -75,7 +84,7 @@ func TimeTask() {
 		})
 	//获取Cf提交记录
 	timer.RunWithTimer(
-		time.Minute*2,
+		time.Second*10,
 		func() error {
 			err := cfService.CfUserStatus.GetCfRecords(3)
 			if err != nil {

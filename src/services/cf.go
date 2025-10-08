@@ -96,14 +96,29 @@ func (r *cfUserStatus) GetCfRecords(concurrency int) error {
 			return err
 		}
 		//按照cf规则拼接url
-		url, err := utils.GenerateCFurlInstance.User.Status(&models.UserStatusParams{
-			Handle: cfUserData.Account,
-			From:   1,
-			Count:  50000,
-		})
+		url, err := utils.GenerateCFurlInstance.User.Status(
+			true,
+			&models.UserStatusParams{
+				Handle: cfUserData.Account,
+				From:   1,
+				Count:  50000,
+			},
+		)
 		if err != nil {
-			r.log.AddErr(fmt.Sprintf("%s 获取url失败 %v", cfUserData.RealName, err))
-			return err
+			r.log.AddErr(fmt.Sprintf("%s 获取url失败,尝试使用无apikey", cfUserData.RealName))
+			url, err = utils.GenerateCFurlInstance.User.Status(
+				false,
+				&models.UserStatusParams{
+					Handle: cfUserData.Account,
+					From:   1,
+					Count:  50000,
+				},
+			)
+			if err != nil {
+				r.log.AddErr(fmt.Sprintf("%s 获取url失败 %v", cfUserData.RealName, err))
+				return err
+			}
+			r.log.AddErr(fmt.Sprintf("%s 获取url失败,尝试使用无apikey成功", cfUserData.RealName))
 		}
 
 		//发起请求

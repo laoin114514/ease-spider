@@ -3,32 +3,32 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"os"
+	"spider/config"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 )
 
 var Pool *sql.DB
 
-func Init() {
-	godotenv.Load()
-	account := os.Getenv("ACCOUNT")
-	password := os.Getenv("PASSWORD")
-	url := os.Getenv("URL")
-	mysqldb := os.Getenv("DATEBASE")
-	dataSource := fmt.Sprintf("%v:%v@tcp(%v)/%v?charset=utf8mb4&parseTime=True", account, password, url, mysqldb)
+func Init() error {
+	dataSource := fmt.Sprintf(
+		"%v:%v@tcp(%v)/%v?charset=utf8mb4&parseTime=True",
+		config.AppConfig.DB_USER,
+		config.AppConfig.DB_PASSWORD,
+		config.AppConfig.DB_HOST,
+		config.AppConfig.DB_NAME,
+	)
 	var err error
 	Pool, err = sql.Open(
 		"mysql",
 		dataSource,
 	)
 	if err != nil {
-		fmt.Println(err)
+		return fmt.Errorf("数据库连接失败: %v", err)
 	}
 	if err := Pool.Ping(); err != nil {
-		fmt.Println("数据库连接失败: ", err)
+		return fmt.Errorf("数据库连接失败: %v", err)
 	}
 	fmt.Println("数据库连接成功")
-
+	return nil
 }

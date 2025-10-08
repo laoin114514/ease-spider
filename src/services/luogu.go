@@ -7,6 +7,7 @@ import (
 	"spider/src/models"
 	"spider/src/repository"
 	"spider/src/utils"
+	updatecookie "spider/src/utils/updateCookie"
 	"strconv"
 	"time"
 )
@@ -103,9 +104,8 @@ func (l *Luogu) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, page in
 				record.User.UID, _ = strconv.ParseInt(luoguUser.Uid, 10, 64)
 			}
 
-			if luoguUser.OldDataSet[record.Problem.PID] {
-				fmt.Printf("%s第%d页提交记录已存在 %s\n", luoguUser.RealName, i, record.Problem.PID)
-				return fmt.Errorf("%s第%d页提交记录已存在 %s", luoguUser.RealName, i, record.Problem.PID)
+			if luoguUser.OldDataSet[strconv.Itoa(int(record.ID))] {
+				return fmt.Errorf("%s第%d页提交记录已存在 %s", luoguUser.RealName, i, strconv.Itoa(int(record.ID)))
 			}
 			table := l.buildTable(&record)
 			err = db.Insert_luogu_sub(table)
@@ -177,5 +177,11 @@ func (l *Luogu) GetErr() []string {
 func (l *Luogu) Clear() error {
 	l.log.ClearLog()
 	l.log.ClearErr()
+	return nil
+}
+
+// ================================更新洛谷Cookie===============================================
+func (l *Luogu) UpdateLuoguCookie() error {
+	updatecookie.Use(false)
 	return nil
 }

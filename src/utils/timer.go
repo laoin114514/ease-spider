@@ -7,10 +7,14 @@ import (
 )
 
 // 计时器
-type Timer struct{}
+type Timer struct {
+	timerCount int
+}
 
 func NewTimer() *Timer {
-	return &Timer{}
+	return &Timer{
+		timerCount: 1,
+	}
 }
 func (t *Timer) CountDurationInMs(f func()) int64 {
 	start := time.Now()
@@ -40,7 +44,7 @@ func (t *Timer) RunWithTimer(duration time.Duration, f func() error) {
 			}
 		}
 	}()
-	log.Println("定时器启动(单任务)")
+	t.TimerPlusSignal("单任务 周期：" + duration.String())
 }
 func (t *Timer) MultiRunWithTimer(duration time.Duration, f ...func() error) {
 	ticker := time.NewTicker(duration)
@@ -56,10 +60,14 @@ func (t *Timer) MultiRunWithTimer(duration time.Duration, f ...func() error) {
 			}
 		}
 	}()
-	log.Println("定时器启动(多任务)")
+	t.TimerPlusSignal("多任务 周期：" + duration.String())
+}
+func (t *Timer) TimerPlusSignal(remark string) {
+	log.Printf("定时器%d启动(%s)", t.timerCount, remark)
+	t.timerCount++
 }
 
-// 日期格式化工具
+// =================================== 日期格式化工具==================================================
 type DateFormat struct {
 }
 

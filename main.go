@@ -1,17 +1,25 @@
 package main
 
 import (
+	"fmt"
+	"spider/config"
 	"spider/config/db"
 	"spider/src/handler"
 	"spider/src/utils"
 	"sync"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	db.Init()
-	godotenv.Load()
+	err := config.Init()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = db.Init()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	utils.InitGlobalJSONDB("tempDB.json")
 	utils.InitGenerateCFurl()
 
