@@ -34,7 +34,7 @@ func (t *Timer) CountDurationStr(f func()) string {
 	end := time.Since(start).String()
 	return end
 }
-func (t *Timer) RunWithTimer(duration time.Duration, f func() error) {
+func (t *Timer) RunWithTimer(duration time.Duration, remark string, f func() error) {
 	ticker := time.NewTicker(duration)
 	go func() {
 		for range ticker.C {
@@ -44,7 +44,7 @@ func (t *Timer) RunWithTimer(duration time.Duration, f func() error) {
 			}
 		}
 	}()
-	t.TimerPlusSignal("单任务 周期：" + duration.String())
+	t.TimerPlusSignal(remark + " 周期：" + duration.String())
 }
 func (t *Timer) MultiRunWithTimer(duration time.Duration, f ...func() error) {
 	ticker := time.NewTicker(duration)

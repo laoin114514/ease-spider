@@ -1,0 +1,27 @@
+database:
+  host: 210.36.22.245
+  port: 3002
+  user: gxuicpc
+  password: gxuicpc
+  dbName: gxuicpc
+dingding:
+  appKey: ding_accessToken
+  appSecret: ding_appSecret
+luogu:
+  isInServer: false
+  username: luo2908451607
+  password: 683305SAO
+  userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0
+cf:
+  groupCode: mczZWy5WU7
+#==================定时任务配置==================
+#每个任务的执行时间，单位填在数字后面，如30s，30m，30h，30d，默认分钟,更改后需要重启程序
+timerFrequency:
+  cf_official_contests: 30m
+  cf_official_problems: 30m
+  cf_records: 2m
+  cf_team_contests: 30m
+  cf_team_contests_problems: 30m
+  dingding: 30m
+  luogu_records: 2m
+  luogu_update_cookie: 1h

@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"spider/config"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -20,7 +21,7 @@ func NewRequest[T any]() *Request[T] {
 }
 func (r *Request[T]) Get(url string, params map[string]string) (T, error) {
 	var result T
-	userAgent := JsonDB.Get("user_agent").(string)
+	userAgent := config.AppConfig.Luogu.UserAgent
 	resp, err := r.c.R().
 		SetHeader("User-Agent", userAgent).
 		SetQueryParams(params).
@@ -41,7 +42,7 @@ func (r *Request[T]) Get(url string, params map[string]string) (T, error) {
 }
 func (r *Request[T]) Post(url string, body any) (T, error) {
 	var result T
-	userAgent := JsonDB.Get("user_agent").(string)
+	userAgent := config.AppConfig.Luogu.UserAgent
 	resp, err := r.c.R().
 		SetHeader("User-Agent", userAgent).
 		SetBody(body).

@@ -20,7 +20,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	utils.InitGlobalJSONDB("tempDB.json")
+	utils.InitGlobalJSONDB("config.json")
 	utils.InitGenerateCFurl()
 
 	var wg sync.WaitGroup

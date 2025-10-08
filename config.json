@@ -1,5 +1,5 @@
 {
-    "Cookie": "__client_id=8e4206fd66b11bf868e61b204a344a110b6a2c5b; C3VK=e90e32;_uid=1851093",
+    "Cookie": "__client_id=ee3223357f3634d768e648a26c59c972e289d422; C3VK=696cf2;_uid=1851093",
     "dingUserId": {
         "01176421420026309256": "杜永坤",
         "03030233253124066409": "张健明",
@@ -10,9 +10,5 @@
         "49203919162724192": "陶康",
         "514450420223269518": "孙怿翔",
         "54210856181176852": "郑毅"
-    },
-    "groupCode": "mczZWy5WU7",
-    "password_luogu": "683305SAO",
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0",
-    "username_luogu": "luo2908451607"
+    }
 }

@@ -1,10 +1,12 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"os"
 	"os/exec"
+	"spider/config"
 	"spider/config/db"
 	"spider/src/models"
 	"spider/src/repository"
@@ -21,7 +23,6 @@ const (
 
 type Luogu struct {
 	repo    *repository.LuoguRepository
-	req     *utils.Request[models.LuoguRecordsResponse]
 	log     *utils.LogContainer
 	logPath string
 	errPath string
@@ -30,7 +31,6 @@ type Luogu struct {
 func NewLuoguService() *Luogu {
 	return &Luogu{
 		repo:    repository.NewLuoguRepository(),
-		req:     utils.NewRequest[models.LuoguRecordsResponse](),
 		log:     utils.NewLogContainer(),
 		logPath: "logs/luogu.log",
 		errPath: "logs/luogu.err.log",
@@ -47,9 +47,9 @@ func (l *Luogu) GetLuoguUsersRecords(concurrency int) error {
 
 	//通过并发器来获取洛谷用户提交记录
 	conCurrenter.Run(luoguUserDelivers, func(luoguUser models.LuoguUserDeliver) error {
-
+		req := utils.NewRequest[models.LuoguRecordsResponse]()
 		//获取初始化数据：总数和每页数量
-		initData, err := l.req.Get("https://www.luogu.com.cn/record/list", map[string]string{"user": luoguUser.Uid, "page": "1", "_contentOnly": "1"})
+		initData, err := req.SetCookie(utils.JsonDB.Get("Cookie").(string)).Get("https://www.luogu.com.cn/record/list", map[string]string{"user": luoguUser.Uid, "page": "1", "_contentOnly": "1"})
 		if err != nil {
 			l.log.AddErr(fmt.Sprintf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error()))
 			return err
@@ -89,8 +89,10 @@ func (l *Luogu) GetLuoguUsersRecords(concurrency int) error {
 // 增量爬取不重复数据
 func (l *Luogu) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
+	cookie := utils.JsonDB.Get("Cookie").(string)
+	req := utils.NewRequest[models.LuoguRecordsResponse]()
 	for i := 1; i <= page; i++ {
-		data, err := l.req.Get(
+		data, err := req.SetCookie(cookie).Get(
 			"https://www.luogu.com.cn/record/list",
 			map[string]string{
 				"user":         luoguUser.Uid,
@@ -129,8 +131,9 @@ func (l *Luogu) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, page in
 func (l *Luogu) loopRequestAll(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
 	cookie := utils.JsonDB.Get("Cookie").(string)
+	req := utils.NewRequest[models.LuoguRecordsResponse]()
 	for i := 1; i <= page; i++ {
-		data, _ := l.req.
+		data, _ := req.
 			SetCookie(cookie).
 			Get(
 				"https://www.luogu.com.cn/record/list",
@@ -196,14 +199,20 @@ func (l *Luogu) Clear() error {
 	return nil
 }
 
-// ================================更新洛谷Cookie(屎山代码，勿动)===============================================
+// ================================更新洛谷Cookie===============================================
 type LuoguUpdateCookie struct {
 	cookiePool map[string]string
+	log        *utils.LogContainer
+	logPath    string
+	errPath    string
 }
 
 func NewLuoguUpdateCookie() *LuoguUpdateCookie {
 	return &LuoguUpdateCookie{
 		cookiePool: make(map[string]string),
+		log:        utils.NewLogContainer(),
+		logPath:    "logs/luoguUpdateCookie.log",
+		errPath:    "logs/luoguUpdateCookie.err.log",
 	}
 }
 func (l *LuoguUpdateCookie) UpdateLuoguCookie() error {
@@ -211,12 +220,35 @@ func (l *LuoguUpdateCookie) UpdateLuoguCookie() error {
 	l.initRedirect()
 	l.GetCaptcha()
 	l.RedirCaptcha()
-	captcha, err := l.Identify(false)
+	captcha, err := l.Identify(config.AppConfig.Luogu.IsInServer)
 	if err != nil {
+		l.log.AddLog(fmt.Sprintf("验证码识别失败 %s", err.Error()))
 		return err
 	}
-	fmt.Println(captcha)
-	l.Login(captcha)
+	l.log.AddLog(fmt.Sprintf("验证码：%s", captcha))
+	err = l.Login(captcha)
+	if err != nil {
+		l.log.AddLog(fmt.Sprintf("登录失败 %s", err.Error()))
+		return err
+	}
+	l.log.AddLog("登录成功")
+	return nil
+}
+func (l *LuoguUpdateCookie) GetLog() []string {
+	return l.log.GetLog()
+}
+func (l *LuoguUpdateCookie) GetErr() []string {
+	return l.log.GetErr()
+}
+func (l *LuoguUpdateCookie) SaveLog() error {
+	return SaveLog(l.logPath, l.log.GetLog())
+}
+func (l *LuoguUpdateCookie) SaveErr() error {
+	return SaveErr(l.errPath, l.log.GetErr())
+}
+func (l *LuoguUpdateCookie) Clear() error {
+	l.log.ClearLog()
+	l.log.ClearErr()
 	return nil
 }
 func (l *LuoguUpdateCookie) init() {
@@ -238,7 +270,7 @@ func (l *LuoguUpdateCookie) initRedirect() {
 func (l *LuoguUpdateCookie) restyInit() *resty.Client {
 	c := resty.New()
 	c.SetRedirectPolicy(resty.NoRedirectPolicy()).
-		SetHeader("User-Agent", utils.JsonDB.Get("user_agent").(string))
+		SetHeader("User-Agent", config.AppConfig.Luogu.UserAgent)
 	return c
 }
 func (l *LuoguUpdateCookie) GetCaptcha() {
@@ -294,28 +326,26 @@ func (l *LuoguUpdateCookie) Identify(isInServer bool) (string, error) {
 		return str, nil
 	}
 }
-func (l *LuoguUpdateCookie) Login(captcha string) {
+func (l *LuoguUpdateCookie) Login(captcha string) error {
 	c := l.restyInit()
 	cookie := l.cookiePool["cookie1"] + "; " + l.cookiePool["cookie2"]
 	resp, err := c.R().
 		SetBody(map[string]any{
-			"username": utils.JsonDB.Get("username_luogu").(string),
-			"password": utils.JsonDB.Get("password_luogu").(string),
+			"username": config.AppConfig.Luogu.Username,
+			"password": config.AppConfig.Luogu.Password,
 			"captcha":  captcha,
 		}).
 		SetHeader("Cookie", cookie).
 		Post("https://www.luogu.com.cn/do-auth/password")
-	fmt.Println(resp.Status())
 	if resp.StatusCode() != 200 {
-		fmt.Println("验证码错误")
-		return
+		return errors.New("验证码错误" + strconv.Itoa(resp.StatusCode()))
 	}
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	arr := resp.Cookies()
 	uid := arr[0].Name + "=" + arr[0].Value
 	Cookie := cookie + ";" + uid
 	utils.JsonDB.Set("Cookie", Cookie)
-	fmt.Println("登录成功")
+	return nil
 }

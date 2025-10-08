@@ -2,14 +2,12 @@ package services
 
 import (
 	"fmt"
-	"os"
+	"spider/config"
 	"spider/config/db"
 	"spider/src/models"
 	"spider/src/repository"
 	"spider/src/utils"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 type Dingding struct {
@@ -57,10 +55,9 @@ func (d *Dingding) GetDingdingCheckUpData() error {
 
 // 获取钉钉token
 func (d *Dingding) getDingdingToken() (string, error) {
-	godotenv.Load()
 
-	appKey := os.Getenv("ding_accessToken")
-	appSecret := os.Getenv("ding_appSecret")
+	appKey := config.AppConfig.Dingding.AppKey
+	appSecret := config.AppConfig.Dingding.AppSecret
 
 	req := utils.NewRequest[models.DingdingTokenResponse]()
 

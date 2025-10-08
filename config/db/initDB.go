@@ -13,11 +13,12 @@ var Pool *sql.DB
 
 func Init() error {
 	dataSource := fmt.Sprintf(
-		"%v:%v@tcp(%v)/%v?charset=utf8mb4&parseTime=True",
-		config.AppConfig.DB_USER,
-		config.AppConfig.DB_PASSWORD,
-		config.AppConfig.DB_HOST,
-		config.AppConfig.DB_NAME,
+		"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True",
+		config.AppConfig.Database.User,
+		config.AppConfig.Database.Password,
+		config.AppConfig.Database.Host,
+		config.AppConfig.Database.Port,
+		config.AppConfig.Database.DbName,
 	)
 	var err error
 	Pool, err = sql.Open(
@@ -35,11 +36,13 @@ func Init() error {
 			"    用户名: %s\n"+
 			"    密码: %s\n"+
 			"    数据库: %s\n"+
-			"    主机: %s\n",
-		config.AppConfig.DB_USER,
-		config.AppConfig.DB_PASSWORD,
-		config.AppConfig.DB_NAME,
-		config.AppConfig.DB_HOST,
+			"    主机: %s\n"+
+			"    端口: %s\n",
+		config.AppConfig.Database.User,
+		config.AppConfig.Database.Password,
+		config.AppConfig.Database.DbName,
+		config.AppConfig.Database.Host,
+		config.AppConfig.Database.Port,
 	)
 	return nil
 }

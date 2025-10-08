@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"os"
+	"spider/config"
 	"spider/config/db"
 	"spider/src/models"
 	"spider/src/repository"
@@ -22,7 +23,6 @@ type CfService struct {
 // T类型是请求响应的结构体
 type moduleDetail[T any] struct {
 	repo    *repository.CfRepository
-	req     *utils.Request[T]
 	log     *utils.LogContainer
 	logPath string
 	errPath string
@@ -33,7 +33,6 @@ func NewCfService() *CfService {
 		CfUserStatus: cfUserStatus{
 			moduleDetail: moduleDetail[models.CfUserStatusResponse]{
 				repo:    repository.NewCfRepository(),
-				req:     utils.NewRequest[models.CfUserStatusResponse](),
 				log:     utils.NewLogContainer(),
 				logPath: "logs/cfUserStatus.log",
 				errPath: "logs/cfUserStatus.err.log",
@@ -42,7 +41,6 @@ func NewCfService() *CfService {
 		CfOfficialProblems: cfOfficialProblems{
 			moduleDetail: moduleDetail[models.CfOfficialProblemsResponse]{
 				repo:    repository.NewCfRepository(),
-				req:     utils.NewRequest[models.CfOfficialProblemsResponse](),
 				log:     utils.NewLogContainer(),
 				logPath: "logs/cfOfficialProblems.log",
 				errPath: "logs/cfOfficialProblems.err.log",
@@ -52,7 +50,6 @@ func NewCfService() *CfService {
 		CfTeamContests: cfTeamContests{
 			moduleDetail: moduleDetail[models.CfTeamContestsResponse]{
 				repo:    repository.NewCfRepository(),
-				req:     utils.NewRequest[models.CfTeamContestsResponse](),
 				log:     utils.NewLogContainer(),
 				logPath: "logs/cfTeamContests.log",
 				errPath: "logs/cfTeamContests.err.log",
@@ -63,7 +60,6 @@ func NewCfService() *CfService {
 		CfTeamContestsProblems: cfTeamContestsProblems{
 			moduleDetail: moduleDetail[models.CfTeamContestProblemsResponse]{
 				repo:    repository.NewCfRepository(),
-				req:     utils.NewRequest[models.CfTeamContestProblemsResponse](),
 				log:     utils.NewLogContainer(),
 				logPath: "logs/cfTeamContestsProblems.log",
 				errPath: "logs/cfTeamContestsProblems.err.log",
@@ -73,7 +69,6 @@ func NewCfService() *CfService {
 		CfOfficialContests: cfOfficialContests{
 			moduleDetail: moduleDetail[models.CfOfficialContestsResponse]{
 				repo:    repository.NewCfRepository(),
-				req:     utils.NewRequest[models.CfOfficialContestsResponse](),
 				log:     utils.NewLogContainer(),
 				logPath: "logs/cfOfficialContests.log",
 				errPath: "logs/cfOfficialContests.err.log",
@@ -157,7 +152,8 @@ func (r *cfUserStatus) GetCfRecords(concurrency int) error {
 		}
 
 		//发起请求
-		resp, err := r.req.Get(url, map[string]string{})
+		req := utils.NewRequest[models.CfUserStatusResponse]()
+		resp, err := req.Get(url, map[string]string{})
 		if err != nil {
 			r.log.AddErr(fmt.Sprintf("%s 请求数据失败 %v", cfUserData.RealName, err))
 			return err
@@ -198,6 +194,9 @@ func (r *cfUserStatus) handleCfRecords(cfUserData *models.CfUserData, resp *mode
 
 // 构建提交记录表
 func (r *cfUserStatus) buildTable(cfRecord *models.CfSubmission, cfUserData *models.CfUserData) db.Cf_all_submissions {
+	if cfRecord.Problem.Rating == 0 {
+		cfRecord.Problem.Rating = -1
+	}
 	return db.Cf_all_submissions{
 		Sub_id:        int(cfRecord.Id),
 		Account:       cfUserData.Account,
@@ -239,7 +238,8 @@ func (r *cfOfficialProblems) GetCfOfficialProblems() error {
 		r.log.AddErr(fmt.Sprintf("获取url失败 %v", err))
 		return err
 	}
-	resp, err := r.req.Get(url, map[string]string{})
+	req := utils.NewRequest[models.CfOfficialProblemsResponse]()
+	resp, err := req.Get(url, map[string]string{})
 	if err != nil {
 		r.log.AddErr(fmt.Sprintf("获取数据失败 %v", err))
 		return err
@@ -266,6 +266,9 @@ func (r *cfOfficialProblems) handleCfOfficialProblems(resp *models.CfOfficialPro
 func (r *cfOfficialProblems) buildTable(cfProblem *models.CfProblem) db.Cf_official_problems {
 	tags := strings.Join(cfProblem.Tags, "\",\"")
 	tagsArr := fmt.Sprintf("[\"%s\"]", tags)
+	if cfProblem.Rating == 0 {
+		cfProblem.Rating = -1
+	}
 	return db.Cf_official_problems{
 		Problem_id: fmt.Sprintf("%d%s", cfProblem.ContestId, cfProblem.Index),
 		Title:      cfProblem.Name,
@@ -302,7 +305,7 @@ type cfTeamContests struct {
 
 func (r *cfTeamContests) GetCfTeamContests() error {
 	r.count = 0
-	GroupCode := utils.JsonDB.Get("groupCode").(string)
+	GroupCode := config.AppConfig.Cf.GroupCode
 	url, err := utils.GenerateCFurlInstance.Contest.List(r.useAccount, &models.ContestListParams{
 		GroupCode: GroupCode,
 	})
@@ -310,7 +313,8 @@ func (r *cfTeamContests) GetCfTeamContests() error {
 		r.log.AddErr(fmt.Sprintf("获取url失败 %v", err))
 		return err
 	}
-	resp, err := r.req.Get(url, map[string]string{})
+	req := utils.NewRequest[models.CfTeamContestsResponse]()
+	resp, err := req.Get(url, map[string]string{})
 	if err != nil {
 		r.log.AddErr(fmt.Sprintf("获取数据失败 %v", err))
 		return err
@@ -336,6 +340,9 @@ func (r *cfTeamContests) handleCfTeamContests(resp *models.CfTeamContestsRespons
 	return nil
 }
 func (r *cfTeamContests) buildTable(cfTeamContest *models.CfContest) db.Cf_team_contests {
+	if cfTeamContest.StartTimeSeconds == 0 {
+		cfTeamContest.StartTimeSeconds = time.Now().Unix()
+	}
 	return db.Cf_team_contests{
 		Contest_id:   int(cfTeamContest.Id),
 		Contest_name: cfTeamContest.Name,
@@ -389,7 +396,8 @@ func (r *cfTeamContestsProblems) GetCfTeamContestsProblems(concurrency int) erro
 			r.log.AddErr(fmt.Sprintf("获取团队比赛题目失败 %v", err))
 			return err
 		}
-		problems, err := r.req.Get(url, map[string]string{})
+		req := utils.NewRequest[models.CfTeamContestProblemsResponse]()
+		problems, err := req.Get(url, map[string]string{})
 		if err != nil {
 			r.log.AddErr(fmt.Sprintf("获取团队比赛题目失败 %v", err))
 			return err
@@ -491,7 +499,7 @@ type cfOfficialContests struct {
 
 func (r *cfOfficialContests) GetCfOfficialContests() error {
 	r.count = 0
-	GroupCode := utils.JsonDB.Get("groupCode").(string)
+	GroupCode := config.AppConfig.Cf.GroupCode
 	url, err := utils.GenerateCFurlInstance.Contest.List("", &models.ContestListParams{
 		GroupCode: GroupCode,
 	})
@@ -499,7 +507,8 @@ func (r *cfOfficialContests) GetCfOfficialContests() error {
 		r.log.AddErr(fmt.Sprintf("获取url失败 %v", err))
 		return err
 	}
-	resp, err := r.req.Get(url, map[string]string{})
+	req := utils.NewRequest[models.CfOfficialContestsResponse]()
+	resp, err := req.Get(url, map[string]string{})
 	if err != nil {
 		r.log.AddErr(fmt.Sprintf("获取数据失败 %v", err))
 		return err

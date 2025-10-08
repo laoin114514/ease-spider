@@ -1,5 +1,5 @@
-set GOOS = "linux"
-set GOARCH = "amd64"
-set CGO_ENABLED = "0"
+set GOOS=linux
+set GOARCH=amd64
+set CGO_ENABLED=0
 
-go build -o main main.go
+go build -o spider main.go

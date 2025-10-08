@@ -2,30 +2,58 @@ package handler
 
 import (
 	"log"
+	"spider/config"
 	"spider/src/services"
 	"spider/src/utils"
+	"strconv"
 	"time"
 )
 
+func analysisTimerFrequency(s string) time.Duration {
+	idx := 0
+	for ; idx < len(s); idx++ {
+		if !(s[idx] >= '0' && s[idx] <= '9') {
+			break
+		}
+	}
+	duration, err := strconv.Atoi(s[:idx])
+	if err != nil {
+		return 0
+	}
+	if s[idx:] == "s" {
+		return time.Second * time.Duration(duration)
+	} else if s[idx:] == "m" {
+		return time.Minute * time.Duration(duration)
+	} else if s[idx:] == "h" {
+		return time.Hour * time.Duration(duration)
+	} else if s[idx:] == "d" {
+		return time.Hour * 24 * time.Duration(duration)
+	} else {
+		return time.Minute * time.Duration(duration)
+	}
+}
 func TimeTask() {
 	timer := utils.NewTimer()
 	cfService := services.NewCfService()
 	luoguService := services.NewLuoguService()
 	dingService := services.NewDingdingService()
 	luoguUpdateCookieService := services.NewLuoguUpdateCookie()
-	luoguUpdateCookieService.UpdateLuoguCookie()
+
 	//每小时执行一次，更新洛谷Cookie
 	timer.RunWithTimer(
-		time.Hour,
+		analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguUpdateCookie),
+		"更新洛谷Cookie",
 		func() error {
 			luoguUpdateCookieService.UpdateLuoguCookie()
+			luoguUpdateCookieService.SaveLog()
+			luoguUpdateCookieService.Clear()
 			return nil
 		},
 	)
-	//每两小时执行一次，非高速度要求任务
-	timer.MultiRunWithTimer(
-		time.Hour*2,
-		//获取cf官方题目
+	//获取cf官方题目
+	timer.RunWithTimer(
+		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfOfficialProblems),
+		"获取cf官方题目",
 		func() error {
 			err := cfService.CfOfficialProblems.GetCfOfficialProblems()
 			if err != nil {
@@ -36,8 +64,11 @@ func TimeTask() {
 			cfService.CfOfficialProblems.Clear()
 			log.Println("cf官方题目获取完成")
 			return nil
-		},
-		//获取cf官方比赛
+		})
+	//获取cf官方比赛
+	timer.RunWithTimer(
+		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfOfficialContests),
+		"获取cf官方比赛",
 		func() error {
 			err := cfService.CfOfficialContests.GetCfOfficialContests()
 			if err != nil {
@@ -48,8 +79,26 @@ func TimeTask() {
 			cfService.CfOfficialContests.Clear()
 			log.Println("cf官方比赛获取完成")
 			return nil
-		},
-		//获取cf团队比赛
+		})
+	//获取cf团队题目
+	timer.RunWithTimer(
+		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfTeamContestsProblems),
+		"获取cf团队题目",
+		func() error {
+			err := cfService.CfTeamContestsProblems.GetCfTeamContestsProblems(4)
+			if err != nil {
+				return err
+			}
+			cfService.CfTeamContestsProblems.SaveLog()
+			cfService.CfTeamContestsProblems.SaveErr()
+			cfService.CfTeamContestsProblems.Clear()
+			log.Println("cf团队题目获取完成")
+			return nil
+		})
+	//获取cf团队比赛
+	timer.RunWithTimer(
+		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfTeamContests),
+		"获取cf团队比赛",
 		func() error {
 			err := cfService.CfTeamContests.GetCfTeamContests()
 			if err != nil {
@@ -60,20 +109,11 @@ func TimeTask() {
 			cfService.CfTeamContests.Clear()
 			log.Println("cf团队比赛获取完成")
 			return nil
-		},
-		//获取cf团队比赛题目
-		func() error {
-			err := cfService.CfTeamContestsProblems.GetCfTeamContestsProblems(3)
-			if err != nil {
-				return err
-			}
-			cfService.CfTeamContestsProblems.SaveLog()
-			cfService.CfTeamContestsProblems.SaveErr()
-			cfService.CfTeamContestsProblems.Clear()
-			log.Println("cf团队比赛题目获取完成")
-			return nil
-		},
-		//获取钉钉打卡数据
+		})
+	//获取钉钉打卡数据
+	timer.RunWithTimer(
+		analysisTimerFrequency(config.AppConfig.TimerFrequency.Dingding),
+		"获取钉钉打卡数据",
 		func() error {
 			err := dingService.GetDingdingCheckUpData()
 			if err != nil {
@@ -82,13 +122,13 @@ func TimeTask() {
 			dingService.SaveLog()
 			dingService.SaveErr()
 			dingService.Clear()
-			log.Println("钉钉打卡数据获取完成")
+			log.Println("钉钉打卡获取完成")
 			return nil
-		},
-	)
+		})
 	//获取Cf提交记录
 	timer.RunWithTimer(
-		time.Second*120,
+		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfRecords),
+		"获取cf提交记录",
 		func() error {
 			err := cfService.CfUserStatus.GetCfRecords(3)
 			if err != nil {
@@ -102,7 +142,8 @@ func TimeTask() {
 		})
 	//获取洛谷用户提交记录
 	timer.RunWithTimer(
-		time.Second*120,
+		analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguRecords),
+		"获取洛谷用户提交记录",
 		func() error {
 			err := luoguService.GetLuoguUsersRecords(5)
 			if err != nil {
