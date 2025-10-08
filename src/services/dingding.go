@@ -16,6 +16,8 @@ type Dingding struct {
 	repo        *repository.DingdingRepository
 	log         *utils.LogContainer
 	token       string
+	logPath     string
+	errPath     string
 	dingUserMap map[string]any
 	insertCount int
 }
@@ -27,6 +29,8 @@ func NewDingdingService() *Dingding {
 		repo:        repository.NewDingdingRepository(),
 		log:         utils.NewLogContainer(),
 		token:       "",
+		logPath:     "logs/dingding.log",
+		errPath:     "logs/dingding.err.log",
 		dingUserMap: JsonDB.Get("dingUserId").(map[string]any),
 		insertCount: 0,
 	}
@@ -120,6 +124,12 @@ func (d *Dingding) GetLog() []string {
 }
 func (d *Dingding) GetErr() []string {
 	return d.log.GetErr()
+}
+func (d *Dingding) SaveLog() error {
+	return SaveLog(d.logPath, d.log.GetLog())
+}
+func (d *Dingding) SaveErr() error {
+	return SaveErr(d.errPath, d.log.GetErr())
 }
 func (d *Dingding) Clear() error {
 	d.log.ClearLog()

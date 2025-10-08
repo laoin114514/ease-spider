@@ -20,16 +20,20 @@ const (
 )
 
 type Luogu struct {
-	repo *repository.LuoguRepository
-	req  *utils.Request[models.LuoguRecordsResponse]
-	log  *utils.LogContainer
+	repo    *repository.LuoguRepository
+	req     *utils.Request[models.LuoguRecordsResponse]
+	log     *utils.LogContainer
+	logPath string
+	errPath string
 }
 
 func NewLuoguService() *Luogu {
 	return &Luogu{
-		repo: repository.NewLuoguRepository(),
-		req:  utils.NewRequest[models.LuoguRecordsResponse](),
-		log:  utils.NewLogContainer(),
+		repo:    repository.NewLuoguRepository(),
+		req:     utils.NewRequest[models.LuoguRecordsResponse](),
+		log:     utils.NewLogContainer(),
+		logPath: "logs/luogu.log",
+		errPath: "logs/luogu.err.log",
 	}
 }
 
@@ -180,6 +184,12 @@ func (l *Luogu) GetLog() []string {
 func (l *Luogu) GetErr() []string {
 	return l.log.GetErr()
 }
+func (l *Luogu) SaveLog() error {
+	return SaveLog(l.logPath, l.log.GetLog())
+}
+func (l *Luogu) SaveErr() error {
+	return SaveErr(l.errPath, l.log.GetErr())
+}
 func (l *Luogu) Clear() error {
 	l.log.ClearLog()
 	l.log.ClearErr()
@@ -192,7 +202,9 @@ type LuoguUpdateCookie struct {
 }
 
 func NewLuoguUpdateCookie() *LuoguUpdateCookie {
-	return &LuoguUpdateCookie{}
+	return &LuoguUpdateCookie{
+		cookiePool: make(map[string]string),
+	}
 }
 func (l *LuoguUpdateCookie) UpdateLuoguCookie() error {
 	l.init()
@@ -211,47 +223,43 @@ func (l *LuoguUpdateCookie) init() {
 	c := l.restyInit()
 	resp, _ := c.R().Get("https://www.luogu.com.cn/auth/login")
 	cookie := resp.Cookies()
-	utils.JsonDB.Set("cookie2", cookie[0].Name+"="+cookie[0].Value)
+	l.cookiePool["cookie2"] = cookie[0].Name + "=" + cookie[0].Value
 }
 
 func (l *LuoguUpdateCookie) initRedirect() {
 	c := l.restyInit()
 	resp, _ := c.R().
-		SetHeader("Cookie", utils.JsonDB.Get("cookie2").(string)).
+		SetHeader("Cookie", l.cookiePool["cookie2"]).
 		Get("https://www.luogu.com.cn/auth/login")
 	cookie := resp.Cookies()
-	utils.JsonDB.Set("cookie1", cookie[0].Name+"="+cookie[0].Value)
+	l.cookiePool["cookie1"] = cookie[0].Name + "=" + cookie[0].Value
 }
 
 func (l *LuoguUpdateCookie) restyInit() *resty.Client {
 	c := resty.New()
 	c.SetRedirectPolicy(resty.NoRedirectPolicy()).
-		SetHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0")
+		SetHeader("User-Agent", utils.JsonDB.Get("user_agent").(string))
 	return c
 }
 func (l *LuoguUpdateCookie) GetCaptcha() {
 	c := l.restyInit()
 	now := time.Now()
 	stamp := float64(now.UnixMicro()) / 1000
-	// cookie := tempDB.Get("cookie1").(string) + "; " + tempDB.Get("cookie2").(string)
 	resp, _ := c.R().
-		// SetHeader("Cookie", cookie).
 		Get(fmt.Sprintf("https://www.luogu.com.cn/lg4/captcha?_t=%f", stamp))
 	newCookie := resp.Cookies()
-	cookie2 := newCookie[0].Name + "=" + newCookie[0].Value
-	utils.JsonDB.Set("cookie2", cookie2)
+	l.cookiePool["cookie2"] = newCookie[0].Name + "=" + newCookie[0].Value
 }
 func (l *LuoguUpdateCookie) RedirCaptcha() {
 	c := l.restyInit()
 	now := time.Now()
 	stamp := float64(now.UnixMicro()) / 1000
-	cookie := utils.JsonDB.Get("cookie1").(string) + "; " + utils.JsonDB.Get("cookie2").(string)
+	cookie := l.cookiePool["cookie1"] + "; " + l.cookiePool["cookie2"]
 	resp, _ := c.R().
 		SetHeader("Cookie", cookie).
 		Get(fmt.Sprintf("https://www.luogu.com.cn/lg4/captcha?_t=%f", stamp))
 	newCookie := resp.Cookies()
-	cookie2 := newCookie[0].Name + "=" + newCookie[0].Value
-	utils.JsonDB.Set("cookie2", cookie2)
+	l.cookiePool["cookie2"] = newCookie[0].Name + "=" + newCookie[0].Value
 	l.saveImage(resp.Body())
 }
 func (l *LuoguUpdateCookie) saveImage(content []byte) {
@@ -262,31 +270,6 @@ func (l *LuoguUpdateCookie) saveImage(content []byte) {
 	}
 	defer file.Close()
 	file.Write(content)
-}
-func (l *LuoguUpdateCookie) Login(captcha string) {
-	c := l.restyInit()
-	cookie := utils.JsonDB.Get("cookie1").(string) + "; " + utils.JsonDB.Get("cookie2").(string)
-	resp, err := c.R().
-		SetBody(map[string]any{
-			"username": utils.JsonDB.Get("username_luogu").(string),
-			"password": utils.JsonDB.Get("password_luogu").(string),
-			"captcha":  captcha,
-		}).
-		SetHeader("Cookie", cookie).
-		Post("https://www.luogu.com.cn/do-auth/password")
-	fmt.Println(resp.Status())
-	if resp.StatusCode() != 200 {
-		fmt.Println("验证码错误")
-		return
-	}
-	if err != nil {
-		fmt.Println(err)
-	}
-	arr := resp.Cookies()
-	uid := arr[0].Name + "=" + arr[0].Value
-	Cookie := cookie + ";" + uid
-	utils.JsonDB.Set("Cookie", Cookie)
-	fmt.Println("登录成功")
 }
 func (l *LuoguUpdateCookie) Identify(isInServer bool) (string, error) {
 	if isInServer {
@@ -310,4 +293,29 @@ func (l *LuoguUpdateCookie) Identify(isInServer bool) (string, error) {
 		str = str[len(str)-6 : len(str)-2]
 		return str, nil
 	}
+}
+func (l *LuoguUpdateCookie) Login(captcha string) {
+	c := l.restyInit()
+	cookie := l.cookiePool["cookie1"] + "; " + l.cookiePool["cookie2"]
+	resp, err := c.R().
+		SetBody(map[string]any{
+			"username": utils.JsonDB.Get("username_luogu").(string),
+			"password": utils.JsonDB.Get("password_luogu").(string),
+			"captcha":  captcha,
+		}).
+		SetHeader("Cookie", cookie).
+		Post("https://www.luogu.com.cn/do-auth/password")
+	fmt.Println(resp.Status())
+	if resp.StatusCode() != 200 {
+		fmt.Println("验证码错误")
+		return
+	}
+	if err != nil {
+		fmt.Println(err)
+	}
+	arr := resp.Cookies()
+	uid := arr[0].Name + "=" + arr[0].Value
+	Cookie := cookie + ";" + uid
+	utils.JsonDB.Set("Cookie", Cookie)
+	fmt.Println("登录成功")
 }

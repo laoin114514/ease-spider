@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"fmt"
+	"log"
 	"spider/src/services"
 	"spider/src/utils"
 	"time"
@@ -25,15 +25,28 @@ func TimeTask() {
 	//每两小时执行一次，非高速度要求任务
 	timer.MultiRunWithTimer(
 		time.Hour*2,
+		//获取cf官方题目
+		func() error {
+			err := cfService.CfOfficialProblems.GetCfOfficialProblems()
+			if err != nil {
+				return err
+			}
+			cfService.CfOfficialProblems.SaveLog()
+			cfService.CfOfficialProblems.SaveErr()
+			cfService.CfOfficialProblems.Clear()
+			log.Println("cf官方题目获取完成")
+			return nil
+		},
 		//获取cf官方比赛
 		func() error {
 			err := cfService.CfOfficialContests.GetCfOfficialContests()
 			if err != nil {
 				return err
 			}
-			fmt.Println(cfService.CfOfficialContests.GetLog())
-			fmt.Println(cfService.CfOfficialContests.GetErr())
+			cfService.CfOfficialContests.SaveLog()
+			cfService.CfOfficialContests.SaveErr()
 			cfService.CfOfficialContests.Clear()
+			log.Println("cf官方比赛获取完成")
 			return nil
 		},
 		//获取cf团队比赛
@@ -42,9 +55,10 @@ func TimeTask() {
 			if err != nil {
 				return err
 			}
-			fmt.Println(cfService.CfTeamContests.GetLog())
-			fmt.Println(cfService.CfTeamContests.GetErr())
+			cfService.CfTeamContests.SaveLog()
+			cfService.CfTeamContests.SaveErr()
 			cfService.CfTeamContests.Clear()
+			log.Println("cf团队比赛获取完成")
 			return nil
 		},
 		//获取cf团队比赛题目
@@ -53,9 +67,10 @@ func TimeTask() {
 			if err != nil {
 				return err
 			}
-			fmt.Println(cfService.CfTeamContestsProblems.GetLog())
-			fmt.Println(cfService.CfTeamContestsProblems.GetErr())
+			cfService.CfTeamContestsProblems.SaveLog()
+			cfService.CfTeamContestsProblems.SaveErr()
 			cfService.CfTeamContestsProblems.Clear()
+			log.Println("cf团队比赛题目获取完成")
 			return nil
 		},
 		//获取钉钉打卡数据
@@ -64,9 +79,10 @@ func TimeTask() {
 			if err != nil {
 				return err
 			}
-			fmt.Println(dingService.GetLog())
-			fmt.Println(dingService.GetErr())
+			dingService.SaveLog()
+			dingService.SaveErr()
 			dingService.Clear()
+			log.Println("钉钉打卡数据获取完成")
 			return nil
 		},
 	)
@@ -78,9 +94,10 @@ func TimeTask() {
 			if err != nil {
 				return err
 			}
-			fmt.Println(cfService.CfUserStatus.GetLog())
-			fmt.Println(cfService.CfUserStatus.GetErr())
+			cfService.CfUserStatus.SaveLog()
+			cfService.CfUserStatus.SaveErr()
 			cfService.CfUserStatus.Clear()
+			log.Println("cf提交记录获取完成")
 			return nil
 		})
 	//获取洛谷用户提交记录
@@ -91,9 +108,10 @@ func TimeTask() {
 			if err != nil {
 				return err
 			}
-			fmt.Println(luoguService.GetLog())
-			fmt.Println(luoguService.GetErr())
+			luoguService.SaveLog()
+			luoguService.SaveErr()
 			luoguService.Clear()
+			log.Println("洛谷用户提交记录获取完成")
 			return nil
 		})
 }

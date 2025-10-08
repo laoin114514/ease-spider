@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"os"
 	"spider/config/db"
 	"spider/src/models"
 	"spider/src/repository"
@@ -20,54 +21,88 @@ type CfService struct {
 
 // T类型是请求响应的结构体
 type moduleDetail[T any] struct {
-	repo *repository.CfRepository
-	req  *utils.Request[T]
-	log  *utils.LogContainer
+	repo    *repository.CfRepository
+	req     *utils.Request[T]
+	log     *utils.LogContainer
+	logPath string
+	errPath string
 }
 
 func NewCfService() *CfService {
 	return &CfService{
 		CfUserStatus: cfUserStatus{
 			moduleDetail: moduleDetail[models.CfUserStatusResponse]{
-				repo: repository.NewCfRepository(),
-				req:  utils.NewRequest[models.CfUserStatusResponse](),
-				log:  utils.NewLogContainer(),
+				repo:    repository.NewCfRepository(),
+				req:     utils.NewRequest[models.CfUserStatusResponse](),
+				log:     utils.NewLogContainer(),
+				logPath: "logs/cfUserStatus.log",
+				errPath: "logs/cfUserStatus.err.log",
 			},
 		},
 		CfOfficialProblems: cfOfficialProblems{
 			moduleDetail: moduleDetail[models.CfOfficialProblemsResponse]{
-				repo: repository.NewCfRepository(),
-				req:  utils.NewRequest[models.CfOfficialProblemsResponse](),
-				log:  utils.NewLogContainer(),
+				repo:    repository.NewCfRepository(),
+				req:     utils.NewRequest[models.CfOfficialProblemsResponse](),
+				log:     utils.NewLogContainer(),
+				logPath: "logs/cfOfficialProblems.log",
+				errPath: "logs/cfOfficialProblems.err.log",
 			},
 			count: 0,
 		},
 		CfTeamContests: cfTeamContests{
 			moduleDetail: moduleDetail[models.CfTeamContestsResponse]{
-				repo: repository.NewCfRepository(),
-				req:  utils.NewRequest[models.CfTeamContestsResponse](),
-				log:  utils.NewLogContainer(),
+				repo:    repository.NewCfRepository(),
+				req:     utils.NewRequest[models.CfTeamContestsResponse](),
+				log:     utils.NewLogContainer(),
+				logPath: "logs/cfTeamContests.log",
+				errPath: "logs/cfTeamContests.err.log",
 			},
 			count:      0,
 			useAccount: "233zhang",
 		},
 		CfTeamContestsProblems: cfTeamContestsProblems{
 			moduleDetail: moduleDetail[models.CfTeamContestProblemsResponse]{
-				repo: repository.NewCfRepository(),
-				req:  utils.NewRequest[models.CfTeamContestProblemsResponse](),
-				log:  utils.NewLogContainer(),
+				repo:    repository.NewCfRepository(),
+				req:     utils.NewRequest[models.CfTeamContestProblemsResponse](),
+				log:     utils.NewLogContainer(),
+				logPath: "logs/cfTeamContestsProblems.log",
+				errPath: "logs/cfTeamContestsProblems.err.log",
 			},
 			count: 0,
 		},
 		CfOfficialContests: cfOfficialContests{
 			moduleDetail: moduleDetail[models.CfOfficialContestsResponse]{
-				repo: repository.NewCfRepository(),
-				req:  utils.NewRequest[models.CfOfficialContestsResponse](),
-				log:  utils.NewLogContainer(),
+				repo:    repository.NewCfRepository(),
+				req:     utils.NewRequest[models.CfOfficialContestsResponse](),
+				log:     utils.NewLogContainer(),
+				logPath: "logs/cfOfficialContests.log",
+				errPath: "logs/cfOfficialContests.err.log",
 			},
 			count: 0,
 		},
 	}
+}
+func SaveLog(logPath string, log []string) error {
+	file, err := os.OpenFile(logPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	for _, log := range log {
+		file.WriteString(log)
+	}
+	return nil
+}
+func SaveErr(errPath string, errs []string) error {
+	file, err := os.OpenFile(errPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	for _, err := range errs {
+		file.WriteString(err)
+	}
+	return nil
 }
 
 // //////////////////////////////////////////////// 获取cf用户提交记录////////////////////////////////////////////////////////
@@ -179,6 +214,12 @@ func (r *cfUserStatus) GetLog() []string {
 func (r *cfUserStatus) GetErr() []string {
 	return r.log.GetErr()
 }
+func (r *cfUserStatus) SaveLog() error {
+	return SaveLog(r.logPath, r.log.GetLog())
+}
+func (r *cfUserStatus) SaveErr() error {
+	return SaveErr(r.errPath, r.log.GetErr())
+}
 func (r *cfUserStatus) Clear() error {
 	r.log.ClearLog()
 	r.log.ClearErr()
@@ -238,6 +279,12 @@ func (r *cfOfficialProblems) GetLog() []string {
 }
 func (r *cfOfficialProblems) GetErr() []string {
 	return r.log.GetErr()
+}
+func (r *cfOfficialProblems) SaveLog() error {
+	return SaveLog(r.logPath, r.log.GetLog())
+}
+func (r *cfOfficialProblems) SaveErr() error {
+	return SaveErr(r.errPath, r.log.GetErr())
 }
 func (r *cfOfficialProblems) Clear() error {
 	r.log.ClearLog()
@@ -301,6 +348,12 @@ func (r *cfTeamContests) GetLog() []string {
 }
 func (r *cfTeamContests) GetErr() []string {
 	return r.log.GetErr()
+}
+func (r *cfTeamContests) SaveLog() error {
+	return SaveLog(r.logPath, r.log.GetLog())
+}
+func (r *cfTeamContests) SaveErr() error {
+	return SaveErr(r.errPath, r.log.GetErr())
 }
 func (r *cfTeamContests) Clear() error {
 	r.log.ClearLog()
@@ -378,6 +431,12 @@ func (r *cfTeamContestsProblems) GetLog() []string {
 }
 func (r *cfTeamContestsProblems) GetErr() []string {
 	return r.log.GetErr()
+}
+func (r *cfTeamContestsProblems) SaveLog() error {
+	return SaveLog(r.logPath, r.log.GetLog())
+}
+func (r *cfTeamContestsProblems) SaveErr() error {
+	return SaveErr(r.errPath, r.log.GetErr())
 }
 func (r *cfTeamContestsProblems) Clear() error {
 	r.log.ClearLog()
@@ -478,6 +537,12 @@ func (r *cfOfficialContests) GetLog() []string {
 }
 func (r *cfOfficialContests) GetErr() []string {
 	return r.log.GetErr()
+}
+func (r *cfOfficialContests) SaveLog() error {
+	return SaveLog(r.logPath, r.log.GetLog())
+}
+func (r *cfOfficialContests) SaveErr() error {
+	return SaveErr(r.errPath, r.log.GetErr())
 }
 func (r *cfOfficialContests) Clear() error {
 	r.log.ClearLog()
