@@ -10,10 +10,25 @@ import (
 	"github.com/sergi/go-diff/diffmatchpatch"
 )
 
+// ================================ 结构体定义 ================================
+
 // CodeDetectionService 代码检测服务
 type CodeDetectionService struct {
 	similarityThreshold float64
 }
+
+// SimilarityDetails 详细相似度信息
+type SimilarityDetails struct {
+	OverallSimilarity   float64 `json:"overall_similarity"`   // 综合相似度
+	TextSimilarity      float64 `json:"text_similarity"`      // 文本相似度
+	SyntaxSimilarity    float64 `json:"syntax_similarity"`    // 语法相似度
+	SemanticSimilarity  float64 `json:"semantic_similarity"`  // 语义相似度
+	StructureSimilarity float64 `json:"structure_similarity"` // 结构相似度
+	IsSuspicious        bool    `json:"is_suspicious"`        // 是否可疑
+	SimilarityType      string  `json:"similarity_type"`      // 相似度类型
+}
+
+// ================================ 构造函数 ================================
 
 // NewCodeDetectionService 创建代码检测服务
 func NewCodeDetectionService(threshold float64) *CodeDetectionService {
@@ -22,57 +37,102 @@ func NewCodeDetectionService(threshold float64) *CodeDetectionService {
 	}
 }
 
+// ================================ 公共API方法 ================================
+
 // CompareCodeSimilarity 比较两个代码的相似度
+// 参数:
+//   - code1: 第一个代码
+//   - code2: 第二个代码
+//   - language: 编程语言 (go, java, python, javascript, cpp)
+//
+// 返回:
+//   - float64: 相似度 (0.0-1.0, 1.0表示完全相同)
 func (s *CodeDetectionService) CompareCodeSimilarity(code1, code2, language string) float64 {
 	return s.compareCodeSimilarity(code1, code2, language)
 }
 
 // CompareCodeSimilarityDetailed 比较两个代码的详细相似度信息
+// 参数:
+//   - code1: 第一个代码
+//   - code2: 第二个代码
+//   - language: 编程语言
+//
+// 返回:
+//   - *SimilarityDetails: 详细的相似度信息
 func (s *CodeDetectionService) CompareCodeSimilarityDetailed(code1, code2, language string) *SimilarityDetails {
 	return s.compareCodeSimilarityDetailed(code1, code2, language)
 }
 
 // QuickCompare 快速比较函数，返回相似度百分比字符串
+// 参数:
+//   - code1: 第一个代码
+//   - code2: 第二个代码
+//   - language: 编程语言
+//
+// 返回:
+//   - string: 相似度百分比 (如 "85.6%")
 func (s *CodeDetectionService) QuickCompare(code1, code2, language string) string {
 	return s.quickCompare(code1, code2, language)
 }
 
 // BatchCompare 批量比较代码相似度
-func (s *CodeDetectionService) BatchCompare(targetCode, targetLanguage string, codeList []string, languageList []string) []SimilarityResult {
-	return s.batchCompare(targetCode, targetLanguage, codeList, languageList)
-}
-
-// GetTopSimilar 获取最相似的代码
-func (s *CodeDetectionService) GetTopNSimilar(targetCode, targetLanguage string, codeList []string, languageList []string, topN int) []SimilarityResult {
-	return s.getTopNSimilar(targetCode, targetLanguage, codeList, languageList, topN)
-}
-func (s *CodeDetectionService) GetTopSimilar(targetCode, targetLanguage string, codeList []string, languageList []string) SimilarityResult {
-	result := s.getTopNSimilar(targetCode, targetLanguage, codeList, languageList, 1)
-	if len(result) > 0 {
-		return result[0]
-	}
-	return SimilarityResult{}
-}
-
-// CompareCodeSimilarity 比较两个代码的相似度
 // 参数:
-//   - subCode: 提交的代码
-//   - similarCode: 要比较的代码
-//   - language: 编程语言 (go, java, python, javascript, cpp)
+//   - targetCode: 目标代码
+//   - targetLanguage: 目标代码语言
+//   - codeList: 要比较的代码列表
+//   - languageList: 对应的语言列表
 //
 // 返回:
-//   - rate: 相似度 (0.0-1.0, 1.0表示完全相同)
-func (s *CodeDetectionService) compareCodeSimilarity(subCode, similarCode, language string) float64 {
+//   - []SimilarityResult: 相似度结果列表，按相似度降序排列
+// func (s *CodeDetectionService) BatchCompare(targetCode, targetLanguage string, codeList []string, languageList []string) []SimilarityResult {
+// 	return s.batchCompare(targetCode, targetLanguage, codeList, languageList)
+// }
+
+// GetTopNSimilar 获取前N个最相似的代码
+// 参数:
+//   - targetCode: 目标代码
+//   - targetLanguage: 目标代码语言
+//   - codeList: 要比较的代码列表
+//   - languageList: 对应的语言列表
+//   - topN: 返回前N个结果
+//
+// 返回:
+//   - []SimilarityResult: 前N个最相似的结果
+// func (s *CodeDetectionService) GetTopNSimilar(targetCode, targetLanguage string, codeList []string, languageList []string, topN int) []SimilarityResult {
+// 	return s.getTopNSimilar(targetCode, targetLanguage, codeList, languageList, topN)
+// }
+
+// GetTopSimilar 获取最相似的代码（单个结果）
+// 参数:
+//   - targetCode: 目标代码
+//   - targetLanguage: 目标代码语言
+//   - codeList: 要比较的代码列表
+//   - languageList: 对应的语言列表
+//
+// 返回:
+//   - SimilarityResult: 最相似的结果
+// func (s *CodeDetectionService) GetTopSimilar(targetCode, targetLanguage string, codeList []string, languageList []string) SimilarityResult {
+// 	result := s.getTopNSimilar(targetCode, targetLanguage, codeList, languageList, 1)
+// 	if len(result) > 0 {
+// 		return result[0]
+// 	}
+// 	return SimilarityResult{}
+// }
+
+// ================================ 私有方法 ================================
+
+// compareCodeSimilarity 比较两个代码的相似度（私有方法）
+func (s *CodeDetectionService) compareCodeSimilarity(code1, code2, language string) float64 {
 	// 创建代码分析器
 	analyzer1 := detector.NewCodeAnalyzer(language)
 	analyzer2 := detector.NewCodeAnalyzer(language)
 
 	// 分析两个代码的特征
-	features1 := analyzer1.Analyze(subCode)
-	features2 := analyzer2.Analyze(similarCode)
+	features1 := analyzer1.Analyze(code1)
+	features2 := analyzer2.Analyze(code2)
 
 	// 创建相似度计算器
-	similarityCalc := detector.NewSimilarityCalculator(0.0) // 阈值为0，返回所有相似度
+	similarityCalc := detector.NewSimilarityCalculator(s.similarityThreshold) // 阈值为0，返回所有相似度
 
 	// 计算相似度
 	result := similarityCalc.CalculateSimilarity(features1, features2)
@@ -80,25 +140,18 @@ func (s *CodeDetectionService) compareCodeSimilarity(subCode, similarCode, langu
 	return result.OverallSimilarity
 }
 
-// CompareCodeSimilarityDetailed 比较两个代码的详细相似度信息
-// 参数:
-//   - subCode: 提交的代码
-//   - similarCode: 要比较的代码
-//   - language: 编程语言
-//
-// 返回:
-//   - SimilarityDetails: 详细的相似度信息
-func (s *CodeDetectionService) compareCodeSimilarityDetailed(subCode, similarCode, language string) *SimilarityDetails {
+// compareCodeSimilarityDetailed 比较两个代码的详细相似度信息（私有方法）
+func (s *CodeDetectionService) compareCodeSimilarityDetailed(code1, code2, language string) *SimilarityDetails {
 	// 创建代码分析器
 	analyzer1 := detector.NewCodeAnalyzer(language)
 	analyzer2 := detector.NewCodeAnalyzer(language)
 
 	// 分析两个代码的特征
-	features1 := analyzer1.Analyze(subCode)
-	features2 := analyzer2.Analyze(similarCode)
+	features1 := analyzer1.Analyze(code1)
+	features2 := analyzer2.Analyze(code2)
 
 	// 创建相似度计算器
-	similarityCalc := detector.NewSimilarityCalculator(0.9)
+	similarityCalc := detector.NewSimilarityCalculator(s.similarityThreshold)
 
 	// 计算相似度
 	result := similarityCalc.CalculateSimilarity(features1, features2)
@@ -114,15 +167,15 @@ func (s *CodeDetectionService) compareCodeSimilarityDetailed(subCode, similarCod
 	}
 }
 
-// SimilarityDetails 详细相似度信息
-type SimilarityDetails struct {
-	OverallSimilarity   float64 `json:"overall_similarity"`   // 综合相似度
-	TextSimilarity      float64 `json:"text_similarity"`      // 文本相似度
-	SyntaxSimilarity    float64 `json:"syntax_similarity"`    // 语法相似度
-	SemanticSimilarity  float64 `json:"semantic_similarity"`  // 语义相似度
-	StructureSimilarity float64 `json:"structure_similarity"` // 结构相似度
-	IsSuspicious        bool    `json:"is_suspicious"`        // 是否可疑
-	SimilarityType      string  `json:"similarity_type"`      // 相似度类型
+// quickCompare 快速比较函数，返回相似度百分比字符串（私有方法）
+func (s *CodeDetectionService) quickCompare(code1, code2, language string) string {
+	rate := s.compareCodeSimilarity(code1, code2, language)
+	return s.formatSimilarity(rate)
+}
+
+// formatSimilarity 格式化相似度为百分比字符串
+func (s *CodeDetectionService) formatSimilarity(similarity float64) string {
+	return fmt.Sprintf("%.2f%%", similarity*100)
 }
 
 // determineSimilarityType 确定相似度类型
@@ -139,24 +192,9 @@ func (s *CodeDetectionService) determineSimilarityType(result *detector.Similari
 	return "混合"
 }
 
-// QuickCompare 快速比较函数，返回相似度百分比字符串
-// 参数:
-//   - subCode: 提交的代码
-//   - similarCode: 要比较的代码
-//   - language: 编程语言
-//
-// 返回:
-//   - string: 相似度百分比 (如 "85.6%")
-func (s *CodeDetectionService) quickCompare(subCode, similarCode, language string) string {
-	rate := s.compareCodeSimilarity(subCode, similarCode, language)
-	return s.formatSimilarity(rate)
-}
-
-// FormatSimilarity 格式化相似度为百分比字符串
-func (s *CodeDetectionService) formatSimilarity(similarity float64) string {
-	return fmt.Sprintf("%.2f%%", similarity*100)
-}
-
+// ===============================================以下未完善==========================================================
+// ===============================================以下未完善==========================================================
+// ===============================================以下未完善==========================================================
 // SimpleTextSimilarity 简单的文本相似度计算（基于编辑距离）
 // 参数:
 //   - text1: 第一个文本

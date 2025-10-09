@@ -10,7 +10,7 @@ type CheatJudge struct {
 }
 type suspiciousResult struct {
 	ProblemID         string
-	SimilarityDetails SimilarityResult
+	SimilarityDetails *SimilarityDetails
 	Code              string
 	SimilarCode       string
 }
@@ -23,7 +23,7 @@ func NewCheatJudge() *CheatJudge {
 func (c *CheatJudge) GetSuspiciousResults() []suspiciousResult {
 	return c.suspiciousResults
 }
-func (c *CheatJudge) JudgeWithCode(code string, problemID string) error {
+func (c *CheatJudge) JudgeWithCode(code string, problemID string, threshold float64) error {
 	luoguSolutionService := NewLuoguSolution()
 	solutions, err := luoguSolutionService.GetSolutionList(problemID)
 	if err != nil {
@@ -31,27 +31,21 @@ func (c *CheatJudge) JudgeWithCode(code string, problemID string) error {
 	}
 
 	for _, solution := range solutions {
-		codeDetectorService := NewCodeDetectionService(1)
+		codeDetectorService := NewCodeDetectionService(threshold)
 		markdownParser := utils.NewMarkdownParser(solution.Content)
 
 		//提取代码块
 		codeBlocks := markdownParser.ExtractCodeBlocks()
-
-		//将codeBlocks转换为codeBlocksStr和languageList
-		codeBlocksStr := make([]string, len(codeBlocks))
-		languageList := make([]string, len(codeBlocks))
-		for i, codeBlock := range codeBlocks {
-			codeBlocksStr[i] = codeBlock.Content
-			languageList[i] = codeBlock.Language
-		}
-		similarityResults := codeDetectorService.GetTopSimilar(code, "markdown", codeBlocksStr, languageList)
-		if similarityResults.IsSuspicious {
-			c.suspiciousResults = append(c.suspiciousResults, suspiciousResult{
-				ProblemID:         problemID,
-				SimilarityDetails: similarityResults,
-				Code:              code,
-				SimilarCode:       similarityResults.Code,
-			})
+		for _, codeBlock := range codeBlocks {
+			similarityDetails := codeDetectorService.CompareCodeSimilarityDetailed(code, codeBlock.Content, codeBlock.Language)
+			if similarityDetails.IsSuspicious {
+				c.suspiciousResults = append(c.suspiciousResults, suspiciousResult{
+					ProblemID:         problemID,
+					SimilarityDetails: similarityDetails,
+					Code:              code,
+					SimilarCode:       codeBlock.Content,
+				})
+			}
 		}
 	}
 	return nil

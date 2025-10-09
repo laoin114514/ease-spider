@@ -101,9 +101,9 @@ int main()
     return 0;
 }
 `
-	cheatJudgeService.JudgeWithCode(code, "P3372")
+	cheatJudgeService.JudgeWithCode(code, "P3372", 0.9)
 	result := cheatJudgeService.GetSuspiciousResults()
 	for _, result := range result {
-		fmt.Println(result.SimilarityDetails.OverallSimilarity)
+		fmt.Println(result.SimilarityDetails)
 	}
 }
