@@ -32,6 +32,8 @@ func main() {
 	utils.InitGlobalJSONDB("config.json")
 	utils.InitGenerateCFurl()
 
+	handler.Test()
+	return
 	log.Println("系统初始化完成，开始执行定时任务...")
 
 	var wg sync.WaitGroup

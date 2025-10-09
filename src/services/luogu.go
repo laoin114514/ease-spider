@@ -1,12 +1,14 @@
 package services
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
 	"net/http"
 	"os"
 	"os/exec"
+	"regexp"
 	"spider/config"
 	"spider/config/db"
 	"spider/src/constants"
@@ -328,12 +330,91 @@ func (l *LuoguUpdateCookie) Login(captcha string) error {
 // =============================================爬取洛谷题解===============================================
 type LuoguSolution struct {
 	*LogService
-	repo *repository.LuoguRepository
+	repo      *repository.LuoguRepository
+	totalPage int
+	solutions []models.SolutionContent
 }
 
 func NewLuoguSolution() *LuoguSolution {
 	return &LuoguSolution{
 		LogService: NewLogService("logs/luoguSolution.log", "logs/luoguSolution.err.log"),
 		repo:       repository.NewLuoguRepository(),
+		totalPage:  0,
+		solutions:  []models.SolutionContent{},
 	}
+}
+
+// 获取全部题解
+func (s *LuoguSolution) GetSolutionList(problemID string) ([]models.SolutionContent, error) {
+	_, err := s.GetSolution(problemID, 1)
+	if err != nil {
+		return nil, err
+	}
+	pageRange := []int{}
+	for i := 1; i <= s.totalPage; i++ {
+		pageRange = append(pageRange, i)
+	}
+	//初始化并发器
+	conCurrenter := utils.NewConCurrenter[int](config.AppConfig.Luogu.LuoguSolutionConcurrency)
+	conCurrenter.Run(pageRange, func(page int) error {
+		solutions, err := s.GetSolution(problemID, page)
+		if err != nil {
+			return err
+		}
+		s.solutions = append(s.solutions, solutions...)
+		return nil
+	})
+	return s.solutions, nil
+}
+
+// 获取一页题解及详细信息
+func (s *LuoguSolution) GetSolution(problemID string, page int) ([]models.SolutionContent, error) {
+	//如果页数大于总页数，并且不是第一页，则返回错误
+	if page > s.totalPage && page != 1 {
+		return nil, errors.New("页数超出范围")
+	}
+	client := resty.New()
+	cookie := utils.JsonDB.Get("Cookie")
+	if cookie == nil {
+		return nil, errors.New("cookie不存在")
+	}
+	url := fmt.Sprintf("https://www.luogu.com.cn/problem/solution/%s?page=%d", problemID, page)
+	resp, err := client.R().
+		SetHeader("Cookie", cookie.(string)).
+		Get(url)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode() != 200 {
+		return nil, errors.New("http code错误" + strconv.Itoa(resp.StatusCode()))
+	}
+	//从html提取json数据
+	response, err := s.parseHTMLJSON(string(resp.Body()))
+	if err != nil {
+		return nil, err
+	}
+	totalPage := int(math.Ceil(float64(response.Data.Solutions.Count) / float64(response.Data.Solutions.PerPage)))
+	s.totalPage = totalPage
+	return response.Data.Solutions.Result, nil
+}
+
+// 解析html
+func (s *LuoguSolution) parseHTMLJSON(htmlContent string) (models.LuoguSolutionResponse, error) {
+	// 使用正则表达式提取JSON数据
+	re := regexp.MustCompile(`<script id="lentille-context" type="application/json">\s*(\{[\s\S]*?\})\s*</script>`)
+	matches := re.FindStringSubmatch(htmlContent)
+
+	if len(matches) < 2 {
+		return models.LuoguSolutionResponse{}, fmt.Errorf("未找到JSON数据")
+	}
+
+	jsonStr := matches[1]
+
+	// 解析JSON
+	var pageData models.LuoguSolutionResponse
+	err := json.Unmarshal([]byte(jsonStr), &pageData)
+	if err != nil {
+		return models.LuoguSolutionResponse{}, fmt.Errorf("解析JSON失败: %v", err)
+	}
+	return pageData, nil
 }

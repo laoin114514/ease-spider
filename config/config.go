@@ -25,11 +25,12 @@ type dingdingConfig struct {
 	AppSecret string `yaml:"appSecret"`
 }
 type luoguConfig struct {
-	Username                string `yaml:"username"`
-	Password                string `yaml:"password"`
-	UserAgent               string `yaml:"userAgent"`
-	IsInServer              bool   `yaml:"isInServer"`
-	LuoguRecordsConcurrency int    `yaml:"luoguRecordsConcurrency"`
+	Username                 string `yaml:"username"`
+	Password                 string `yaml:"password"`
+	UserAgent                string `yaml:"userAgent"`
+	IsInServer               bool   `yaml:"isInServer"`
+	LuoguRecordsConcurrency  int    `yaml:"luoguRecordsConcurrency"`
+	LuoguSolutionConcurrency int    `yaml:"luoguSolutionConcurrency"`
 }
 type cfConfig struct {
 	GroupCode                        string `yaml:"groupCode"`
