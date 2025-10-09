@@ -35,7 +35,7 @@ func analysisTimerFrequency(s string) time.Duration {
 func TimeTask() {
 	timer := utils.NewTimer()
 	cfService := services.NewCfService()
-	luoguService := services.NewLuoguService()
+	luoguRecordsService := services.NewLuoguRecordsService()
 	dingService := services.NewDingdingService()
 	luoguUpdateCookieService := services.NewLuoguUpdateCookie()
 
@@ -157,13 +157,13 @@ func TimeTask() {
 		"获取洛谷用户提交记录",
 		func() error {
 			log.Println("开始获取洛谷用户提交记录")
-			err := luoguService.GetLuoguUsersRecords()
+			err := luoguRecordsService.GetLuoguUsersRecords()
 			if err != nil {
 				return err
 			}
-			luoguService.SaveLog()
-			luoguService.SaveErr()
-			luoguService.Clear()
+			luoguRecordsService.SaveLog()
+			luoguRecordsService.SaveErr()
+			luoguRecordsService.Clear()
 			log.Println("洛谷用户提交记录获取完成")
 			return nil
 		})

@@ -20,20 +20,20 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-type Luogu struct {
+type LuoguRecords struct {
 	*LogService
 	repo *repository.LuoguRepository
 }
 
-func NewLuoguService() *Luogu {
-	return &Luogu{
+func NewLuoguRecordsService() *LuoguRecords {
+	return &LuoguRecords{
 		LogService: NewLogService("logs/luogu.log", "logs/luogu.err.log"),
 		repo:       repository.NewLuoguRepository(),
 	}
 }
 
 // 核心函数，获取洛谷用户提交记录
-func (l *Luogu) GetLuoguUsersRecords() error {
+func (l *LuoguRecords) GetLuoguUsersRecords() error {
 	conCurrenter := utils.NewConCurrenter[models.LuoguUserDeliver](config.AppConfig.Luogu.LuoguRecordsConcurrency)
 	luoguUserDelivers, err := l.repo.GetUserNameMap()
 	if err != nil {
@@ -82,7 +82,7 @@ func (l *Luogu) GetLuoguUsersRecords() error {
 }
 
 // 增量爬取不重复数据
-func (l *Luogu) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, page int) error {
+func (l *LuoguRecords) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
 	cookie := utils.JsonDB.Get("Cookie").(string)
 	req := utils.NewRequest[models.LuoguRecordsResponse]()
@@ -123,7 +123,7 @@ func (l *Luogu) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, page in
 }
 
 // 全量爬取所有页数的数据
-func (l *Luogu) loopRequestAll(luoguUser *models.LuoguUserDeliver, page int) error {
+func (l *LuoguRecords) loopRequestAll(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
 	cookie := utils.JsonDB.Get("Cookie").(string)
 	req := utils.NewRequest[models.LuoguRecordsResponse]()
@@ -156,7 +156,7 @@ func (l *Luogu) loopRequestAll(luoguUser *models.LuoguUserDeliver, page int) err
 }
 
 // 构建提交记录表
-func (l *Luogu) buildTable(record *models.LuoguRecord) db.Luogu_all_submissions {
+func (l *LuoguRecords) buildTable(record *models.LuoguRecord) db.Luogu_all_submissions {
 	difficulty := constants.LuoguDifficultyMap
 	if record.Problem.Difficulty >= len(difficulty) {
 		difficulty = append(difficulty, "unknown")
@@ -174,7 +174,7 @@ func (l *Luogu) buildTable(record *models.LuoguRecord) db.Luogu_all_submissions 
 }
 
 // 计算页数
-func (l *Luogu) calculatePage(luoguRecordsResponse *models.LuoguRecordsResponse) int {
+func (l *LuoguRecords) calculatePage(luoguRecordsResponse *models.LuoguRecordsResponse) int {
 	return int(math.Ceil(float64(luoguRecordsResponse.CurrentData.Records.Count) / float64(luoguRecordsResponse.CurrentData.Records.PerPage)))
 }
 
@@ -323,4 +323,17 @@ func (l *LuoguUpdateCookie) Login(captcha string) error {
 	Cookie := cookie + ";" + uid
 	utils.JsonDB.Set("Cookie", Cookie)
 	return nil
+}
+
+// =============================================爬取洛谷题解===============================================
+type LuoguSolution struct {
+	*LogService
+	repo *repository.LuoguRepository
+}
+
+func NewLuoguSolution() *LuoguSolution {
+	return &LuoguSolution{
+		LogService: NewLogService("logs/luoguSolution.log", "logs/luoguSolution.err.log"),
+		repo:       repository.NewLuoguRepository(),
+	}
 }
