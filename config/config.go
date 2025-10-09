@@ -32,10 +32,10 @@ type luoguConfig struct {
 	LuoguRecordsConcurrency int    `yaml:"luoguRecordsConcurrency"`
 }
 type cfConfig struct {
-	GroupCode                 string `yaml:"groupCode"`
-	ManagerAccount            string `yaml:"managerAccount"`
-	CfRecordsConcurrency      int    `yaml:"cfRecordsConcurrency"`
-	CfTeamContestsConcurrency int    `yaml:"cfTeamContestsConcurrency"`
+	GroupCode                        string `yaml:"groupCode"`
+	ManagerAccount                   string `yaml:"managerAccount"`
+	CfRecordsConcurrency             int    `yaml:"cfRecordsConcurrency"`
+	CfTeamContestProblemsConcurrency int    `yaml:"cfTeamContestProblemsConcurrency"`
 }
 type timerFrequencyConfig struct {
 	CfOfficialContests     string `yaml:"cf_official_contests"`

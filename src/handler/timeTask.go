@@ -44,7 +44,12 @@ func TimeTask() {
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguUpdateCookie),
 		"更新洛谷Cookie",
 		func() error {
-			luoguUpdateCookieService.UpdateLuoguCookie()
+			log.Println("开始更新洛谷Cookie")
+			err := luoguUpdateCookieService.UpdateLuoguCookie()
+			if err != nil {
+				return err
+			}
+			luoguUpdateCookieService.SaveLog()
 			luoguUpdateCookieService.SaveLog()
 			luoguUpdateCookieService.Clear()
 			return nil
@@ -55,6 +60,7 @@ func TimeTask() {
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfOfficialProblems),
 		"获取cf官方题目",
 		func() error {
+			log.Println("开始获取cf官方题目")
 			err := cfService.CfOfficialProblems.GetCfOfficialProblems()
 			if err != nil {
 				return err
@@ -70,6 +76,7 @@ func TimeTask() {
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfOfficialContests),
 		"获取cf官方比赛",
 		func() error {
+			log.Println("开始获取cf官方比赛")
 			err := cfService.CfOfficialContests.GetCfOfficialContests()
 			if err != nil {
 				return err
@@ -85,6 +92,7 @@ func TimeTask() {
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfTeamContestsProblems),
 		"获取cf团队题目",
 		func() error {
+			log.Println("开始获取cf团队题目")
 			err := cfService.CfTeamContestsProblems.GetCfTeamContestsProblems()
 			if err != nil {
 				return err
@@ -100,6 +108,7 @@ func TimeTask() {
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfTeamContests),
 		"获取cf团队比赛",
 		func() error {
+			log.Println("开始获取cf团队比赛")
 			err := cfService.CfTeamContests.GetCfTeamContests()
 			if err != nil {
 				return err
@@ -115,6 +124,7 @@ func TimeTask() {
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.Dingding),
 		"获取钉钉打卡数据",
 		func() error {
+			log.Println("开始获取钉钉打卡数据")
 			err := dingService.GetDingdingCheckUpData()
 			if err != nil {
 				return err
@@ -130,6 +140,7 @@ func TimeTask() {
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfRecords),
 		"获取cf提交记录",
 		func() error {
+			log.Println("开始获取cf提交记录")
 			err := cfService.CfUserStatus.GetCfRecords()
 			if err != nil {
 				return err
@@ -145,6 +156,7 @@ func TimeTask() {
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguRecords),
 		"获取洛谷用户提交记录",
 		func() error {
+			log.Println("开始获取洛谷用户提交记录")
 			err := luoguService.GetLuoguUsersRecords()
 			if err != nil {
 				return err

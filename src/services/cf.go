@@ -291,7 +291,7 @@ type cfTeamContestsProblems struct {
 func (r *cfTeamContestsProblems) GetCfTeamContestsProblems() error {
 	r.count = 0
 	teamContests, err := r.repo.GetTeamContests()
-	conCurrenter := utils.NewConCurrenter[db.Cf_team_contests](config.AppConfig.Cf.CfTeamContestsConcurrency)
+	conCurrenter := utils.NewConCurrenter[db.Cf_team_contests](config.AppConfig.Cf.CfTeamContestProblemsConcurrency)
 	if err != nil {
 		r.log.AddErr(fmt.Sprintf("获取团队比赛失败 %v", err))
 		return err

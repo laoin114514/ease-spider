@@ -5,14 +5,14 @@ import (
 	"spider/src/utils"
 )
 
-// BaseService 提供所有服务的公共功能
+// BaseService 提供所有服务的日志功能
 type LogService struct {
 	log     *utils.LogContainer
 	logPath string
 	errPath string
 }
 
-// NewBaseService 创建基础服务
+// NewLogService 创建日志服务
 func NewLogService(logPath, errPath string) *LogService {
 	return &LogService{
 		log:     utils.NewLogContainer(),
