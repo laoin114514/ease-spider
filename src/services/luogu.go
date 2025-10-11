@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"regexp"
@@ -16,7 +17,6 @@ import (
 	"spider/src/repository"
 	"spider/src/utils"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -195,15 +195,15 @@ func NewLuoguUpdateCookie() *LuoguUpdateCookie {
 func (l *LuoguUpdateCookie) UpdateLuoguCookie() error {
 	l.init()
 	l.initRedirect()
-	l.GetCaptcha()
-	l.RedirCaptcha()
-	captcha, err := l.Identify(config.AppConfig.Luogu.IsInServer)
+	l.getCaptcha()
+	l.redirCaptcha()
+	captcha, err := l.identify(config.AppConfig.Luogu.IsInServer)
 	if err != nil {
 		l.AddLog(fmt.Sprintf("验证码识别失败 %s", err.Error()))
 		return err
 	}
 	l.AddLog(fmt.Sprintf("验证码：%s", captcha))
-	err = l.Login(captcha)
+	err = l.login(captcha)
 	if err != nil {
 		l.AddLog(fmt.Sprintf("登录失败 %s", err.Error()))
 		return err
@@ -233,7 +233,7 @@ func (l *LuoguUpdateCookie) restyInit() *resty.Client {
 		SetHeader("User-Agent", config.AppConfig.Luogu.UserAgent)
 	return c
 }
-func (l *LuoguUpdateCookie) GetCaptcha() {
+func (l *LuoguUpdateCookie) getCaptcha() {
 	c := l.restyInit()
 	now := time.Now()
 	stamp := float64(now.UnixMicro()) / 1000
@@ -242,7 +242,7 @@ func (l *LuoguUpdateCookie) GetCaptcha() {
 	newCookie := resp.Cookies()
 	l.cookiePool["cookie2"] = newCookie[0].Name + "=" + newCookie[0].Value
 }
-func (l *LuoguUpdateCookie) RedirCaptcha() {
+func (l *LuoguUpdateCookie) redirCaptcha() {
 	c := l.restyInit()
 	now := time.Now()
 	stamp := float64(now.UnixMicro()) / 1000
@@ -263,7 +263,7 @@ func (l *LuoguUpdateCookie) saveImage(content []byte) {
 	defer file.Close()
 	file.Write(content)
 }
-func (l *LuoguUpdateCookie) Identify(isInServer bool) (string, error) {
+func (l *LuoguUpdateCookie) identify(isInServer bool) (string, error) {
 	var cmd *exec.Cmd
 	var expectedLength int
 
@@ -286,7 +286,7 @@ func (l *LuoguUpdateCookie) Identify(isInServer bool) (string, error) {
 	}
 
 	str := string(output)
-	str = strings.TrimSpace(str)
+	// str = strings.TrimSpace(str)
 
 	// 安全地提取验证码
 	if len(str) >= expectedLength {
@@ -303,7 +303,7 @@ func (l *LuoguUpdateCookie) Identify(isInServer bool) (string, error) {
 
 	return str, nil
 }
-func (l *LuoguUpdateCookie) Login(captcha string) error {
+func (l *LuoguUpdateCookie) login(captcha string) error {
 	c := l.restyInit()
 	cookie := l.cookiePool["cookie1"] + "; " + l.cookiePool["cookie2"]
 	resp, err := c.R().
@@ -417,4 +417,118 @@ func (s *LuoguSolution) parseHTMLJSON(htmlContent string) (models.LuoguSolutionR
 		return models.LuoguSolutionResponse{}, fmt.Errorf("解析JSON失败: %v", err)
 	}
 	return pageData, nil
+}
+
+// ============================================爬取洛谷提交记录源代码===============================================
+type LuoguSubmissionDetail struct {
+	*LogService
+	repo  *repository.LuoguRepository
+	debug *utils.Debug
+	count int
+}
+
+func NewLuoguSubmissionDetail() *LuoguSubmissionDetail {
+	return &LuoguSubmissionDetail{
+		LogService: NewLogService("logs/luoguSubmissionDetail.log", "logs/luoguSubmissionDetail.err.log"),
+		repo:       repository.NewLuoguRepository(),
+		debug:      utils.NewDebug(config.AppConfig.DebugConfig.All),
+		count:      0,
+	}
+}
+
+// 获取源代码
+func (s *LuoguSubmissionDetail) GetRecordSourceCode() error {
+	subids, err := s.repo.GetSubidNoSourceCode()
+	if err != nil {
+		s.AddErr(fmt.Sprintf("获取提交记录ID失败 %s", err.Error()))
+		s.debug.Debug("获取提交记录ID失败")
+		return err
+	}
+	s.debug.Debug(fmt.Sprintf("总共 %d个提交记录需要获取源代码", len(subids)))
+	conCurrenter := utils.NewConCurrenter[string](config.AppConfig.Luogu.LuoguSubmissionDetailConcurrency)
+	err = conCurrenter.Run(subids, func(subid string) error {
+		name, err := s.repo.GetNameBySubid(subid)
+		if err != nil {
+			s.AddErr(fmt.Sprintf("获取提交记录名称失败 %s", err.Error()))
+			s.debug.Debug(subid + name + "获取失败" + err.Error())
+			return err
+		}
+		html, err := s.getRecordSourceCodeHTML(subid)
+		if err != nil {
+			s.AddErr(fmt.Sprintf("获取提交记录源代码失败 %s", err.Error()))
+			s.debug.Debug(subid + name + "获取失败" + err.Error())
+
+			return err
+		}
+		// 解析HTML中的JSON数据
+		respJson, err := s.parseSourceCodeFromHTML(html)
+		if err != nil {
+			s.AddErr(fmt.Sprintf("解析提交记录源代码失败 %s", err.Error()))
+			s.debug.Debug(subid + name + "解析失败" + err.Error())
+			luoUpdateCookieService := NewLuoguUpdateCookie()
+			luoUpdateCookieService.UpdateLuoguCookie()
+			return err
+		}
+		//源代码长度小于5，则填充无
+		if len(respJson.CurrentData.Record.SourceCode) <= 5 {
+			s.AddErr(fmt.Sprintf("提交记录源代码为空 %s", subid))
+			respJson.CurrentData.Record.SourceCode = "无"
+			s.debug.Debug(subid + name + "源代码为空")
+		}
+		err = s.repo.InsertSourceCode(subid, respJson.CurrentData.Record.SourceCode)
+		if err != nil {
+			s.AddErr(fmt.Sprintf("插入提交记录源代码失败 %s", err.Error()))
+			s.debug.Debug(subid + name + "插入失败" + err.Error())
+
+			return err
+		}
+		s.debug.Debug(subid + name + "插入成功")
+		s.count++
+		return nil
+	})
+	s.debug.Debug(fmt.Sprintf("插入提交记录源代码完成 %d", s.count))
+	s.AddLog(fmt.Sprintf("插入提交记录源代码完成 %d", s.count))
+	return err
+}
+
+// 获取提交记录源代码html
+func (s *LuoguSubmissionDetail) getRecordSourceCodeHTML(recordID string) (string, error) {
+	client := resty.New()
+	cookie := utils.JsonDB.Get("Cookie")
+	if cookie == nil {
+		return "", errors.New("cookie不存在")
+	}
+	url := fmt.Sprintf("https://www.luogu.com.cn/record/%s", recordID)
+	resp, err := client.R().
+		SetHeader("Cookie", cookie.(string)).
+		SetQueryParams(map[string]string{}).Get(url)
+
+	if err != nil {
+		return "", err
+	}
+	if resp.StatusCode() != 200 {
+		return "", errors.New("http code错误" + strconv.Itoa(resp.StatusCode()))
+	}
+	return string(resp.Body()), nil
+}
+
+// 解析html中的json数据
+func (s *LuoguSubmissionDetail) parseSourceCodeFromHTML(htmlContent string) (models.LuoguSubmissionDetailResponse, error) {
+	// 使用正则表达式提取URL编码的JSON字符串
+	re := regexp.MustCompile(`decodeURIComponent\("([^"]+)"\)`)
+	matches := re.FindStringSubmatch(htmlContent)
+
+	if len(matches) < 2 {
+		return models.LuoguSubmissionDetailResponse{}, errors.New("未找到URL编码的JSON数据")
+	}
+	// 获取URL编码的JSON字符串
+	encodedJSON := matches[1]
+	// URL解码JSON
+	decodedJSON, err := url.QueryUnescape(encodedJSON)
+	if err != nil {
+		return models.LuoguSubmissionDetailResponse{}, errors.New("JSON URL解码失败: " + err.Error())
+	}
+	var realJson models.LuoguSubmissionDetailResponse
+	json.Unmarshal([]byte(decodedJSON), &realJson)
+	return realJson, nil
 }

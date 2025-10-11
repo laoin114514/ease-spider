@@ -17,7 +17,7 @@ func NewConCurrenter[T any](concurrency int) *ConCurrenter[T] {
 	return &ConCurrenter[T]{
 		concurrency: concurrency,
 		wg:          &sync.WaitGroup{},
-		timeout:     60 * time.Second, // 默认超时,防止卡死
+		timeout:     3600 * time.Second, // 默认超时,防止卡死
 	}
 }
 

@@ -1,18 +1,20 @@
 database:
-  host: 210.36.22.245
-  port: 3002
+  host: 127.0.0.1
+  port: 3306
   user: gxuicpc
   password: gxuicpc
   dbName: gxuicpc
+
 dingding:
   appKey: ding_accessToken
   appSecret: ding_appSecret
 luogu:
-  isInServer: true
+  isInServer: false
   luoguRecordsConcurrency: 10
   luoguSolutionConcurrency: 10
-  username: luo2908451607
-  password: 683305SAO
+  luoguSubmissionDetailConcurrency: 3
+  username: laoin
+  password: 683305SAo
   userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0
 cf:
   cfRecordsConcurrency: 4
@@ -28,5 +30,8 @@ timerFrequency:
   cf_team_contests_problems: 1h
   dingding: 1h
   luogu_update_cookie: 1h
+  luogu_submission_detail: 1h
   cf_records: 2m
   luogu_records: 2m
+debug:
+  all: true

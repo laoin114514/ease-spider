@@ -70,3 +70,34 @@ func (r *LuoguRepository) InsertUserRecords(record *models.LuoguRecordsResponse)
 	}
 	return nil
 }
+
+// 获取没有源代码的提交记录ID,仅获取role_id=3的用户（预备役）
+func (r *LuoguRepository) GetSubidNoSourceCode() ([]string, error) {
+	rows, err := db.Pool.Query("select sub_id from luogu_all_submissions as l,user as u,oj_account as o where NOT EXISTS(select 1 from luogu_source_code as l2 where l2.sub_id=l.sub_id ) AND l.uid=o.luogu_uid AND u.id=o.user_id AND u.role_id=3")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	subids := make([]string, 0)
+	for rows.Next() {
+		var subid string
+		rows.Scan(&subid)
+		subids = append(subids, subid)
+	}
+	return subids, nil
+}
+func (r *LuoguRepository) InsertSourceCode(subid string, source_code string) error {
+	_, err := db.Pool.Exec("insert into luogu_source_code (sub_id, source_code) values (?,?)", subid, source_code)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (r *LuoguRepository) GetNameBySubid(subid string) (string, error) {
+	var name string
+	err := db.Pool.QueryRow("SELECT u.real_name FROM user as u,oj_account as o,luogu_all_submissions as s WHERE u.id=o.user_id AND o.luogu_uid=s.uid AND s.sub_id=?", subid).Scan(&name)
+	if err != nil {
+		return "", err
+	}
+	return name, nil
+}

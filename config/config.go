@@ -12,6 +12,7 @@ type Config struct {
 	Luogu          luoguConfig          `yaml:"luogu"`
 	Cf             cfConfig             `yaml:"cf"`
 	TimerFrequency timerFrequencyConfig `yaml:"timerFrequency"`
+	DebugConfig    debugConfig          `yaml:"debug"`
 }
 type dbConfig struct {
 	Host     string `yaml:"host"`
@@ -25,12 +26,13 @@ type dingdingConfig struct {
 	AppSecret string `yaml:"appSecret"`
 }
 type luoguConfig struct {
-	Username                 string `yaml:"username"`
-	Password                 string `yaml:"password"`
-	UserAgent                string `yaml:"userAgent"`
-	IsInServer               bool   `yaml:"isInServer"`
-	LuoguRecordsConcurrency  int    `yaml:"luoguRecordsConcurrency"`
-	LuoguSolutionConcurrency int    `yaml:"luoguSolutionConcurrency"`
+	Username                         string `yaml:"username"`
+	Password                         string `yaml:"password"`
+	UserAgent                        string `yaml:"userAgent"`
+	IsInServer                       bool   `yaml:"isInServer"`
+	LuoguRecordsConcurrency          int    `yaml:"luoguRecordsConcurrency"`
+	LuoguSolutionConcurrency         int    `yaml:"luoguSolutionConcurrency"`
+	LuoguSubmissionDetailConcurrency int    `yaml:"luoguSubmissionDetailConcurrency"`
 }
 type cfConfig struct {
 	GroupCode                        string `yaml:"groupCode"`
@@ -47,6 +49,10 @@ type timerFrequencyConfig struct {
 	Dingding               string `yaml:"dingding"`
 	LuoguRecords           string `yaml:"luogu_records"`
 	LuoguUpdateCookie      string `yaml:"luogu_update_cookie"`
+	LuoguSubmissionDetail  string `yaml:"luogu_submission_detail"`
+}
+type debugConfig struct {
+	All bool `yaml:"all"`
 }
 
 var AppConfig *Config

@@ -84,3 +84,7 @@ type Cf_official_contests struct {
 	Phase                 string
 	Start_time            time.Time
 }
+type Luogu_source_code struct{
+	Sub_id string
+	Source_code string
+}
