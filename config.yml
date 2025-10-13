@@ -6,15 +6,15 @@ database:
   dbName: gxuicpc
 
 dingding:
-  appKey: ding_accessToken
-  appSecret: ding_appSecret
+  appKey: dingsgji79glruqayy49
+  appSecret: 0jzUXpbjMFs4jK3NNE1Hn3PTBJ8TZfVKurIR4_XI_2jDVmGD3Dkle7xQ4xtHH8e6
 luogu:
   isInServer: false
-  luoguRecordsConcurrency: 10
+  luoguRecordsConcurrency: 5
   luoguSolutionConcurrency: 10
   luoguSubmissionDetailConcurrency: 3
-  username: laoin
-  password: 683305SAo
+  username: laoyin
+  password: 683305SAO
   userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0
 cf:
   cfRecordsConcurrency: 4

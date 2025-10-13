@@ -5,6 +5,7 @@ import (
 	"spider/config"
 	"spider/config/db"
 	"spider/src/handler"
+	"spider/src/services"
 	"spider/src/utils"
 	"sync"
 )
@@ -32,10 +33,33 @@ func main() {
 	utils.InitGlobalJSONDB("config.json")
 	utils.InitGenerateCFurl()
 
-	handler.Test()
-	return
 	log.Println("系统初始化完成，开始执行定时任务...")
-
+	func() error {
+		log.Println("开始获取洛谷用户提交记录")
+		luoguRecordsService := services.NewLuoguRecordsService()
+		luoguUpdateCookieService := services.NewLuoguUpdateCookie()
+		err := luoguUpdateCookieService.UpdateLuoguCookie()
+		if err != nil {
+			return err
+		}
+		luoguUpdateCookieService.SaveLog()
+		luoguUpdateCookieService.SaveErr()
+		luoguUpdateCookieService.Clear()
+		err = luoguRecordsService.GetLuoguUsersRecords()
+		if err != nil {
+			return err
+		}
+		err = luoguRecordsService.ChangePrivateProblem()
+		if err != nil {
+			return err
+		}
+		luoguRecordsService.SaveLog()
+		luoguRecordsService.SaveErr()
+		luoguRecordsService.Clear()
+		log.Println("洛谷用户提交记录获取完成")
+		return nil
+	}()
+	return
 	var wg sync.WaitGroup
 	wg.Add(1)
 	defer wg.Wait()

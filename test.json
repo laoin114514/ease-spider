@@ -1,0 +1,452 @@
+{
+    "instance": "main",
+    "template": "user.show",
+    "status": 200,
+    "locale": "zh-CN",
+    "data": {
+        "passed": [
+            {
+                "type": "P",
+                "title": "A+B Problem",
+                "difficulty": 1,
+                "pid": "P1001"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 1998 \u666e\u53ca\u7ec4] \u4e09\u8fde\u51fb",
+                "difficulty": 2,
+                "pid": "P1008"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 1998 \u666e\u53ca\u7ec4] \u9636\u4e58\u4e4b\u548c",
+                "difficulty": 2,
+                "pid": "P1009"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 1998 \u63d0\u9ad8\u7ec4] \u62fc\u6570",
+                "difficulty": 3,
+                "pid": "P1012"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 1999 \u666e\u53ca\u7ec4] \u56de\u6587\u6570",
+                "difficulty": 2,
+                "pid": "P1015"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 2002 \u666e\u53ca\u7ec4] \u9009\u6570",
+                "difficulty": 2,
+                "pid": "P1036"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 2003 \u666e\u53ca\u7ec4] \u4e52\u4e53\u7403",
+                "difficulty": 2,
+                "pid": "P1042"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 2006 \u666e\u53ca\u7ec4] \u660e\u660e\u7684\u968f\u673a\u6570",
+                "difficulty": 2,
+                "pid": "P1059"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 2009 \u666e\u53ca\u7ec4] \u5206\u6570\u7ebf\u5212\u5b9a",
+                "difficulty": 2,
+                "pid": "P1068"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 2004 \u666e\u53ca\u7ec4] \u706b\u661f\u4eba",
+                "difficulty": 2,
+                "pid": "P1088"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 2007 \u666e\u53ca\u7ec4] \u5956\u5b66\u91d1",
+                "difficulty": 2,
+                "pid": "P1093"
+            },
+            {
+                "type": "P",
+                "title": "\u751f\u65e5",
+                "difficulty": 2,
+                "pid": "P1104"
+            },
+            {
+                "type": "P",
+                "title": "\u8f66\u53a2\u91cd\u7ec4",
+                "difficulty": 2,
+                "pid": "P1116"
+            },
+            {
+                "type": "P",
+                "title": "\u6b22\u4e50\u7684\u8df3",
+                "difficulty": 1,
+                "pid": "P1152"
+            },
+            {
+                "type": "P",
+                "title": "\u7ec4\u5408\u7684\u8f93\u51fa",
+                "difficulty": 2,
+                "pid": "P1157"
+            },
+            {
+                "type": "P",
+                "title": "\u3010\u6a21\u677f\u3011\u6392\u5e8f",
+                "difficulty": 2,
+                "pid": "P1177"
+            },
+            {
+                "type": "P",
+                "title": "[USACO1.5] \u56de\u6587\u8d28\u6570 Prime Palindromes",
+                "difficulty": 2,
+                "pid": "P1217"
+            },
+            {
+                "type": "P",
+                "title": "A*B Problem",
+                "difficulty": 2,
+                "pid": "P1303"
+            },
+            {
+                "type": "P",
+                "title": "\u5c0f\u7389\u4e70\u6587\u5177",
+                "difficulty": 1,
+                "pid": "P1421"
+            },
+            {
+                "type": "P",
+                "title": "\u5c0f\u9c7c\u7684\u6e38\u6cf3\u65f6\u95f4",
+                "difficulty": 1,
+                "pid": "P1425"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 2016 \u63d0\u9ad8\u7ec4] \u73a9\u5177\u8c1c\u9898",
+                "difficulty": 2,
+                "pid": "P1563"
+            },
+            {
+                "type": "P",
+                "title": "A+B Problem\uff08\u9ad8\u7cbe\uff09",
+                "difficulty": 2,
+                "pid": "P1601"
+            },
+            {
+                "type": "P",
+                "title": "\u4e09\u8fde\u51fb\uff08\u5347\u7ea7\u7248\uff09",
+                "difficulty": 2,
+                "pid": "P1618"
+            },
+            {
+                "type": "P",
+                "title": "\u5168\u6392\u5217\u95ee\u9898",
+                "difficulty": 2,
+                "pid": "P1706"
+            },
+            {
+                "type": "P",
+                "title": "\u5b87\u5b99\u603b\u7edf",
+                "difficulty": 2,
+                "pid": "P1781"
+            },
+            {
+                "type": "P",
+                "title": "\u70e4\u9e21",
+                "difficulty": 2,
+                "pid": "P2089"
+            },
+            {
+                "type": "P",
+                "title": "\u7edf\u8ba1\u65b9\u5f62\uff08\u6570\u636e\u52a0\u5f3a\u7248\uff09",
+                "difficulty": 2,
+                "pid": "P2241"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 2014 \u666e\u53ca\u7ec4] \u73e0\u5fc3\u7b97\u6d4b\u9a8c",
+                "difficulty": 2,
+                "pid": "P2141"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 2017 \u666e\u53ca\u7ec4] \u6210\u7ee9",
+                "difficulty": 1,
+                "pid": "P3954"
+            },
+            {
+                "type": "P",
+                "title": "[NOIP 2015 \u666e\u53ca\u7ec4] \u626b\u96f7\u6e38\u620f",
+                "difficulty": 1,
+                "pid": "P2670"
+            },
+            {"type": "P",
+            "title": "[USACO07DEC] Bookshelf B",
+            "difficulty": 2,
+            "pid": "P2676"
+        },
+        {"type": "P",
+        "title": "\u6d82\u6761\u7eb9",
+        "difficulty": 2,
+        "pid": "P3392"
+    },
+    {
+        "type": "P",
+        "title": "\u8d85\u7ea7\u739b\u4e3d\u6e38\u620f",
+        "difficulty": 1,
+        "pid": "P1000"
+    },
+    {
+        "type": "P",
+        "title": "\u6500\u722c\u8005",
+        "difficulty": 2,
+        "pid": "P5143"
+    },
+    {
+        "type": "P",
+        "title": "\u3010\u6df1\u57fa2.\u4f8b5\u3011\u82f9\u679c\u91c7\u8d2d",
+        "difficulty": 1,
+        "pid": "P5703"
+    },
+    {
+        "type": "P",
+        "title": "\u3010\u6df1\u57fa2.\u4f8b6\u3011\u5b57\u6bcd\u8f6c\u6362",
+        "difficulty": 1,
+        "pid": "P5704"
+    },
+    {
+        "type": "P",
+        "title": "\u3010\u6df1\u57fa2.\u4f8b7\u3011\u6570\u5b57\u53cd\u8f6c",
+        "difficulty": 1,
+        "pid": "P5705"
+    },
+    {
+        "type": "P",
+        "title": "\u3010\u6df1\u57fa2.\u4f8b8\u3011\u518d\u5206\u80a5\u5b85\u6c34",
+        "difficulty": 1,
+        "pid": "P5706"
+    },
+    {
+        "type": "P",
+        "title": "\u3010\u6df1\u57fa2.\u4e602\u3011\u4e09\u89d2\u5f62\u9762\u79ef",
+        "difficulty": 1,
+        "pid": "P5708"
+    },
+    {
+        "type": "P",
+        "title": "\u3010\u6df1\u57fa9.\u4f8b1\u3011\u9009\u4e3e\u5b66\u751f\u4f1a",
+        "difficulty": 2,
+        "pid": "P1271"
+    },
+    {
+        "type": "P",
+        "title": "\u3010\u6df1\u57fa9.\u4f8b4\u3011\u6c42\u7b2c k \u5c0f\u7684\u6570",
+        "difficulty": 2,
+        "pid": "P1923"
+    },
+    {
+        "type": "P",
+        "title": "\u3010\u6df1\u57fa2.\u4f8b12\u3011\u4e0a\u5b66\u8fdf\u5230",
+        "difficulty": 2,
+        "pid": "P5707"
+    },
+    {
+        "type": "P",
+        "title": "[COCI 2008\/2009 #3] CROSS",
+        "difficulty": 3,
+        "pid": "P6410"
+    },
+    {
+        "type": "B",
+        "title": "Hello,World!",
+        "difficulty": 1,
+        "pid": "B2002"
+    },
+    {
+        "type": "B",
+        "title": "\u5b57\u7b26\u4e09\u89d2\u5f62",
+        "difficulty": 1,
+        "pid": "B2005"
+    },
+    {
+        "type": "B",
+        "title": "\u8f93\u51fa\u5b57\u7b26\u83f1\u5f62",
+        "difficulty": 1,
+        "pid": "B2025"
+    },
+    {
+        "type": "B",
+        "title": "\u5927\u8c61\u559d\u6c34",
+        "difficulty": 1,
+        "pid": "B2029"
+    },
+    {
+        "type": "B",
+        "title": "\u8ba1\u7b97\u661f\u671f\u51e0",
+        "difficulty": 1,
+        "pid": "B2074"
+    },
+    {
+        "type": "P",
+        "title": "[\u84dd\u6865\u676f 2021 \u56fd BC] \u5927\u5199",
+        "difficulty": 1,
+        "pid": "P8761"
+    },
+    {"type": "P",
+    "title": "[\u84dd\u6865\u676f 2023 \u56fd A] XYZ",
+    "difficulty": 3,
+    "pid": "P10416"
+}
+],
+"submitted": [
+{
+    "type": "P",
+    "title": "[NOIP 2003 \u63d0\u9ad8\u7ec4] \u4f20\u67d3\u75c5\u63a7\u5236\uff08\u7591\u4f3c\u9519\u9898\uff09",
+    "difficulty": 5,
+    "pid": "P1041"
+},
+{
+    "type": "P",
+    "title": "[NOIP 2003 \u666e\u53ca\u7ec4] \u9ea6\u68ee\u6570",
+    "difficulty": 3,
+    "pid": "P1045"
+},
+{
+    "type": "P",
+    "title": "\u6570\u5217",
+    "difficulty": 4,
+    "pid": "P1329"
+},
+{
+    "type": "P",
+    "title": "\u5c0f Y \u62fc\u6728\u68d2",
+    "difficulty": 3,
+    "pid": "P3799"
+},
+{
+    "type": "B",
+    "title": "[\u8bed\u8a00\u6708\u8d5b 202407] value",
+    "difficulty": 1,
+    "pid": "B4009"
+}
+],
+"elo": [
+],
+"user": {
+"uid": 1582049,
+"avatar": "https:\/\/cdn.luogu.com.cn\/upload\/usericon\/1582049.png",
+"name": "laoin",
+"slogan": "",
+"badge": null,
+"isAdmin": false,
+"isBanned": false,
+"color": "Blue",
+"ccfLevel": 0,
+"xcpcLevel": 0,
+"background": "",
+"verified": true,
+"eloValue": null,
+"followingCount": 1,
+"followerCount": 1,
+"ranking": null,
+"passedProblemCount": 0,
+"submittedProblemCount": 0,
+"elo": null,
+"registerTime": 1731765196,
+"introduction": "",
+"prize": [
+],
+"rating": null,
+"organization": null,
+"email": "2908451607@qq.com",
+"phone": "8618378627740",
+"realName": null}
+},
+"user": {
+"uid": 1582049,
+"avatar": "https:\/\/cdn.luogu.com.cn\/upload\/usericon\/1582049.png",
+"name": "laoin",
+"slogan": "",
+"badge": null,
+"isAdmin": false,
+"isBanned": false,
+"color": "Blue",
+"ccfLevel": 0,
+"xcpcLevel": 0,
+"background": "",
+"verified": true,
+"eloValue": null,
+"followingCount": 1,
+"followerCount": 1,
+"ranking": null,
+"unreadMessageCount": 0,
+"unreadNoticeCount": 0,
+"learnMode": true
+},
+"time": 1760332490.318959,
+"theme": {
+"id": 1,
+"header": {
+    "type": 2,
+    "color": [
+        [
+            35,
+            37,
+            38,
+            1
+        ],
+        [
+            65,
+            67,
+            69,
+            1
+        ]
+    ],
+    "degree": 90,
+    "blur": 0,
+    "brightness": 0,
+    "position": [
+        50,
+        50
+    ],
+    "repeat": 0,
+    "__CLASS_NAME": "Luogu\\DataClass\\User\\ThemeConfig\\HeaderFooterConfig"
+},
+"sideNav": {
+    "logoBackgroundColor": [
+        52,
+        152,
+        219,
+        1
+    ],
+    "color": [
+        52,
+        73,
+        94,
+        1
+    ],
+    "invertColor": false,
+    "__CLASS_NAME": "Luogu\\DataClass\\User\\ThemeConfig\\SideNavConfig"
+},
+"footer": {
+    "type": 2,
+    "color": [
+        [
+            51,
+            51,
+            51,
+            1
+        ]
+    ],
+    "degree": 0,
+    "blur": 0,
+    "brightness": 0,
+    "__CLASS_NAME": "Luogu\\DataClass\\User\\ThemeConfig\\HeaderFooterConfig"
+}
+}
+}

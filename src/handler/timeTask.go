@@ -39,7 +39,8 @@ func TimeTask() {
 	luoguRecordsService := services.NewLuoguRecordsService()
 	dingService := services.NewDingdingService()
 	luoguUpdateCookieService := services.NewLuoguUpdateCookie()
-	luoguSubmissionDetailService := services.NewLuoguSubmissionDetail()
+	luoguUpdateCookieService.UpdateLuoguCookie()
+	// luoguSubmissionDetailService := services.NewLuoguSubmissionDetail()
 	//每小时执行一次，更新洛谷Cookie
 	timer.RunWithTimer(
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguUpdateCookie),
@@ -57,21 +58,21 @@ func TimeTask() {
 		},
 	)
 	//获取洛谷提交记录源代码
-	timer.RunWithTimer(
-		analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguSubmissionDetail),
-		"获取洛谷提交记录源代码",
-		func() error {
-			log.Println("开始获取洛谷提交记录源代码")
-			err := luoguSubmissionDetailService.GetRecordSourceCode()
-			if err != nil {
-				return err
-			}
-			luoguSubmissionDetailService.SaveLog()
-			luoguSubmissionDetailService.SaveErr()
-			luoguSubmissionDetailService.Clear()
-			log.Println("洛谷提交记录源代码获取完成")
-			return nil
-		})
+	// timer.RunWithTimer(
+	// 	analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguSubmissionDetail),
+	// 	"获取洛谷提交记录源代码",
+	// 	func() error {
+	// 		log.Println("开始获取洛谷提交记录源代码")
+	// 		err := luoguSubmissionDetailService.GetRecordSourceCode()
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 		luoguSubmissionDetailService.SaveLog()
+	// 		luoguSubmissionDetailService.SaveErr()
+	// 		luoguSubmissionDetailService.Clear()
+	// 		log.Println("洛谷提交记录源代码获取完成")
+	// 		return nil
+	// 	})
 	//获取cf官方题目
 	timer.RunWithTimer(
 		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfOfficialProblems),
@@ -175,6 +176,10 @@ func TimeTask() {
 		func() error {
 			log.Println("开始获取洛谷用户提交记录")
 			err := luoguRecordsService.GetLuoguUsersRecords()
+			if err != nil {
+				return err
+			}
+			err = luoguRecordsService.ChangePrivateProblem()
 			if err != nil {
 				return err
 			}

@@ -6,15 +6,10 @@ import (
 )
 
 func Test() {
-	luoguUpdateCookieService := services.NewLuoguUpdateCookie()
-	luoguUpdateCookieService.UpdateLuoguCookie()
-	fmt.Println(luoguUpdateCookieService.LogService.GetLog())
-	fmt.Println(luoguUpdateCookieService.LogService.GetErr())
-	luoguUpdateCookieService.LogService.Clear()
-	luoguSubmissionDetailService := services.NewLuoguSubmissionDetail()
-	err := luoguSubmissionDetailService.GetRecordSourceCode()
+	luoguSolutionService := services.NewLuoguSolution()
+	err := luoguSolutionService.GetSolutionHasSourceCode()
 	if err != nil {
 		fmt.Println(err)
 	}
-	luoguSubmissionDetailService.LogService.Clear()
+	luoguSolutionService.LogService.Clear()
 }

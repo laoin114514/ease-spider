@@ -101,7 +101,6 @@ func (r *cfUserStatus) GetCfRecords() error {
 			},
 		)
 		if err != nil {
-			r.AddErr(fmt.Sprintf("%s 获取url失败,尝试使用无apikey", cfUserData.RealName))
 			url, err = utils.GenerateCFurlInstance.User.Status(
 				false,
 				&models.UserStatusParams{
@@ -114,7 +113,6 @@ func (r *cfUserStatus) GetCfRecords() error {
 				r.AddErr(fmt.Sprintf("%s 获取url失败 %v", cfUserData.RealName, err))
 				return err
 			}
-			r.AddErr(fmt.Sprintf("%s 获取url失败,尝试使用无apikey成功", cfUserData.RealName))
 		}
 
 		//发起请求
@@ -131,7 +129,9 @@ func (r *cfUserStatus) GetCfRecords() error {
 			r.AddErr(fmt.Sprintf("%s 处理提交记录失败 %v", cfUserData.RealName, err))
 			return err
 		}
-
+		if cfUserData.InsertCount == 0 {
+			return nil
+		}
 		r.AddLog(fmt.Sprintf("%s 处理提交记录成功 %d", cfUserData.RealName, cfUserData.InsertCount))
 		return nil
 	})
@@ -143,6 +143,9 @@ func (r *cfUserStatus) handleCfRecords(cfUserData *models.CfUserData, resp *mode
 	for _, cfRecord := range resp.Result {
 		// 如果提交记录已存在，则跳过
 		if cfUserData.OldDataSet[int(cfRecord.Id)] {
+			continue
+		}
+		if cfRecord.Verdict == "TESTING" {
 			continue
 		}
 		// 构建提交记录表

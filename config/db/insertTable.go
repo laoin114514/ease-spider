@@ -180,3 +180,19 @@ func Insert_cf_official_contests(table Cf_official_contests) error {
 	}
 	return nil
 }
+func Insert_luogu_solutions(table Luogu_solutions) error {
+	_, err := Pool.Exec(
+		"insert into luogu_solutions (Problem_id, Problem_name, Author_name, Author_uid, Solution_md, Creation_time, Link) values (?,?,?,?,?,?,?)",
+		table.Problem_id,
+		table.Problem_name,
+		table.Author_name,
+		table.Author_uid,
+		table.Solution_md,
+		table.Creation_time,
+		table.Link,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}

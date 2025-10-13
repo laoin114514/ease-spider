@@ -101,3 +101,24 @@ func (r *LuoguRepository) GetNameBySubid(subid string) (string, error) {
 	}
 	return name, nil
 }
+func (r *LuoguRepository) GetProblemIdHasSourceCode() ([]string, error) {
+	rows, err := db.Pool.Query("SELECT s.problem_id FROM luogu_source_code as c,luogu_all_submissions as s WHERE s.sub_id=c.sub_id AND c.source_code!='无' AND NOT EXISTS(SELECT 1 FROM luogu_solutions as l WHERE l.problem_id=s.problem_id) GROUP BY problem_id")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	problemIds := make([]string, 0)
+	for rows.Next() {
+		var problemId string
+		rows.Scan(&problemId)
+		problemIds = append(problemIds, problemId)
+	}
+	return problemIds, nil
+}
+func (r *LuoguRepository) ChangePrivateProblem() (int64, error) {
+	result, err := db.Pool.Exec("UPDATE luogu_all_submissions SET difficulty='unknow' WHERE problem_id LIKE 'T%'")
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}

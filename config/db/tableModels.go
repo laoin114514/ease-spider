@@ -84,7 +84,16 @@ type Cf_official_contests struct {
 	Phase                 string
 	Start_time            time.Time
 }
-type Luogu_source_code struct{
-	Sub_id string
+type Luogu_source_code struct {
+	Sub_id      string
 	Source_code string
+}
+type Luogu_solutions struct {
+	Problem_id    string
+	Problem_name  string
+	Author_name   string
+	Author_uid    int
+	Solution_md   string
+	Creation_time time.Time
+	Link          string
 }
