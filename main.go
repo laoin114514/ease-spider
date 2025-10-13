@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"spider/config"
 	"spider/config/db"
@@ -34,29 +35,42 @@ func main() {
 	utils.InitGenerateCFurl()
 
 	log.Println("系统初始化完成，开始执行定时任务...")
+	// func() error {
+	// 	log.Println("开始获取洛谷用户提交记录")
+	// 	luoguRecordsService := services.NewLuoguRecordsService()
+	// 	luoguUpdateCookieService := services.NewLuoguUpdateCookie()
+	// 	err := luoguUpdateCookieService.UpdateLuoguCookie()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	luoguUpdateCookieService.SaveLog()
+	// 	luoguUpdateCookieService.SaveErr()
+	// 	luoguUpdateCookieService.Clear()
+	// 	err = luoguRecordsService.GetLuoguUsersRecords()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	err = luoguRecordsService.ChangePrivateProblem()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	luoguRecordsService.SaveLog()
+	// 	luoguRecordsService.SaveErr()
+	// 	luoguRecordsService.Clear()
+	// 	log.Println("洛谷用户提交记录获取完成")
+	// 	return nil
+	// }()
 	func() error {
-		log.Println("开始获取洛谷用户提交记录")
-		luoguRecordsService := services.NewLuoguRecordsService()
-		luoguUpdateCookieService := services.NewLuoguUpdateCookie()
-		err := luoguUpdateCookieService.UpdateLuoguCookie()
+		log.Println("开始获取CF用户提交记录")
+		cfRecordsService := services.NewCfService()
+		err := cfRecordsService.CfUserStatus.GetCfRecords()
 		if err != nil {
 			return err
 		}
-		luoguUpdateCookieService.SaveLog()
-		luoguUpdateCookieService.SaveErr()
-		luoguUpdateCookieService.Clear()
-		err = luoguRecordsService.GetLuoguUsersRecords()
-		if err != nil {
-			return err
-		}
-		err = luoguRecordsService.ChangePrivateProblem()
-		if err != nil {
-			return err
-		}
-		luoguRecordsService.SaveLog()
-		luoguRecordsService.SaveErr()
-		luoguRecordsService.Clear()
-		log.Println("洛谷用户提交记录获取完成")
+		log := cfRecordsService.CfUserStatus.GetLog()
+		fmt.Println(len(log))
+		errLog := cfRecordsService.CfUserStatus.GetErr()
+		fmt.Println(len(errLog))
 		return nil
 	}()
 	return
