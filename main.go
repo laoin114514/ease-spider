@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"spider/config"
 	"spider/config/db"
 	"spider/src/handler"
-	"spider/src/services"
 	"spider/src/utils"
 	"sync"
 )
@@ -60,20 +58,20 @@ func main() {
 	// 	log.Println("洛谷用户提交记录获取完成")
 	// 	return nil
 	// }()
-	func() error {
-		log.Println("开始获取CF用户提交记录")
-		cfRecordsService := services.NewCfService()
-		err := cfRecordsService.CfUserStatus.GetCfRecords()
-		if err != nil {
-			return err
-		}
-		log := cfRecordsService.CfUserStatus.GetLog()
-		fmt.Println(len(log))
-		errLog := cfRecordsService.CfUserStatus.GetErr()
-		fmt.Println(len(errLog))
-		return nil
-	}()
-	return
+	// func() error {
+	// 	log.Println("开始获取CF用户提交记录")
+	// 	cfRecordsService := services.NewCfService()
+	// 	err := cfRecordsService.CfTeamContestsProblems.GetCfTeamContestsProblems()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	log := cfRecordsService.CfTeamContestsProblems.GetLog()
+	// 	fmt.Println(len(log))
+	// 	errLog := cfRecordsService.CfTeamContestsProblems.GetErr()
+	// 	fmt.Println(len(errLog))
+	// 	return nil
+	// }()
+	// return
 	var wg sync.WaitGroup
 	wg.Add(1)
 	defer wg.Wait()

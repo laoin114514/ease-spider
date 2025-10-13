@@ -94,15 +94,15 @@ func (u *user) RatedList(query *models.UserRatedListParams) (string, error) {
 }
 
 func (u *user) Info(query *models.UserInfoParams) (string, error) {
-	return combineUrlWithApikey("", "user.info", query)
+	return combineUrlWithApikey(query.Handles, "user.info", query)
 }
 
-func (u *user) Friends(query *models.UserFriendsParams) (string, error) {
-	return combineUrlWithApikey("", "user.friends", query)
+func (u *user) Friends(handle string, query *models.UserFriendsParams) (string, error) {
+	return combineUrlWithApikey(handle, "user.friends", query)
 }
 
 func (u *user) BlogEntries(query *models.UserBlogEntriesParams) (string, error) {
-	return combineUrlWithApikey("", "user.blogEntries", query)
+	return combineUrlWithApikey(query.Handle, "user.blogEntries", query)
 }
 
 func (u *user) RecentActions(query *models.RecentActionsParams) (string, error) {
@@ -122,8 +122,8 @@ func (c *contest) Status(handle string, query *models.ContestStatusParams) (stri
 
 // ============================================ProblemSet============================================//
 func (p *problemSet) Problems(query *models.ProblemsetProblemsParams) (string, error) {
-	return combineUrlWithApikey("", "problemset.problems", query)
+	return combineUrlWithNoApikey("problemset.problems", query)
 }
 func (p *problemSet) RecentStatus(query *models.ProblemsetRecentStatusParams) (string, error) {
-	return combineUrlWithApikey("", "problemset.recentStatus", query)
+	return combineUrlWithNoApikey("problemset.recentStatus", query)
 }

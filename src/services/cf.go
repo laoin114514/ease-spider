@@ -517,7 +517,7 @@ func (r *cfTeamContestsProblems) processTeamContestProblems(teamContest db.Cf_te
 		r.logError("处理团队比赛题目失败", err)
 		return err
 	}
-
+	r.debug.Debug(fmt.Sprintf("团队比赛 %s 题目处理完成", teamContest.Contest_name))
 	return nil
 }
 
@@ -624,9 +624,8 @@ func (r *cfOfficialContests) GetCfOfficialContests() error {
 
 // buildOfficialContestsURL 构建官方比赛请求URL - 私有方法
 func (r *cfOfficialContests) buildOfficialContestsURL() (string, error) {
-	GroupCode := config.AppConfig.Cf.GroupCode
-	return utils.GenerateCFurlInstance.Contest.List("", &models.ContestListParams{
-		GroupCode: GroupCode,
+	return utils.GenerateCFurlInstance.Contest.List(config.AppConfig.Cf.ManagerAccount, &models.ContestListParams{
+		GroupCode: config.AppConfig.Cf.GroupCode,
 	})
 }
 
