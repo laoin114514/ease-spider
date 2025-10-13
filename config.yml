@@ -10,7 +10,7 @@ dingding:
   appSecret: 0jzUXpbjMFs4jK3NNE1Hn3PTBJ8TZfVKurIR4_XI_2jDVmGD3Dkle7xQ4xtHH8e6
 luogu:
   isInServer: false
-  luoguRecordsConcurrency: 5
+  luoguRecordsConcurrency: 10
   luoguSolutionConcurrency: 10
   luoguSubmissionDetailConcurrency: 3
   username: laoyin

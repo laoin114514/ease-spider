@@ -68,6 +68,24 @@ type LuoguRecords struct {
 	debug *utils.Debug
 }
 
+// ================================公有接口方法===============================================
+
+// GetLuoguUsersRecords 获取洛谷用户提交记录 - 对外提供的主要接口
+func (l *LuoguRecords) GetLuoguUsersRecords() error {
+	conCurrenter := utils.NewConCurrenter[models.LuoguUserDeliver](config.AppConfig.Luogu.LuoguRecordsConcurrency)
+	luoguUserDelivers, err := l.repo.GetUserNameMap()
+	if err != nil {
+		return err
+	}
+
+	// 通过并发器来获取洛谷用户提交记录
+	conCurrenter.Run(luoguUserDelivers, func(luoguUser models.LuoguUserDeliver) error {
+		return l.processUserRecords(luoguUser)
+	})
+	return nil
+}
+
+// ChangePrivateProblem 修改私有题目难度为unknown - 对外提供的接口
 func (l *LuoguRecords) ChangePrivateProblem() error {
 	count, err := l.repo.ChangePrivateProblem()
 	if err != nil {
@@ -81,74 +99,76 @@ func (l *LuoguRecords) ChangePrivateProblem() error {
 	return nil
 }
 
-// 核心函数，获取洛谷用户提交记录
-func (l *LuoguRecords) GetLuoguUsersRecords() error {
-	conCurrenter := utils.NewConCurrenter[models.LuoguUserDeliver](config.AppConfig.Luogu.LuoguRecordsConcurrency)
-	luoguUserDelivers, err := l.repo.GetUserNameMap()
+// ================================私有实现方法===============================================
+
+// processUserRecords 处理单个用户的提交记录 - 私有方法
+func (l *LuoguRecords) processUserRecords(luoguUser models.LuoguUserDeliver) error {
+	// 获取初始化数据：总数和每页数量
+	initData, err := l.fetchInitialData(luoguUser.Uid)
 	if err != nil {
+		l.logError(luoguUser.RealName, "获取提交记录失败", err)
 		return err
 	}
 
-	//通过并发器来获取洛谷用户提交记录
-	conCurrenter.Run(luoguUserDelivers, func(luoguUser models.LuoguUserDeliver) error {
-		req := utils.NewRequest[models.LuoguRecordsResponse]()
-		//获取初始化数据：总数和每页数量
-		initData, err := req.SetCookie(utils.JsonDB.Get("Cookie").(string)).Get("https://www.luogu.com.cn/record/list", map[string]string{"user": luoguUser.Uid, "page": "1", "_contentOnly": "1"})
-		if err != nil {
-			l.AddErr(fmt.Sprintf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error()))
-			l.debug.Debug(fmt.Sprintf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error()))
-			return err
-		}
-		if initData.Code == http.StatusNotFound {
-			l.AddErr(fmt.Sprintf("%s的uid不存在", luoguUser.RealName))
-			l.debug.Debug(fmt.Sprintf("%s的uid不存在", luoguUser.RealName))
-			return err
-		}
-		//计算页数
-		page := l.calculatePage(&initData)
+	if initData.Code == http.StatusNotFound {
+		l.logError(luoguUser.RealName, "的uid不存在", nil)
+		return fmt.Errorf("用户uid不存在")
+	}
 
-		//增量爬取
-		err = l.loopRequestIncrement(&luoguUser, page)
-		if err != nil {
-			l.log.AddErr(fmt.Sprintf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error()))
-			l.debug.Debug(fmt.Sprintf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error()))
-		}
+	// 计算页数
+	page := l.calculatePage(initData)
 
-		// 如果已爬取数据与数据库已爬取数据数量一致，则不进行全量爬取
-		if len(luoguUser.OldDataSet)+luoguUser.Count == initData.CurrentData.Records.Count {
-			if luoguUser.Count == 0 {
-				return nil
-			}
-			l.AddLog(fmt.Sprintf("%s获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
-			l.debug.Debug(fmt.Sprintf("%s获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
-			return err
-		}
+	// 增量爬取
+	err = l.fetchRecordsIncrementally(&luoguUser, page)
+	if err != nil {
+		l.logError(luoguUser.RealName, "获取提交记录失败", err)
+	}
 
-		//爬取数据与数据库已爬取数据不一致，进行全量爬取
-		l.debug.Debug(fmt.Sprintf("%s爬取实际数量%d，数据库已爬取数量%d", luoguUser.RealName, initData.CurrentData.Records.Count, len(luoguUser.OldDataSet)+luoguUser.Count))
-		l.AddErr(fmt.Sprintf("%s爬取实际数量%d，数据库已爬取数量%d", luoguUser.RealName, initData.CurrentData.Records.Count, len(luoguUser.OldDataSet)+luoguUser.Count))
-		err = l.loopRequestAll(&luoguUser, page)
-		if err != nil {
-			l.AddErr(fmt.Sprintf("%s重新获取提交记录失败 %s", luoguUser.RealName, err.Error()))
-			l.debug.Debug(fmt.Sprintf("%s重新获取提交记录失败 %s", luoguUser.RealName, err.Error()))
-			return err
-		}
+	// 如果已爬取数据与数据库已爬取数据数量一致，则不进行全量爬取
+	if l.isDataConsistent(luoguUser, initData.CurrentData.Records.Count) {
 		if luoguUser.Count == 0 {
-			l.debug.Debug(fmt.Sprintf("%s重新获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
 			return nil
 		}
-		l.debug.Debug(fmt.Sprintf("%s重新获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
-		l.AddLog(fmt.Sprintf("%s重新获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
+		l.logSuccess(luoguUser.RealName, "获取提交记录完成", luoguUser.Count)
 		return err
-	})
-	return nil
+	}
+
+	// 爬取数据与数据库已爬取数据不一致，进行全量爬取
+	l.logDataInconsistency(luoguUser, initData.CurrentData.Records.Count)
+	err = l.fetchRecordsFully(&luoguUser, page)
+	if err != nil {
+		l.logError(luoguUser.RealName, "重新获取提交记录失败", err)
+		return err
+	}
+
+	if luoguUser.Count == 0 {
+		l.debug.Debug(fmt.Sprintf("%s重新获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count))
+		return nil
+	}
+	l.logSuccess(luoguUser.RealName, "重新获取提交记录完成", luoguUser.Count)
+	return err
 }
 
-// 增量爬取不重复数据
-func (l *LuoguRecords) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, page int) error {
+// fetchInitialData 获取初始数据 - 私有方法
+func (l *LuoguRecords) fetchInitialData(uid string) (*models.LuoguRecordsResponse, error) {
+	req := utils.NewRequest[models.LuoguRecordsResponse]()
+	data, err := req.SetCookie(utils.JsonDB.Get("Cookie").(string)).Get(
+		"https://www.luogu.com.cn/record/list",
+		map[string]string{
+			"user":         uid,
+			"page":         "1",
+			"_contentOnly": "1",
+		},
+	)
+	return &data, err
+}
+
+// fetchRecordsIncrementally 增量爬取不重复数据 - 私有方法
+func (l *LuoguRecords) fetchRecordsIncrementally(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
 	cookie := utils.JsonDB.Get("Cookie").(string)
 	req := utils.NewRequest[models.LuoguRecordsResponse]()
+
 	for i := 1; i <= page; i++ {
 		data, err := req.SetCookie(cookie).Get(
 			"https://www.luogu.com.cn/record/list",
@@ -165,77 +185,80 @@ func (l *LuoguRecords) loopRequestIncrement(luoguUser *models.LuoguUserDeliver, 
 			return fmt.Errorf("%s获取第%d页提交记录失败，状态码： %d", luoguUser.RealName, i, data.Code)
 		}
 
-		for _, record := range data.CurrentData.Records.Result {
-			// 如果提交记录状态为还在测评，则跳过
-			nowTime := time.Now().Unix()
-			if record.Status == 0 && nowTime-record.SubmitTime < 60*5 {
-				l.debug.Debug(fmt.Sprintf("%s第%d页提交记录还在测评 %s||https://www.luogu.com.cn/record/%d", luoguUser.RealName, i, record.Problem.PID, record.ID))
-				continue
-			}
-			// 如果洛谷UID不匹配，则更新洛谷UID
-			if strconv.Itoa(int(record.User.UID)) != luoguUser.Uid {
-				record.User.UID, _ = strconv.ParseInt(luoguUser.Uid, 10, 64)
-			}
-
-			if luoguUser.OldDataSet[strconv.Itoa(int(record.ID))] {
-				return fmt.Errorf("%s第%d页提交记录已存在 %s", luoguUser.RealName, i, strconv.Itoa(int(record.ID)))
-			}
-			table := l.buildTable(&record)
-			err = db.Insert_luogu_sub(table)
-			if err != nil {
-				return fmt.Errorf("%s处理第%d页提交记录失败 %s", luoguUser.RealName, i, err.Error())
-			}
-			luoguUser.Count++
+		err = l.processPageRecords(data.CurrentData.Records.Result, luoguUser, i, true)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-// 全量爬取所有页数的数据
-func (l *LuoguRecords) loopRequestAll(luoguUser *models.LuoguUserDeliver, page int) error {
+// fetchRecordsFully 全量爬取所有页数的数据 - 私有方法
+func (l *LuoguRecords) fetchRecordsFully(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
 	cookie := utils.JsonDB.Get("Cookie").(string)
 	req := utils.NewRequest[models.LuoguRecordsResponse]()
-	for i := 1; i <= page; i++ {
-		data, _ := req.
-			SetCookie(cookie).
-			Get(
-				"https://www.luogu.com.cn/record/list",
-				map[string]string{
-					"user":         luoguUser.Uid,
-					"page":         strconv.Itoa(i),
-					"_contentOnly": "1",
-				},
-			)
 
-		for _, record := range data.CurrentData.Records.Result {
-			// 如果提交记录状态为还在测评，则跳过
-			nowTime := time.Now().Unix()
-			if record.Status == 0 && nowTime-record.SubmitTime < 60*5 {
-				l.debug.Debug(fmt.Sprintf("%s第%d页提交记录还在测评 %s||https://www.luogu.com.cn/record/%d", luoguUser.RealName, i, record.Problem.PID, record.ID))
-				continue
-			}
-			// 如果洛谷UID不匹配，则更新洛谷UID
-			if strconv.Itoa(int(record.User.UID)) != luoguUser.Uid {
-				record.User.UID, _ = strconv.ParseInt(luoguUser.Uid, 10, 64)
-			}
-			if luoguUser.OldDataSet[strconv.Itoa(int(record.ID))] {
-				continue
-			}
-			table := l.buildTable(&record)
-			err := db.Insert_luogu_sub(table)
-			if err != nil {
-				l.debug.Debug(fmt.Sprintf("%s第%d页提交记录插入失败 %s", luoguUser.RealName, i, err.Error()))
-				continue
-			}
-			luoguUser.Count++
-		}
+	for i := 1; i <= page; i++ {
+		data, _ := req.SetCookie(cookie).Get(
+			"https://www.luogu.com.cn/record/list",
+			map[string]string{
+				"user":         luoguUser.Uid,
+				"page":         strconv.Itoa(i),
+				"_contentOnly": "1",
+			},
+		)
+
+		l.processPageRecords(data.CurrentData.Records.Result, luoguUser, i, false)
 	}
 	return nil
 }
 
-// 构建提交记录表
-func (l *LuoguRecords) buildTable(record *models.LuoguRecord) db.Luogu_all_submissions {
+// processPageRecords 处理单页记录 - 私有方法
+func (l *LuoguRecords) processPageRecords(records []models.LuoguRecord, luoguUser *models.LuoguUserDeliver, page int, strictMode bool) error {
+	for _, record := range records {
+		if l.shouldSkipRecord(&record, luoguUser, page) {
+			continue
+		}
+
+		if luoguUser.OldDataSet[strconv.Itoa(int(record.ID))] {
+			if strictMode {
+				return fmt.Errorf("%s第%d页提交记录已存在 %s", luoguUser.RealName, page, strconv.Itoa(int(record.ID)))
+			}
+			continue
+		}
+
+		table := l.buildSubmissionTable(&record)
+		err := db.Insert_luogu_sub(table)
+		if err != nil {
+			if strictMode {
+				return fmt.Errorf("%s处理第%d页提交记录失败 %s", luoguUser.RealName, page, err.Error())
+			}
+			l.debug.Debug(fmt.Sprintf("%s第%d页提交记录插入失败 %s", luoguUser.RealName, page, err.Error()))
+			continue
+		}
+		luoguUser.Count++
+	}
+	return nil
+}
+
+// shouldSkipRecord 判断是否应该跳过该提交记录 - 私有方法
+func (l *LuoguRecords) shouldSkipRecord(record *models.LuoguRecord, luoguUser *models.LuoguUserDeliver, page int) bool {
+	// 如果提交记录状态为还在测评，则跳过
+	nowTime := time.Now().Unix()
+	if record.Status == 0 && nowTime-record.SubmitTime < 60*5 {
+		l.debug.Debug(fmt.Sprintf("%s第%d页提交记录还在测评 %s||https://www.luogu.com.cn/record/%d", luoguUser.RealName, page, record.Problem.PID, record.ID))
+		return true
+	}
+	// 如果洛谷UID不匹配，则更新洛谷UID
+	if strconv.Itoa(int(record.User.UID)) != luoguUser.Uid {
+		record.User.UID, _ = strconv.ParseInt(luoguUser.Uid, 10, 64)
+	}
+	return false
+}
+
+// buildSubmissionTable 构建提交记录表 - 私有方法
+func (l *LuoguRecords) buildSubmissionTable(record *models.LuoguRecord) db.Luogu_all_submissions {
 	difficulty := constants.LuoguDifficultyMap
 	if record.Problem.Difficulty >= len(difficulty) {
 		difficulty = append(difficulty, "unknown")
@@ -252,9 +275,40 @@ func (l *LuoguRecords) buildTable(record *models.LuoguRecord) db.Luogu_all_submi
 	}
 }
 
-// 计算页数
+// ================================辅助方法===============================================
+
+// calculatePage 计算页数 - 私有方法
 func (l *LuoguRecords) calculatePage(luoguRecordsResponse *models.LuoguRecordsResponse) int {
 	return int(math.Ceil(float64(luoguRecordsResponse.CurrentData.Records.Count) / float64(luoguRecordsResponse.CurrentData.Records.PerPage)))
+}
+
+// isDataConsistent 检查数据一致性 - 私有方法
+func (l *LuoguRecords) isDataConsistent(luoguUser models.LuoguUserDeliver, totalCount int) bool {
+	return len(luoguUser.OldDataSet)+luoguUser.Count == totalCount
+}
+
+// logError 记录错误日志 - 私有方法
+func (l *LuoguRecords) logError(userName, message string, err error) {
+	errorMsg := fmt.Sprintf("%s%s", userName, message)
+	if err != nil {
+		errorMsg += fmt.Sprintf(" %s", err.Error())
+	}
+	l.AddErr(errorMsg)
+	l.debug.Debug(errorMsg)
+}
+
+// logSuccess 记录成功日志 - 私有方法
+func (l *LuoguRecords) logSuccess(userName, message string, count int) {
+	successMsg := fmt.Sprintf("%s%s %d", userName, message, count)
+	l.AddLog(successMsg)
+	l.debug.Debug(successMsg)
+}
+
+// logDataInconsistency 记录数据不一致日志 - 私有方法
+func (l *LuoguRecords) logDataInconsistency(luoguUser models.LuoguUserDeliver, actualCount int) {
+	msg := fmt.Sprintf("%s爬取实际数量%d，数据库已爬取数量%d", luoguUser.RealName, actualCount, len(luoguUser.OldDataSet)+luoguUser.Count)
+	l.debug.Debug(msg)
+	l.AddErr(msg)
 }
 
 // ================================更新洛谷Cookie===============================================
@@ -464,8 +518,7 @@ func (s *LuoguSolution) GetSolutionList(problemID string) ([]models.SolutionCont
 }
 func (s *LuoguSolution) storeSolution(solutions []models.SolutionContent) error {
 	for _, solution := range solutions {
-		var table db.Luogu_solutions
-		table = db.Luogu_solutions{
+		table := db.Luogu_solutions{
 			Problem_id:    solution.SolutionFor.PID,
 			Problem_name:  solution.SolutionFor.Title,
 			Author_name:   solution.Author.Name,
@@ -509,7 +562,7 @@ func (s *LuoguSolution) analyzeSolution(problemID string, page int) ([]models.So
 	if err != nil {
 		return nil, err
 	}
-	for i, _ := range response.Data.Solutions.Result {
+	for i := range response.Data.Solutions.Result {
 		response.Data.Solutions.Result[i].Collection = map[string]any{
 			"page": page,
 		}
