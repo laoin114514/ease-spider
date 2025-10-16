@@ -21,6 +21,18 @@ func NewLogService(logPath, errPath string) *LogService {
 	}
 }
 
+func (b *LogService) InitLogsDir() error {
+	err := os.MkdirAll(b.logPath, 0755)
+	if err != nil {
+		return err
+	}
+	err = os.MkdirAll(b.errPath, 0755)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // GetLog 获取日志
 func (b *LogService) GetLog() []string {
 	return b.log.GetLog()

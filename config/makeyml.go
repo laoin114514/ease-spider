@@ -1,4 +1,32 @@
-database:
+package config
+
+import (
+	"os"
+
+	yaml "gopkg.in/yaml.v3"
+)
+
+func MakeYml() error {
+	if fileExists("config.yml") {
+		return nil
+	}
+	yamlFile := storeYml()
+	err := yaml.Unmarshal([]byte(yamlFile), &AppConfig)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile("config.yml", []byte(yamlFile), 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return !os.IsNotExist(err)
+}
+func storeYml() string {
+	return `database:
   host: 127.0.0.1
   port: 3306
   user: gxuicpc
@@ -34,4 +62,5 @@ timerFrequency:
   cf_records: 2m
   luogu_records: 2m
 debug:
-  all: true
+  all: true`
+}
