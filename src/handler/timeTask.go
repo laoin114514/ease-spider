@@ -36,10 +36,9 @@ func TimeTask() {
 
 	timer := utils.NewTimer()
 	cfService := services.NewCfService()
-	luoguRecordsService := services.NewLuoguRecordsService()
 	dingService := services.NewDingdingService()
+	luoguRecordsService := services.NewLuoguRecordsService()
 	luoguUpdateCookieService := services.NewLuoguUpdateCookie()
-	luoguUpdateCookieService.UpdateLuoguCookie()
 	// luoguSubmissionDetailService := services.NewLuoguSubmissionDetail()
 	//每小时执行一次，更新洛谷Cookie
 	timer.RunWithTimer(

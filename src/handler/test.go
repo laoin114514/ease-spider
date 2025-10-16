@@ -1,15 +1,26 @@
 package handler
 
 import (
-	"fmt"
+	"log"
 	"spider/src/services"
 )
 
 func Test() {
-	luoguSolutionService := services.NewLuoguSolution()
-	err := luoguSolutionService.GetSolutionHasSourceCode()
-	if err != nil {
-		fmt.Println(err)
-	}
-	luoguSolutionService.LogService.Clear()
+	func() error {
+		luoguRecordsService := services.NewLuoguRecordsService()
+		log.Println("开始获取洛谷用户提交记录")
+		err := luoguRecordsService.GetLuoguUsersRecords()
+		if err != nil {
+			return err
+		}
+		err = luoguRecordsService.ChangePrivateProblem()
+		if err != nil {
+			return err
+		}
+		luoguRecordsService.SaveLog()
+		luoguRecordsService.SaveErr()
+		luoguRecordsService.Clear()
+		log.Println("洛谷用户提交记录获取完成")
+		return nil
+	}()
 }

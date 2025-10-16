@@ -89,6 +89,8 @@ func (l *LuoguRecords) GetLuoguUsersRecords() error {
 func (l *LuoguRecords) ChangePrivateProblem() error {
 	count, err := l.repo.ChangePrivateProblem()
 	if err != nil {
+		l.debug.Debug(fmt.Sprintf("修改私有题目难度为unknow失败 %s", err.Error()))
+		l.AddErr(fmt.Sprintf("修改私有题目难度为unknow失败 %s", err.Error()))
 		return err
 	}
 	if count == 0 {
