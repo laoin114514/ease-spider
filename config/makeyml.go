@@ -39,8 +39,9 @@ dingding:
 luogu:
   isInServer: false
   luoguRecordsConcurrency: 4
-  luoguSolutionConcurrency: 10
+  luoguSolutionConcurrency: 5
   luoguSubmissionDetailConcurrency: 3
+  luoguTeamID: 116191
   username: laoyin
   password: 683305SAO
   userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0
@@ -59,6 +60,7 @@ timerFrequency:
   dingding: 1h
   luogu_update_cookie: 1h
   luogu_submission_detail: 1h
+  luogu_solution: 1h
   cf_records: 2m
   luogu_records: 2m
 debug:

@@ -1,5 +1,5 @@
 {
-    "Cookie": "__client_id=6d3806d792d061cb68ecc707f45f168abb12d3a2; C3VK=c3b5f2;_uid=1851093",
+    "Cookie": "__client_id=278679b2c68822a068fb141d641b90f884b21b3c; C3VK=470562;_uid=1851093",
     "dingUserId": {
         "01176421420026309256": "杜永坤",
         "03030233253124066409": "张健明",
@@ -10,5 +10,45 @@
         "49203919162724192": "陶康",
         "514450420223269518": "孙怿翔",
         "54210856181176852": "郑毅"
+    },
+    "result": {
+        "contest": null,
+        "enableO2": true,
+        "id": 237604100,
+        "language": 28,
+        "memory": 788,
+        "problem": {
+            "difficulty": 1,
+            "fullScore": 100,
+            "pid": "B2002",
+            "title": "Hello,World!",
+            "type": "B"
+        },
+        "score": 0,
+        "sourceCodeLength": 77,
+        "status": 14,
+        "submitTime": 1759198361,
+        "time": 4,
+        "user": {
+            "avatar": "https://cdn.luogu.com.cn/upload/usericon/1898945.png",
+            "background": "",
+            "badge": null,
+            "blogAddress": null,
+            "ccfLevel": 0,
+            "color": "Gray",
+            "eloValue": null,
+            "followerCount": 0,
+            "followingCount": 0,
+            "isAdmin": false,
+            "isBanned": false,
+            "name": "guvfjp560538902",
+            "ranking": 0,
+            "slogan": "",
+            "uid": 0,
+            "unreadMessageCount": 0,
+            "unreadNoticeCount": 0,
+            "verified": false,
+            "xcpcLevel": 0
+        }
     }
 }

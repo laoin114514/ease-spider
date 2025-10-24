@@ -22,6 +22,22 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
+type Luogu struct {
+	LuoguSubmissionDetail *LuoguSubmissionDetail
+	LuoguCookie           *LuoguUpdateCookie
+	LuoguSolution         *LuoguSolution
+	LuoguRecords          *LuoguRecords
+}
+
+func NewLuogu() *Luogu {
+	return &Luogu{
+		LuoguSubmissionDetail: NewLuoguSubmissionDetail(),
+		LuoguCookie:           NewLuoguUpdateCookie(),
+		LuoguSolution:         NewLuoguSolution(),
+		LuoguRecords:          NewLuoguRecords(),
+	}
+}
+
 // ================================获取洛谷提交记录源代码===============================================
 func NewLuoguSubmissionDetail() *LuoguSubmissionDetail {
 	return &LuoguSubmissionDetail{
@@ -53,7 +69,7 @@ func NewLuoguSolution() *LuoguSolution {
 }
 
 // ================================获取洛谷用户提交记录===============================================
-func NewLuoguRecordsService() *LuoguRecords {
+func NewLuoguRecords() *LuoguRecords {
 	return &LuoguRecords{
 		LogService: NewLogService("logs/luogu.log", "logs/luogu.err.log"),
 		repo:       repository.NewLuoguRepository(),
@@ -61,6 +77,27 @@ func NewLuoguRecordsService() *LuoguRecords {
 	}
 }
 
+// ================================获取洛谷团队成员===============================================
+func NewLuoguTeam() *LuoguTeam {
+	return &LuoguTeam{
+		LogService: NewLogService("logs/luoguTeam.log", "logs/luoguTeam.err.log"),
+		repo:       repository.NewLuoguRepository(),
+		debug:      utils.NewDebug(config.AppConfig.DebugConfig.All),
+		count:      0,
+		results:    make(map[string]bool),
+	}
+}
+
+// //
+// //
+// //
+// //
+// //
+// //
+// //
+// //
+// //
+// //
 // ================================获取洛谷用户提交记录===============================================
 type LuoguRecords struct {
 	*LogService
@@ -71,7 +108,7 @@ type LuoguRecords struct {
 // ================================公有接口方法===============================================
 
 // GetLuoguUsersRecords 获取洛谷用户提交记录 - 对外提供的主要接口
-func (l *LuoguRecords) GetLuoguUsersRecords() error {
+func (l *LuoguRecords) GetAndStore() error {
 	conCurrenter := utils.NewConCurrenter[models.LuoguUserDeliver](config.AppConfig.Luogu.LuoguRecordsConcurrency)
 	luoguUserDelivers, err := l.repo.GetUserNameMap()
 	if err != nil {
@@ -105,13 +142,13 @@ func (l *LuoguRecords) ChangePrivateProblem() error {
 
 // processUserRecords 处理单个用户的提交记录 - 私有方法
 func (l *LuoguRecords) processUserRecords(luoguUser models.LuoguUserDeliver) error {
+
 	// 获取初始化数据：总数和每页数量
 	initData, err := l.fetchInitialData(luoguUser.Uid)
 	if err != nil {
 		l.logError(luoguUser.RealName, "获取提交记录失败", err)
 		return err
 	}
-
 	if initData.Code == http.StatusNotFound {
 		l.logError(luoguUser.RealName, "的uid不存在", nil)
 		return fmt.Errorf("用户uid不存在")
@@ -195,7 +232,7 @@ func (l *LuoguRecords) fetchRecordsIncrementally(luoguUser *models.LuoguUserDeli
 	return nil
 }
 
-// fetchRecordsFully 全量爬取所有页数的数据 - 私有方法
+// fetchRecordsFully 全量爬取所有页数的数据
 func (l *LuoguRecords) fetchRecordsFully(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
 	cookie := utils.JsonDB.Get("Cookie").(string)
@@ -210,13 +247,12 @@ func (l *LuoguRecords) fetchRecordsFully(luoguUser *models.LuoguUserDeliver, pag
 				"_contentOnly": "1",
 			},
 		)
-
 		l.processPageRecords(data.CurrentData.Records.Result, luoguUser, i, false)
 	}
 	return nil
 }
 
-// processPageRecords 处理单页记录 - 私有方法
+// processPageRecords 处理单页记录
 func (l *LuoguRecords) processPageRecords(records []models.LuoguRecord, luoguUser *models.LuoguUserDeliver, page int, strictMode bool) error {
 	for _, record := range records {
 		if l.shouldSkipRecord(&record, luoguUser, page) {
@@ -244,7 +280,7 @@ func (l *LuoguRecords) processPageRecords(records []models.LuoguRecord, luoguUse
 	return nil
 }
 
-// shouldSkipRecord 判断是否应该跳过该提交记录 - 私有方法
+// shouldSkipRecord 判断是否应该跳过该提交记录
 func (l *LuoguRecords) shouldSkipRecord(record *models.LuoguRecord, luoguUser *models.LuoguUserDeliver, page int) bool {
 	// 如果提交记录状态为还在测评，则跳过
 	nowTime := time.Now().Unix()
@@ -253,19 +289,18 @@ func (l *LuoguRecords) shouldSkipRecord(record *models.LuoguRecord, luoguUser *m
 		return true
 	}
 	// 如果洛谷UID不匹配，则更新洛谷UID
-	if strconv.Itoa(int(record.User.UID)) != luoguUser.Uid {
+	if int(record.User.UID) == 0 {
 		record.User.UID, _ = strconv.ParseInt(luoguUser.Uid, 10, 64)
 	}
 	return false
 }
 
-// buildSubmissionTable 构建提交记录表 - 私有方法
+// buildSubmissionTable 构建提交记录表
 func (l *LuoguRecords) buildSubmissionTable(record *models.LuoguRecord) db.Luogu_all_submissions {
 	difficulty := constants.LuoguDifficultyMap
 	if record.Problem.Difficulty >= len(difficulty) {
 		difficulty = append(difficulty, "unknown")
 	}
-
 	return db.Luogu_all_submissions{
 		Sub_id:        fmt.Sprintf("%d", record.ID),
 		Uid:           fmt.Sprintf("%d", record.User.UID),
@@ -279,17 +314,17 @@ func (l *LuoguRecords) buildSubmissionTable(record *models.LuoguRecord) db.Luogu
 
 // ================================辅助方法===============================================
 
-// calculatePage 计算页数 - 私有方法
+// calculatePage 计算页数
 func (l *LuoguRecords) calculatePage(luoguRecordsResponse *models.LuoguRecordsResponse) int {
 	return int(math.Ceil(float64(luoguRecordsResponse.CurrentData.Records.Count) / float64(luoguRecordsResponse.CurrentData.Records.PerPage)))
 }
 
-// isDataConsistent 检查数据一致性 - 私有方法
+// isDataConsistent 检查数据一致性
 func (l *LuoguRecords) isDataConsistent(luoguUser models.LuoguUserDeliver, totalCount int) bool {
 	return len(luoguUser.OldDataSet)+luoguUser.Count == totalCount
 }
 
-// logError 记录错误日志 - 私有方法
+// logError 记录错误日志
 func (l *LuoguRecords) logError(userName, message string, err error) {
 	errorMsg := fmt.Sprintf("%s%s", userName, message)
 	if err != nil {
@@ -299,14 +334,14 @@ func (l *LuoguRecords) logError(userName, message string, err error) {
 	l.debug.Debug(errorMsg)
 }
 
-// logSuccess 记录成功日志 - 私有方法
+// logSuccess 记录成功日志
 func (l *LuoguRecords) logSuccess(userName, message string, count int) {
 	successMsg := fmt.Sprintf("%s%s %d", userName, message, count)
 	l.AddLog(successMsg)
 	l.debug.Debug(successMsg)
 }
 
-// logDataInconsistency 记录数据不一致日志 - 私有方法
+// logDataInconsistency 记录数据不一致日志
 func (l *LuoguRecords) logDataInconsistency(luoguUser models.LuoguUserDeliver, actualCount int) {
 	msg := fmt.Sprintf("%s爬取实际数量%d，数据库已爬取数量%d", luoguUser.RealName, actualCount, len(luoguUser.OldDataSet)+luoguUser.Count)
 	l.debug.Debug(msg)
@@ -320,7 +355,7 @@ type LuoguUpdateCookie struct {
 	debug      *utils.Debug
 }
 
-func (l *LuoguUpdateCookie) UpdateLuoguCookie() error {
+func (l *LuoguUpdateCookie) Update() error {
 	l.init()
 	l.initRedirect()
 	l.getCaptcha()
@@ -469,7 +504,7 @@ type LuoguSolution struct {
 }
 
 // 公共方法
-func (s *LuoguSolution) GetSolutionHasSourceCode() error {
+func (s *LuoguSolution) GetAndStore() error {
 	problemIds, err := s.repo.GetProblemIdHasSourceCode()
 	if err != nil {
 		s.log.AddErr(fmt.Sprintf("获取题解ID失败 %s", err.Error()))
@@ -478,7 +513,7 @@ func (s *LuoguSolution) GetSolutionHasSourceCode() error {
 	}
 	for _, problemId := range problemIds {
 		solutions, err := s.GetSolutionList(problemId)
-		s.debug.Debug(fmt.Sprintf("获取题解 %s %d", problemId, len(solutions)))
+		s.debug.Debug(fmt.Sprintf("获取题解 题目ID：%s 目前题解数量：%d", problemId, len(solutions)))
 		if err != nil {
 			s.log.AddErr(fmt.Sprintf("获取题解失败 %s", err.Error()))
 			s.debug.Debug(fmt.Sprintf("获取题解失败 %s", err.Error()))
@@ -604,14 +639,24 @@ type LuoguSubmissionDetail struct {
 }
 
 // 获取源代码
-func (s *LuoguSubmissionDetail) GetRecordSourceCode() error {
-	subids, err := s.repo.GetSubidNoSourceCode()
+func (s *LuoguSubmissionDetail) GetAndStoreSourceCode() error {
+	luoguTeam := NewLuoguTeam()
+	err := luoguTeam.GetMembers()
+	if err != nil {
+		s.AddErr(fmt.Sprintf("获取洛谷团队成员失败 %s", err.Error()))
+		s.debug.Debug("获取洛谷团队成员失败")
+		return err
+	}
+
+	subids, err := s.repo.GetSubidNoSourceCode(luoguTeam.results)
 	if err != nil {
 		s.AddErr(fmt.Sprintf("获取提交记录ID失败 %s", err.Error()))
 		s.debug.Debug("获取提交记录ID失败")
 		return err
 	}
-	s.debug.Debug(fmt.Sprintf("总共 %d个提交记录需要获取源代码", len(subids)))
+
+	s.debug.Debug(fmt.Sprintf("总共 %d个提交记录需要获取源代码\n团队成员：%v", len(subids), luoguTeam.results))
+
 	conCurrenter := utils.NewConCurrenter[string](config.AppConfig.Luogu.LuoguSubmissionDetailConcurrency)
 	err = conCurrenter.Run(subids, func(subid string) error {
 		name, err := s.repo.GetNameBySubid(subid)
@@ -633,7 +678,7 @@ func (s *LuoguSubmissionDetail) GetRecordSourceCode() error {
 			s.AddErr(fmt.Sprintf("解析提交记录源代码失败 %s", err.Error()))
 			s.debug.Debug(subid + name + "解析失败" + err.Error())
 			luoUpdateCookieService := NewLuoguUpdateCookie()
-			luoUpdateCookieService.UpdateLuoguCookie()
+			luoUpdateCookieService.Update()
 			return err
 		}
 		//源代码长度小于5，则填充无
@@ -641,6 +686,7 @@ func (s *LuoguSubmissionDetail) GetRecordSourceCode() error {
 			s.AddErr(fmt.Sprintf("提交记录源代码为空 %s", subid))
 			respJson.CurrentData.Record.SourceCode = "无"
 			s.debug.Debug(subid + name + "源代码为空")
+			return nil
 		}
 		err = s.repo.InsertSourceCode(subid, respJson.CurrentData.Record.SourceCode)
 		if err != nil {
@@ -699,3 +745,34 @@ func (s *LuoguSubmissionDetail) parseSourceCodeFromHTML(htmlContent string) (mod
 	json.Unmarshal([]byte(decodedJSON), &realJson)
 	return realJson, nil
 }
+
+// ============================================获取洛谷团队成员==========================================
+type LuoguTeam struct {
+	*LogService
+	repo    *repository.LuoguRepository
+	debug   *utils.Debug
+	results map[string]bool
+	count   int
+}
+
+func (l *LuoguTeam) GetMembers() error {
+	req := utils.NewRequest[models.LuoguTeamResponse]()
+	url := fmt.Sprintf("https://www.luogu.com.cn/api/team/members/%d", config.AppConfig.Luogu.LuoguTeamID)
+	resp, err := req.Get(url, map[string]string{})
+	if err != nil {
+		return err
+	}
+	for _, member := range resp.Members.Result {
+		l.results[strconv.FormatInt(member.User.UID, 10)] = true
+		l.count++
+	}
+	l.debug.Debug(fmt.Sprintf("获取洛谷团队成员完成 %d", l.count))
+	l.AddLog(fmt.Sprintf("获取洛谷团队成员完成 %d", l.count))
+	return nil
+}
+func (l *LuoguTeam) StoreMembers() error {
+	utils.JsonDB.Set("teamMembers", l.results)
+	return nil
+}
+
+//============================================获取洛谷题单==========================================

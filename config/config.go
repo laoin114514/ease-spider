@@ -33,6 +33,7 @@ type luoguConfig struct {
 	LuoguRecordsConcurrency          int    `yaml:"luoguRecordsConcurrency"`
 	LuoguSolutionConcurrency         int    `yaml:"luoguSolutionConcurrency"`
 	LuoguSubmissionDetailConcurrency int    `yaml:"luoguSubmissionDetailConcurrency"`
+	LuoguTeamID                      int    `yaml:"luoguTeamID"`
 }
 type cfConfig struct {
 	GroupCode                        string `yaml:"groupCode"`
@@ -50,6 +51,7 @@ type timerFrequencyConfig struct {
 	LuoguRecords           string `yaml:"luogu_records"`
 	LuoguUpdateCookie      string `yaml:"luogu_update_cookie"`
 	LuoguSubmissionDetail  string `yaml:"luogu_submission_detail"`
+	LuoguSolution          string `yaml:"luogu_solution"`
 }
 type debugConfig struct {
 	All bool `yaml:"all"`

@@ -72,8 +72,8 @@ func (r *LuoguRepository) InsertUserRecords(record *models.LuoguRecordsResponse)
 }
 
 // 获取没有源代码的提交记录ID,仅获取role_id=3的用户（预备役）
-func (r *LuoguRepository) GetSubidNoSourceCode() ([]string, error) {
-	rows, err := db.Pool.Query("select sub_id from luogu_all_submissions as l,user as u,oj_account as o where NOT EXISTS(select 1 from luogu_source_code as l2 where l2.sub_id=l.sub_id ) AND l.uid=o.luogu_uid AND u.id=o.user_id AND u.role_id=3")
+func (r *LuoguRepository) GetSubidNoSourceCode(memberSet map[string]bool) ([]string, error) {
+	rows, err := db.Pool.Query("select l.sub_id,l.uid from luogu_all_submissions as l,user as u,oj_account as o where NOT EXISTS(select 1 from luogu_source_code as l2 where l2.sub_id=l.sub_id ) AND l.uid=o.luogu_uid AND u.id=o.user_id AND u.role_id=3 AND u.school='广西大学'")
 	if err != nil {
 		return nil, err
 	}
@@ -81,8 +81,11 @@ func (r *LuoguRepository) GetSubidNoSourceCode() ([]string, error) {
 	subids := make([]string, 0)
 	for rows.Next() {
 		var subid string
-		rows.Scan(&subid)
-		subids = append(subids, subid)
+		var uid string
+		rows.Scan(&subid, &uid)
+		if memberSet[uid] {
+			subids = append(subids, subid)
+		}
 	}
 	return subids, nil
 }
