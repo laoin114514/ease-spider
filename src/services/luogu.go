@@ -38,13 +38,12 @@ func NewLuogu() *Luogu {
 	}
 }
 
-// ================================获取洛谷提交记录源代码===============================================
-func NewLuoguSubmissionDetail() *LuoguSubmissionDetail {
-	return &LuoguSubmissionDetail{
-		LogService: NewLogService("logs/luoguSubmissionDetail.log", "logs/luoguSubmissionDetail.err.log"),
+// ================================获取洛谷用户提交记录===============================================
+func NewLuoguRecords() *LuoguRecords {
+	return &LuoguRecords{
+		LogService: NewLogService("logs/luogu.log", "logs/luogu.err.log"),
 		repo:       repository.NewLuoguRepository(),
 		debug:      utils.NewDebug(config.AppConfig.DebugConfig.All),
-		count:      0,
 	}
 }
 
@@ -68,12 +67,13 @@ func NewLuoguSolution() *LuoguSolution {
 	}
 }
 
-// ================================获取洛谷用户提交记录===============================================
-func NewLuoguRecords() *LuoguRecords {
-	return &LuoguRecords{
-		LogService: NewLogService("logs/luogu.log", "logs/luogu.err.log"),
+// ================================获取洛谷提交记录源代码===============================================
+func NewLuoguSubmissionDetail() *LuoguSubmissionDetail {
+	return &LuoguSubmissionDetail{
+		LogService: NewLogService("logs/luoguSubmissionDetail.log", "logs/luoguSubmissionDetail.err.log"),
 		repo:       repository.NewLuoguRepository(),
 		debug:      utils.NewDebug(config.AppConfig.DebugConfig.All),
+		count:      0,
 	}
 }
 
@@ -511,8 +511,9 @@ func (s *LuoguSolution) GetAndStore() error {
 		s.debug.Debug(fmt.Sprintf("获取题解ID失败 %s", err.Error()))
 		return err
 	}
+	//不采取并发，因为题解数量较少，且获取题解时间较长
 	for _, problemId := range problemIds {
-		solutions, err := s.GetSolutionList(problemId)
+		solutions, err := s.GetSolutionListByProblemId(problemId)
 		s.debug.Debug(fmt.Sprintf("获取题解 题目ID：%s 目前题解数量：%d", problemId, len(solutions)))
 		if err != nil {
 			s.log.AddErr(fmt.Sprintf("获取题解失败 %s", err.Error()))
@@ -532,7 +533,7 @@ func (s *LuoguSolution) GetAndStore() error {
 }
 
 // 获取全部题解
-func (s *LuoguSolution) GetSolutionList(problemID string) ([]models.SolutionContent, error) {
+func (s *LuoguSolution) GetSolutionListByProblemId(problemID string) ([]models.SolutionContent, error) {
 	_, err := s.analyzeSolution(problemID, 1)
 	if err != nil {
 		return nil, err
@@ -648,16 +649,25 @@ func (s *LuoguSubmissionDetail) GetAndStoreSourceCode() error {
 		return err
 	}
 
-	subids, err := s.repo.GetSubidNoSourceCode(luoguTeam.results)
+	subids, err := s.repo.GetSubidNoSourceCode()
 	if err != nil {
 		s.AddErr(fmt.Sprintf("获取提交记录ID失败 %s", err.Error()))
 		s.debug.Debug("获取提交记录ID失败")
 		return err
 	}
 
+	// 删除非团队成员的提交记录,提升速率
+	for i, subid := range subids {
+		if !luoguTeam.results[subid] {
+			subids = utils.Delete(subids, i)
+		}
+	}
 	s.debug.Debug(fmt.Sprintf("总共 %d个提交记录需要获取源代码\n团队成员：%v", len(subids), luoguTeam.results))
 
+	// 创建并发器
 	conCurrenter := utils.NewConCurrenter[string](config.AppConfig.Luogu.LuoguSubmissionDetailConcurrency)
+
+	// 并发获取提交记录源代码
 	err = conCurrenter.Run(subids, func(subid string) error {
 		name, err := s.repo.GetNameBySubid(subid)
 		if err != nil {
@@ -665,6 +675,7 @@ func (s *LuoguSubmissionDetail) GetAndStoreSourceCode() error {
 			s.debug.Debug(subid + name + "获取失败" + err.Error())
 			return err
 		}
+
 		html, err := s.getRecordSourceCodeHTML(subid)
 		if err != nil {
 			s.AddErr(fmt.Sprintf("获取提交记录源代码失败 %s", err.Error()))
@@ -672,6 +683,7 @@ func (s *LuoguSubmissionDetail) GetAndStoreSourceCode() error {
 
 			return err
 		}
+
 		// 解析HTML中的JSON数据
 		respJson, err := s.parseSourceCodeFromHTML(html)
 		if err != nil {
@@ -681,13 +693,17 @@ func (s *LuoguSubmissionDetail) GetAndStoreSourceCode() error {
 			luoUpdateCookieService.Update()
 			return err
 		}
+
 		//源代码长度小于5，则填充无
 		if len(respJson.CurrentData.Record.SourceCode) <= 5 {
 			s.AddErr(fmt.Sprintf("提交记录源代码为空 %s", subid))
 			respJson.CurrentData.Record.SourceCode = "无"
 			s.debug.Debug(subid + name + "源代码为空")
-			return nil
+			if respJson.CurrentData.Record.Problem.Type == "P" {
+				return nil
+			}
 		}
+
 		err = s.repo.InsertSourceCode(subid, respJson.CurrentData.Record.SourceCode)
 		if err != nil {
 			s.AddErr(fmt.Sprintf("插入提交记录源代码失败 %s", err.Error()))
@@ -695,6 +711,7 @@ func (s *LuoguSubmissionDetail) GetAndStoreSourceCode() error {
 
 			return err
 		}
+
 		s.debug.Debug(subid + name + "插入成功")
 		s.count++
 		return nil

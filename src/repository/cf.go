@@ -77,28 +77,3 @@ func (r *CfRepository) GetTeamContests() ([]db.Cf_team_contests, error) {
 	}
 	return cfTeamContests, nil
 }
-func (r *CfRepository) GetCfSubmissions(account string) ([]db.Cf_all_submissions, error) {
-	rows, err := db.Pool.Query("SELECT sub_id, account, problem_id, problem_name, rating, verdict, creation_time FROM cf_all_submissions WHERE account = ?", account)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	cfSubmissions := make([]db.Cf_all_submissions, 0)
-	for rows.Next() {
-		var subId int
-		var account, problemId, problemName, verdict string
-		var rating int
-		var creationTime time.Time
-		rows.Scan(&subId, &account, &problemId, &problemName, &rating, &verdict, &creationTime)
-		cfSubmissions = append(cfSubmissions, db.Cf_all_submissions{
-			Sub_id:        subId,
-			Account:       account,
-			Problem_id:    problemId,
-			Problem_name:  problemName,
-			Rating:        rating,
-			Verdict:       verdict,
-			Creation_time: creationTime,
-		})
-	}
-	return cfSubmissions, nil
-}

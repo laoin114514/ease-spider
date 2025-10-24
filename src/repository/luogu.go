@@ -72,8 +72,8 @@ func (r *LuoguRepository) InsertUserRecords(record *models.LuoguRecordsResponse)
 }
 
 // 获取没有源代码的提交记录ID,仅获取role_id=3的用户（预备役）
-func (r *LuoguRepository) GetSubidNoSourceCode(memberSet map[string]bool) ([]string, error) {
-	rows, err := db.Pool.Query("select l.sub_id,l.uid from luogu_all_submissions as l,user as u,oj_account as o where NOT EXISTS(select 1 from luogu_source_code as l2 where l2.sub_id=l.sub_id ) AND l.uid=o.luogu_uid AND u.id=o.user_id AND u.role_id=3 AND u.school='广西大学'")
+func (r *LuoguRepository) GetSubidNoSourceCode() ([]string, error) {
+	rows, err := db.Pool.Query("select l.sub_id from luogu_all_submissions as l,user as u,oj_account as o where NOT EXISTS(select 1 from luogu_source_code as l2 where l2.sub_id=l.sub_id ) AND l.uid=o.luogu_uid AND u.id=o.user_id AND u.role_id=3 AND u.school='广西大学'")
 	if err != nil {
 		return nil, err
 	}
@@ -81,11 +81,8 @@ func (r *LuoguRepository) GetSubidNoSourceCode(memberSet map[string]bool) ([]str
 	subids := make([]string, 0)
 	for rows.Next() {
 		var subid string
-		var uid string
-		rows.Scan(&subid, &uid)
-		if memberSet[uid] {
-			subids = append(subids, subid)
-		}
+		rows.Scan(&subid)
+		subids = append(subids, subid)
 	}
 	return subids, nil
 }
@@ -96,6 +93,7 @@ func (r *LuoguRepository) InsertSourceCode(subid string, source_code string) err
 	}
 	return nil
 }
+
 func (r *LuoguRepository) GetNameBySubid(subid string) (string, error) {
 	var name string
 	err := db.Pool.QueryRow("SELECT u.real_name FROM user as u,oj_account as o,luogu_all_submissions as s WHERE u.id=o.user_id AND o.luogu_uid=s.uid AND s.sub_id=?", subid).Scan(&name)
@@ -104,6 +102,8 @@ func (r *LuoguRepository) GetNameBySubid(subid string) (string, error) {
 	}
 	return name, nil
 }
+
+// 获取有源代码的题目ID
 func (r *LuoguRepository) GetProblemIdHasSourceCode() ([]string, error) {
 	rows, err := db.Pool.Query("SELECT s.problem_id FROM luogu_source_code as c,luogu_all_submissions as s WHERE s.sub_id=c.sub_id AND c.source_code!='无' AND NOT EXISTS(SELECT 1 FROM luogu_solutions as l WHERE l.problem_id=s.problem_id) GROUP BY problem_id")
 	if err != nil {
@@ -118,6 +118,8 @@ func (r *LuoguRepository) GetProblemIdHasSourceCode() ([]string, error) {
 	}
 	return problemIds, nil
 }
+
+// 修正私有题目难度为unknow
 func (r *LuoguRepository) ChangePrivateProblem() (int64, error) {
 	result, err := db.Pool.Exec("UPDATE luogu_all_submissions SET difficulty='unknow' WHERE problem_id LIKE 'T%'")
 	if err != nil {
