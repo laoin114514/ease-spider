@@ -9,14 +9,16 @@ import (
 )
 
 type Request[T any] struct {
-	c       *resty.Client
-	rawResp *resty.Response
+	c          *resty.Client
+	rawResp    *resty.Response
+	jsonStrict bool
 }
 
-func NewRequest[T any]() *Request[T] {
+func NewRequest[T any](jsonStrict bool) *Request[T] {
 	return &Request[T]{
-		c:       resty.New(),
-		rawResp: nil,
+		c:          resty.New(),
+		rawResp:    nil,
+		jsonStrict: jsonStrict,
 	}
 }
 func (r *Request[T]) Get(url string, params map[string]string) (T, error) {
@@ -33,11 +35,10 @@ func (r *Request[T]) Get(url string, params map[string]string) (T, error) {
 		return result, fmt.Errorf("请求失败  %d", resp.StatusCode())
 	}
 	err = json.Unmarshal(resp.Body(), &result)
-	if err != nil {
+	if err != nil && r.jsonStrict {
 		return result, err
 	}
 	r.rawResp = resp
-	// fmt.Println("[Debug]", string(resp.Body()))
 	return result, nil
 }
 func (r *Request[T]) Post(url string, body any) (T, error) {
@@ -54,7 +55,7 @@ func (r *Request[T]) Post(url string, body any) (T, error) {
 		return result, fmt.Errorf("请求失败  %d", resp.StatusCode())
 	}
 	err = json.Unmarshal(resp.Body(), &result)
-	if err != nil {
+	if err != nil && r.jsonStrict {
 		return result, err
 	}
 	r.rawResp = resp
@@ -62,6 +63,10 @@ func (r *Request[T]) Post(url string, body any) (T, error) {
 }
 func (r *Request[T]) SetCookie(cookie string) *Request[T] {
 	r.c.SetHeader("Cookie", cookie)
+	return r
+}
+func (r *Request[T]) SetHeader(key string, value string) *Request[T] {
+	r.c.SetHeader(key, value)
 	return r
 }
 func (r *Request[T]) GetRawResp() *resty.Response {

@@ -56,7 +56,7 @@ func (d *Dingding) getDingdingToken() (string, error) {
 	appKey := config.AppConfig.Dingding.AppKey
 	appSecret := config.AppConfig.Dingding.AppSecret
 
-	req := utils.NewRequest[models.DingdingTokenResponse]()
+	req := utils.NewRequest[models.DingdingTokenResponse](true)
 
 	url := "https://api.dingtalk.com/v1.0/oauth2/accessToken"
 	token, err := req.Post(url,
@@ -73,7 +73,7 @@ func (d *Dingding) getDingdingToken() (string, error) {
 // 获取钉钉打卡数据（周）
 func (d *Dingding) getDataWithWeek(week int) error {
 	dateFormat := utils.NewDateFormat()
-	req := utils.NewRequest[models.DingdingCheckUpData]()
+	req := utils.NewRequest[models.DingdingCheckUpData](true)
 
 	for i := int64(0); i < int64(week); i++ {
 		from := dateFormat.BeforDateTimeWithDay(i + 7)

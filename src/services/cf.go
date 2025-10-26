@@ -190,7 +190,7 @@ func (r *cfUserStatus) buildRequestURL(account string, isApiKey bool) (string, e
 
 // fetchUserStatus 获取用户状态数据 - 私有方法
 func (r *cfUserStatus) fetchUserStatus(url string) (models.CfUserStatusResponse, error) {
-	req := utils.NewRequest[models.CfUserStatusResponse]()
+	req := utils.NewRequest[models.CfUserStatusResponse](true)
 	return req.Get(url, map[string]string{})
 }
 
@@ -311,7 +311,7 @@ func (r *cfOfficialProblems) buildProblemsURL() (string, error) {
 
 // fetchProblemsData 获取题目数据 - 私有方法
 func (r *cfOfficialProblems) fetchProblemsData(url string) (models.CfOfficialProblemsResponse, error) {
-	req := utils.NewRequest[models.CfOfficialProblemsResponse]()
+	req := utils.NewRequest[models.CfOfficialProblemsResponse](true)
 	return req.Get(url, map[string]string{})
 }
 
@@ -413,7 +413,7 @@ func (r *cfTeamContests) buildTeamContestsURL() (string, error) {
 
 // fetchTeamContestsData 获取团队比赛数据 - 私有方法
 func (r *cfTeamContests) fetchTeamContestsData(url string) (models.CfTeamContestsResponse, error) {
-	req := utils.NewRequest[models.CfTeamContestsResponse]()
+	req := utils.NewRequest[models.CfTeamContestsResponse](true)
 	return req.Get(url, map[string]string{})
 }
 
@@ -534,7 +534,7 @@ func (r *cfTeamContestsProblems) buildTeamContestProblemsURL(teamContest db.Cf_t
 
 // fetchTeamContestProblemsData 获取团队比赛题目数据 - 私有方法
 func (r *cfTeamContestsProblems) fetchTeamContestProblemsData(url string) (models.CfTeamContestProblemsResponse, error) {
-	req := utils.NewRequest[models.CfTeamContestProblemsResponse]()
+	req := utils.NewRequest[models.CfTeamContestProblemsResponse](true)
 	return req.Get(url, map[string]string{})
 }
 
@@ -631,7 +631,7 @@ func (r *cfOfficialContests) buildOfficialContestsURL() (string, error) {
 
 // fetchOfficialContestsData 获取官方比赛数据 - 私有方法
 func (r *cfOfficialContests) fetchOfficialContestsData(url string) (models.CfOfficialContestsResponse, error) {
-	req := utils.NewRequest[models.CfOfficialContestsResponse]()
+	req := utils.NewRequest[models.CfOfficialContestsResponse](true)
 	return req.Get(url, map[string]string{})
 }
 

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"regexp"
@@ -190,7 +189,7 @@ func (l *LuoguRecords) processUserRecords(luoguUser models.LuoguUserDeliver) err
 
 // fetchInitialData 获取初始数据 - 私有方法
 func (l *LuoguRecords) fetchInitialData(uid string) (*models.LuoguRecordsResponse, error) {
-	req := utils.NewRequest[models.LuoguRecordsResponse]()
+	req := utils.NewRequest[models.LuoguRecordsResponse](true)
 	data, err := req.SetCookie(utils.JsonDB.Get("Cookie").(string)).Get(
 		"https://www.luogu.com.cn/record/list",
 		map[string]string{
@@ -206,7 +205,7 @@ func (l *LuoguRecords) fetchInitialData(uid string) (*models.LuoguRecordsRespons
 func (l *LuoguRecords) fetchRecordsIncrementally(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
 	cookie := utils.JsonDB.Get("Cookie").(string)
-	req := utils.NewRequest[models.LuoguRecordsResponse]()
+	req := utils.NewRequest[models.LuoguRecordsResponse](true)
 
 	for i := 1; i <= page; i++ {
 		data, err := req.SetCookie(cookie).Get(
@@ -236,7 +235,7 @@ func (l *LuoguRecords) fetchRecordsIncrementally(luoguUser *models.LuoguUserDeli
 func (l *LuoguRecords) fetchRecordsFully(luoguUser *models.LuoguUserDeliver, page int) error {
 	luoguUser.Count = 0
 	cookie := utils.JsonDB.Get("Cookie").(string)
-	req := utils.NewRequest[models.LuoguRecordsResponse]()
+	req := utils.NewRequest[models.LuoguRecordsResponse](true)
 
 	for i := 1; i <= page; i++ {
 		data, _ := req.SetCookie(cookie).Get(
@@ -634,13 +633,19 @@ func (s *LuoguSolution) parseHTMLJSON(htmlContent string) (models.LuoguSolutionR
 // ============================================爬取洛谷提交记录源代码===============================================
 type LuoguSubmissionDetail struct {
 	*LogService
-	repo  *repository.LuoguRepository
-	debug *utils.Debug
-	count int
+	repo   *repository.LuoguRepository
+	debug  *utils.Debug
+	cookie string
+	count  int
 }
 
 // 获取源代码
 func (s *LuoguSubmissionDetail) GetAndStoreSourceCode() error {
+	cookie := utils.JsonDB.Get("Cookie")
+	if cookie == nil {
+		return errors.New("cookie不存在")
+	}
+	s.cookie = cookie.(string)
 	luoguTeam := NewLuoguTeam()
 	err := luoguTeam.GetMembers()
 	if err != nil {
@@ -649,18 +654,11 @@ func (s *LuoguSubmissionDetail) GetAndStoreSourceCode() error {
 		return err
 	}
 
-	subids, err := s.repo.GetSubidNoSourceCode()
+	subids, err := s.repo.GetSubidNoSourceCode(luoguTeam.results)
 	if err != nil {
 		s.AddErr(fmt.Sprintf("获取提交记录ID失败 %s", err.Error()))
 		s.debug.Debug("获取提交记录ID失败")
 		return err
-	}
-
-	// 删除非团队成员的提交记录,提升速率
-	for i, subid := range subids {
-		if !luoguTeam.results[subid] {
-			subids = utils.Delete(subids, i)
-		}
 	}
 	s.debug.Debug(fmt.Sprintf("总共 %d个提交记录需要获取源代码\n团队成员：%v", len(subids), luoguTeam.results))
 
@@ -676,16 +674,7 @@ func (s *LuoguSubmissionDetail) GetAndStoreSourceCode() error {
 			return err
 		}
 
-		html, err := s.getRecordSourceCodeHTML(subid)
-		if err != nil {
-			s.AddErr(fmt.Sprintf("获取提交记录源代码失败 %s", err.Error()))
-			s.debug.Debug(subid + name + "获取失败" + err.Error())
-
-			return err
-		}
-
-		// 解析HTML中的JSON数据
-		respJson, err := s.parseSourceCodeFromHTML(html)
+		respJson, err := s.getSourceCodeBySubid(subid)
 		if err != nil {
 			s.AddErr(fmt.Sprintf("解析提交记录源代码失败 %s", err.Error()))
 			s.debug.Debug(subid + name + "解析失败" + err.Error())
@@ -699,7 +688,8 @@ func (s *LuoguSubmissionDetail) GetAndStoreSourceCode() error {
 			s.AddErr(fmt.Sprintf("提交记录源代码为空 %s", subid))
 			respJson.CurrentData.Record.SourceCode = "无"
 			s.debug.Debug(subid + name + "源代码为空")
-			if respJson.CurrentData.Record.Problem.Type == "P" {
+			if respJson.CurrentData.Record.Problem.Type == "P" && respJson.CurrentData.Record.Status == constants.LuoguStatusAccepted {
+				s.debug.Debug(subid + name + "AC且无源代码，跳过")
 				return nil
 			}
 		}
@@ -721,46 +711,18 @@ func (s *LuoguSubmissionDetail) GetAndStoreSourceCode() error {
 	return err
 }
 
-// 获取提交记录源代码html
-func (s *LuoguSubmissionDetail) getRecordSourceCodeHTML(recordID string) (string, error) {
-	client := resty.New()
-	cookie := utils.JsonDB.Get("Cookie")
-	if cookie == nil {
-		return "", errors.New("cookie不存在")
-	}
-	url := fmt.Sprintf("https://www.luogu.com.cn/record/%s", recordID)
-	resp, err := client.R().
-		SetHeader("Cookie", cookie.(string)).
-		SetQueryParams(map[string]string{}).Get(url)
-
+func (s *LuoguSubmissionDetail) getSourceCodeBySubid(subid string) (models.LuoguSubmissionDetailResponse, error) {
+	req := utils.NewRequest[models.LuoguSubmissionDetailResponse](false)
+	url := fmt.Sprintf("https://www.luogu.com.cn/record/%s?_contentOnly=1", subid)
+	req.SetCookie(s.cookie)
+	resp, err := req.Get(url, map[string]string{})
 	if err != nil {
-		return "", err
+		return models.LuoguSubmissionDetailResponse{}, err
 	}
-	if resp.StatusCode() != 200 {
-		return "", errors.New("http code错误" + strconv.Itoa(resp.StatusCode()))
+	if resp.Code != 200 {
+		return models.LuoguSubmissionDetailResponse{}, errors.New("获取提交记录源代码失败" + strconv.Itoa(resp.Code))
 	}
-	return string(resp.Body()), nil
-}
-
-// 解析html中的json数据
-func (s *LuoguSubmissionDetail) parseSourceCodeFromHTML(htmlContent string) (models.LuoguSubmissionDetailResponse, error) {
-	// 使用正则表达式提取URL编码的JSON字符串
-	re := regexp.MustCompile(`decodeURIComponent\("([^"]+)"\)`)
-	matches := re.FindStringSubmatch(htmlContent)
-
-	if len(matches) < 2 {
-		return models.LuoguSubmissionDetailResponse{}, errors.New("未找到URL编码的JSON数据")
-	}
-	// 获取URL编码的JSON字符串
-	encodedJSON := matches[1]
-	// URL解码JSON
-	decodedJSON, err := url.QueryUnescape(encodedJSON)
-	if err != nil {
-		return models.LuoguSubmissionDetailResponse{}, errors.New("JSON URL解码失败: " + err.Error())
-	}
-	var realJson models.LuoguSubmissionDetailResponse
-	json.Unmarshal([]byte(decodedJSON), &realJson)
-	return realJson, nil
+	return resp, nil
 }
 
 // ============================================获取洛谷团队成员==========================================
@@ -773,7 +735,7 @@ type LuoguTeam struct {
 }
 
 func (l *LuoguTeam) GetMembers() error {
-	req := utils.NewRequest[models.LuoguTeamResponse]()
+	req := utils.NewRequest[models.LuoguTeamResponse](true)
 	url := fmt.Sprintf("https://www.luogu.com.cn/api/team/members/%d", config.AppConfig.Luogu.LuoguTeamID)
 	resp, err := req.Get(url, map[string]string{})
 	if err != nil {
