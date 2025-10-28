@@ -4,6 +4,7 @@ import (
 	"spider/src/services"
 )
 
+// 调试脚本（测试用）
 func Test() {
 	func() error {
 		updateCookie := services.NewLuoguUpdateCookie()

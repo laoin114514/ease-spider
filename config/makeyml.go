@@ -27,8 +27,8 @@ func fileExists(filename string) bool {
 }
 func storeYml() string {
 	return `database:
-  host: 210.36.22.245
-  port: 3002
+  host: 127.0.0.1
+  port: 3306
   user: gxuicpc
   password: gxuicpc
   dbName: gxuicpc
