@@ -5,33 +5,8 @@ import (
 	"spider/config"
 	"spider/src/services"
 	"spider/src/utils"
-	"strconv"
-	"time"
 )
 
-func analysisTimerFrequency(s string) time.Duration {
-	idx := 0
-	for ; idx < len(s); idx++ {
-		if !(s[idx] >= '0' && s[idx] <= '9') {
-			break
-		}
-	}
-	duration, err := strconv.Atoi(s[:idx])
-	if err != nil {
-		return 0
-	}
-	if s[idx:] == "s" {
-		return time.Second * time.Duration(duration)
-	} else if s[idx:] == "m" {
-		return time.Minute * time.Duration(duration)
-	} else if s[idx:] == "h" {
-		return time.Hour * time.Duration(duration)
-	} else if s[idx:] == "d" {
-		return time.Hour * 24 * time.Duration(duration)
-	} else {
-		return time.Minute * time.Duration(duration)
-	}
-}
 func TimeTask() {
 
 	timer := utils.NewTimer()
@@ -39,7 +14,7 @@ func TimeTask() {
 	dingService := services.NewDingdingService()
 	luogu := services.NewLuogu()
 	timer.RunWithTimer(
-		analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguUpdateCookie),
+		utils.NewDateFormat().AnalysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguUpdateCookie),
 		"更新洛谷Cookie",
 		func() error {
 			log.Println("开始更新洛谷Cookie")
@@ -54,7 +29,7 @@ func TimeTask() {
 		},
 	)
 	timer.RunWithTimer(
-		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfOfficialProblems),
+		utils.NewDateFormat().AnalysisTimerFrequency(config.AppConfig.TimerFrequency.CfOfficialProblems),
 		"获取cf官方题目",
 		func() error {
 			log.Println("开始获取cf官方题目")
@@ -70,7 +45,7 @@ func TimeTask() {
 		})
 	//获取cf官方比赛
 	timer.RunWithTimer(
-		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfOfficialContests),
+		utils.NewDateFormat().AnalysisTimerFrequency(config.AppConfig.TimerFrequency.CfOfficialContests),
 		"获取cf官方比赛",
 		func() error {
 			log.Println("开始获取cf官方比赛")
@@ -86,7 +61,7 @@ func TimeTask() {
 		})
 	//获取cf团队题目
 	timer.RunWithTimer(
-		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfTeamContestsProblems),
+		utils.NewDateFormat().AnalysisTimerFrequency(config.AppConfig.TimerFrequency.CfTeamContestsProblems),
 		"获取cf团队题目",
 		func() error {
 			log.Println("开始获取cf团队题目")
@@ -102,7 +77,7 @@ func TimeTask() {
 		})
 	//获取cf团队比赛
 	timer.RunWithTimer(
-		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfTeamContests),
+		utils.NewDateFormat().AnalysisTimerFrequency(config.AppConfig.TimerFrequency.CfTeamContests),
 		"获取cf团队比赛",
 		func() error {
 			log.Println("开始获取cf团队比赛")
@@ -118,7 +93,7 @@ func TimeTask() {
 		})
 	//获取钉钉打卡数据
 	timer.RunWithTimer(
-		analysisTimerFrequency(config.AppConfig.TimerFrequency.Dingding),
+		utils.NewDateFormat().AnalysisTimerFrequency(config.AppConfig.TimerFrequency.Dingding),
 		"获取钉钉打卡数据",
 		func() error {
 			log.Println("开始获取钉钉打卡数据")
@@ -134,7 +109,7 @@ func TimeTask() {
 		})
 	//获取Cf提交记录
 	timer.RunWithTimer(
-		analysisTimerFrequency(config.AppConfig.TimerFrequency.CfRecords),
+		utils.NewDateFormat().AnalysisTimerFrequency(config.AppConfig.TimerFrequency.CfRecords),
 		"获取cf提交记录",
 		func() error {
 			log.Println("开始获取cf提交记录")
@@ -150,7 +125,7 @@ func TimeTask() {
 		})
 	//获取洛谷用户提交记录
 	timer.RunWithTimer(
-		analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguRecords),
+		utils.NewDateFormat().AnalysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguRecords),
 		"获取洛谷用户提交记录",
 		func() error {
 			log.Println("开始获取洛谷用户提交记录")
@@ -170,7 +145,7 @@ func TimeTask() {
 		})
 	//获取洛谷题解
 	timer.RunWithTimer(
-		analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguSolution),
+		utils.NewDateFormat().AnalysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguSolution),
 		"获取洛谷题解",
 		func() error {
 			log.Println("开始获取洛谷题解")
@@ -186,7 +161,7 @@ func TimeTask() {
 		})
 	//获取洛谷源代码
 	timer.RunWithTimer(
-		analysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguSubmissionDetail),
+		utils.NewDateFormat().AnalysisTimerFrequency(config.AppConfig.TimerFrequency.LuoguSubmissionDetail),
 		"获取洛谷源代码",
 		func() error {
 			log.Println("开始获取洛谷源代码")

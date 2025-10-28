@@ -77,8 +77,6 @@ type cfUserStatus struct {
 	moduleDetail[models.CfUserStatusResponse]
 }
 
-// ================================公有接口方法===============================================
-
 // GetCfRecords 获取CF用户提交记录 - 对外提供的主要接口
 func (r *cfUserStatus) GetCfRecords() error {
 	r.debug.Debug("开始获取CF用户提交记录")
@@ -102,8 +100,6 @@ func (r *cfUserStatus) GetCfRecords() error {
 	r.debug.Debug("CF用户提交记录获取完成")
 	return nil
 }
-
-// ================================私有实现方法===============================================
 
 // processUserRecords 处理单个用户的提交记录 - 私有方法
 func (r *cfUserStatus) processUserRecords(cfUserData models.CfUserData) error {
@@ -246,8 +242,6 @@ func (r *cfUserStatus) buildSubmissionTable(cfRecord *models.CfSubmission, cfUse
 	}
 }
 
-// ================================辅助方法===============================================
-
 // logError 记录错误日志 - 私有方法
 func (r *cfUserStatus) logError(message string, err error) {
 	errorMsg := message
@@ -270,8 +264,6 @@ type cfOfficialProblems struct {
 	moduleDetail[models.CfOfficialProblemsResponse]
 	count int
 }
-
-// ================================公有接口方法===============================================
 
 // GetCfOfficialProblems 获取CF官方题目 - 对外提供的主要接口
 func (r *cfOfficialProblems) GetCfOfficialProblems() error {
@@ -301,8 +293,6 @@ func (r *cfOfficialProblems) GetCfOfficialProblems() error {
 	r.logSuccess("插入官方题目", r.count)
 	return nil
 }
-
-// ================================私有实现方法===============================================
 
 // buildProblemsURL 构建题目请求URL - 私有方法
 func (r *cfOfficialProblems) buildProblemsURL() (string, error) {
@@ -344,8 +334,6 @@ func (r *cfOfficialProblems) buildProblemTable(cfProblem *models.CfProblem) db.C
 	}
 }
 
-// ================================辅助方法===============================================
-
 // logError 记录错误日志 - 私有方法
 func (r *cfOfficialProblems) logError(message string, err error) {
 	errorMsg := message
@@ -369,8 +357,6 @@ type cfTeamContests struct {
 	useAccount string
 	count      int
 }
-
-// ================================公有接口方法===============================================
 
 // GetCfTeamContests 获取CF团队比赛 - 对外提供的主要接口
 func (r *cfTeamContests) GetCfTeamContests() error {
@@ -400,8 +386,6 @@ func (r *cfTeamContests) GetCfTeamContests() error {
 	r.logSuccess("插入团队比赛", r.count)
 	return nil
 }
-
-// ================================私有实现方法===============================================
 
 // buildTeamContestsURL 构建团队比赛请求URL - 私有方法
 func (r *cfTeamContests) buildTeamContestsURL() (string, error) {
@@ -443,8 +427,6 @@ func (r *cfTeamContests) buildTeamContestTable(cfTeamContest *models.CfContest) 
 	}
 }
 
-// ================================辅助方法===============================================
-
 // logError 记录错误日志 - 私有方法
 func (r *cfTeamContests) logError(message string, err error) {
 	errorMsg := message
@@ -468,8 +450,6 @@ type cfTeamContestsProblems struct {
 	count int
 }
 
-// ================================公有接口方法===============================================
-
 // GetCfTeamContestsProblems 获取CF团队比赛题目 - 对外提供的主要接口
 func (r *cfTeamContestsProblems) GetCfTeamContestsProblems() error {
 	r.count = 0
@@ -492,8 +472,6 @@ func (r *cfTeamContestsProblems) GetCfTeamContestsProblems() error {
 	r.logSuccess("插入团队比赛题目", r.count)
 	return nil
 }
-
-// ================================私有实现方法===============================================
 
 // processTeamContestProblems 处理单个团队比赛的题目 - 私有方法
 func (r *cfTeamContestsProblems) processTeamContestProblems(teamContest db.Cf_team_contests) error {
@@ -564,8 +542,6 @@ func (r *cfTeamContestsProblems) buildTeamProblemTable(cfProblem *models.CfProbl
 	}
 }
 
-// ================================辅助方法===============================================
-
 // logError 记录错误日志 - 私有方法
 func (r *cfTeamContestsProblems) logError(message string, err error) {
 	errorMsg := message
@@ -588,8 +564,6 @@ type cfOfficialContests struct {
 	moduleDetail[models.CfOfficialContestsResponse]
 	count int
 }
-
-// ================================公有接口方法===============================================
 
 // GetCfOfficialContests 获取CF官方比赛 - 对外提供的主要接口
 func (r *cfOfficialContests) GetCfOfficialContests() error {
@@ -619,8 +593,6 @@ func (r *cfOfficialContests) GetCfOfficialContests() error {
 	r.logSuccess("插入官方比赛", r.count)
 	return nil
 }
-
-// ================================私有实现方法===============================================
 
 // buildOfficialContestsURL 构建官方比赛请求URL - 私有方法
 func (r *cfOfficialContests) buildOfficialContestsURL() (string, error) {
@@ -657,8 +629,6 @@ func (r *cfOfficialContests) buildOfficialContestTable(cfTeamContest *models.CfC
 		Start_time:            time.Unix(cfTeamContest.StartTimeSeconds, 0).Add(constants.TimeZoneOffsetHours * time.Hour),
 	}
 }
-
-// ================================辅助方法===============================================
 
 // logError 记录错误日志 - 私有方法
 func (r *cfOfficialContests) logError(message string, err error) {

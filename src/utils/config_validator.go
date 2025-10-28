@@ -5,7 +5,7 @@ import (
 	"spider/config"
 )
 
-// ConfigValidator 配置验证器
+// ============================配置验证器===============================================
 type ConfigValidator struct{}
 
 // NewConfigValidator 创建配置验证器

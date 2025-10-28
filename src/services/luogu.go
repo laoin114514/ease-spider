@@ -87,6 +87,15 @@ func NewLuoguTeam() *LuoguTeam {
 	}
 }
 
+// ================================获取洛谷题单===============================================
+func NewLuoguProblemList() *LuoguProblemList {
+	return &LuoguProblemList{
+		LogService: NewLogService("logs/luoguProblemList.log", "logs/luoguProblemList.err.log"),
+		repo:       repository.NewLuoguRepository(),
+		debug:      utils.NewDebug(config.AppConfig.DebugConfig.All),
+	}
+}
+
 // //
 // //
 // //
@@ -104,9 +113,7 @@ type LuoguRecords struct {
 	debug *utils.Debug
 }
 
-// ================================公有接口方法===============================================
-
-// GetLuoguUsersRecords 获取洛谷用户提交记录 - 对外提供的主要接口
+// GetLuoguUsersRecords 获取洛谷用户提交记录
 func (l *LuoguRecords) GetAndStore() error {
 	conCurrenter := utils.NewConCurrenter[models.LuoguUserDeliver](config.AppConfig.Luogu.LuoguRecordsConcurrency)
 	luoguUserDelivers, err := l.repo.GetUserNameMap()
@@ -136,8 +143,6 @@ func (l *LuoguRecords) ChangePrivateProblem() error {
 	l.AddLog(fmt.Sprintf("修改私有题目难度为unknow完成 %d", count))
 	return nil
 }
-
-// ================================私有实现方法===============================================
 
 // processUserRecords 处理单个用户的提交记录 - 私有方法
 func (l *LuoguRecords) processUserRecords(luoguUser models.LuoguUserDeliver) error {
@@ -311,8 +316,6 @@ func (l *LuoguRecords) buildSubmissionTable(record *models.LuoguRecord) db.Luogu
 	}
 }
 
-// ================================辅助方法===============================================
-
 // calculatePage 计算页数
 func (l *LuoguRecords) calculatePage(luoguRecordsResponse *models.LuoguRecordsResponse) int {
 	return int(math.Ceil(float64(luoguRecordsResponse.CurrentData.Records.Count) / float64(luoguRecordsResponse.CurrentData.Records.PerPage)))
@@ -348,6 +351,7 @@ func (l *LuoguRecords) logDataInconsistency(luoguUser models.LuoguUserDeliver, a
 }
 
 // ================================更新洛谷Cookie===============================================
+// ocr缺失会导致登录失败，此时可以暂停使用该组件
 type LuoguUpdateCookie struct {
 	*LogService
 	cookiePool map[string]string
@@ -749,9 +753,10 @@ func (l *LuoguTeam) GetMembers() error {
 	l.AddLog(fmt.Sprintf("获取洛谷团队成员完成 %d", l.count))
 	return nil
 }
-func (l *LuoguTeam) StoreMembers() error {
-	utils.JsonDB.Set("teamMembers", l.results)
-	return nil
-}
 
-//============================================获取洛谷题单==========================================
+// ============================================获取洛谷题单列表==========================================
+type LuoguProblemList struct {
+	*LogService
+	repo  *repository.LuoguRepository
+	debug *utils.Debug
+}

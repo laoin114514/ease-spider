@@ -2,6 +2,7 @@ package utils
 
 import "sync"
 
+//============================日志容器===============================================
 type LogContainer struct {
 	logs       []string
 	errs       []string

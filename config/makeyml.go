@@ -27,8 +27,8 @@ func fileExists(filename string) bool {
 }
 func storeYml() string {
 	return `database:
-  host: 127.0.0.1
-  port: 3306
+  host: 210.36.22.245
+  port: 3002
   user: gxuicpc
   password: gxuicpc
   dbName: gxuicpc
@@ -40,7 +40,7 @@ luogu:
   isInServer: false
   luoguRecordsConcurrency: 4
   luoguSolutionConcurrency: 5
-  luoguSubmissionDetailConcurrency: 3
+  luoguSubmissionDetailConcurrency: 5
   luoguTeamID: 116191
   username: laoyin
   password: 683305SAO

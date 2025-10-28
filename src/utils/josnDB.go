@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-// 文件数据库
+// ============================文件数据库===============================================
 type JSONDB struct {
 	data  map[string]any
 	mutex sync.RWMutex

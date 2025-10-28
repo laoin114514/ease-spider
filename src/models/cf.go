@@ -34,3 +34,22 @@ type CfContest struct {
 	Season              string `json:"season"`              //赛季
 	Difficulty          int    `json:"difficulty"`          //难度
 }
+type CfOfficialContestsResponse struct {
+	CfResponse[[]CfContest]
+}
+type CfOfficialProblemsResponse struct {
+	CfResponse[cfOfficialResult]
+}
+type cfOfficialResult struct {
+	Problems []CfProblem `json:"problems"`
+}
+type CfTeamContestProblemsResponse struct {
+	CfResponse[cfTeamContestProblemsResult]
+}
+type cfTeamContestProblemsResult struct {
+	Contest  CfContest   `json:"contest"`
+	Problems []CfProblem `json:"problems"`
+}
+type CfTeamContestsResponse struct {
+	CfResponse[[]CfContest]
+}

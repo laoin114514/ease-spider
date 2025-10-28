@@ -1,5 +1,6 @@
 # 青鸾系统爬虫项目
-
+## 这是一个项目介绍  
+开发文档移步根目录下help文件夹
 ## 项目简介
 
 青鸾系统是一个基于Go语言开发的多平台数据爬虫系统，主要用于爬取和监控以下平台的数据：
@@ -43,32 +44,37 @@ database:
   dbName: gxuicpc
 
 dingding:
-  appKey: ding_accessToken
-  appSecret: ding_appSecret
-
+  appKey: dingsgji79glruqayy49
+  appSecret: 0jzUXpbjMFs4jK3NNE1Hn3PTBJ8TZfVKurIR4_XI_2jDVmGD3Dkle7xQ4xtHH8e6
 luogu:
   isInServer: false
-  luoguRecordsConcurrency: 10
-  username: luo2908451607
+  luoguRecordsConcurrency: 4
+  luoguSolutionConcurrency: 5
+  luoguSubmissionDetailConcurrency: 5
+  luoguTeamID: 116191
+  username: laoyin
   password: 683305SAO
-  userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
-
+  userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0
 cf:
   cfRecordsConcurrency: 4
-  cfTeamContestsConcurrency: 4
+  cfTeamContestProblemsConcurrency: 2
   managerAccount: 233zhang
   groupCode: mczZWy5WU7
-
-# 定时任务配置
+#==================定时任务配置==================
+#每个任务的执行时间，单位填在数字后面，如30s，30m，30h，30d，默认分钟,更改后需要重启程序
 timerFrequency:
-  cf_official_contests: 30m
-  cf_official_problems: 30m
-  cf_records: 2m
-  cf_team_contests: 30m
-  cf_team_contests_problems: 30m
-  dingding: 30m
-  luogu_records: 2m
+  cf_official_contests: 1h
+  cf_official_problems: 1h
+  cf_team_contests: 1h
+  cf_team_contests_problems: 1h
+  dingding: 1h
   luogu_update_cookie: 1h
+  luogu_submission_detail: 1h
+  luogu_solution: 1h
+  cf_records: 2m
+  luogu_records: 2m
+debug:
+  all: true
 ```
 
 ### JSON配置文件 (config.json)

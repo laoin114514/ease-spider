@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// ============================并发器===============================================
 type ConCurrenter[T any] struct {
 	wg          *sync.WaitGroup
 	concurrency int

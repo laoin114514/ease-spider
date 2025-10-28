@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// ============================CF URL生成器===============================================
 const BaseUrl = "https://codeforces.com/api/"
 
 type GenerateCFurl struct {
