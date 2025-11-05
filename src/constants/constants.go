@@ -10,11 +10,6 @@ const (
 	CfMaxRecords = 50000
 )
 
-// 钉钉相关常量
-const (
-	DingdingWeekRange = 60
-)
-
 // 验证码识别相关常量
 const (
 	CaptchaLengthServer = 5
@@ -26,11 +21,6 @@ const (
 const (
 	DefaultTimeoutSeconds = 60
 	TimeZoneOffsetHours   = 8
-)
-
-// 数据库相关常量
-const (
-	DefaultBatchSize = 1000
 )
 
 // 难度等级映射

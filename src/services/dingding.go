@@ -42,7 +42,7 @@ func (d *Dingding) GetDingdingCheckUpData() error {
 	}
 
 	// 获取钉钉打卡数据（周）
-	err = d.getDataWithWeek(constants.DingdingWeekRange)
+	err = d.getDataWithWeek(config.AppConfig.Dingding.WeekRange)
 	if err != nil {
 		return err
 	}

@@ -24,6 +24,7 @@ type dbConfig struct {
 type dingdingConfig struct {
 	AppKey    string `yaml:"appKey"`
 	AppSecret string `yaml:"appSecret"`
+	WeekRange int    `yaml:"weekRange"`
 }
 type luoguConfig struct {
 	Username                         string `yaml:"username"`
