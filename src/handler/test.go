@@ -6,20 +6,30 @@ import (
 
 // 调试脚本（测试用）
 func Test() {
+	// func() error {
+	// 	updateCookie := services.NewLuoguUpdateCookie()
+	// 	err := updateCookie.Update()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	luogu := services.NewLuogu()
+	// 	err = luogu.LuoguRecords.GetAndStore()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	luogu.LuoguRecords.SaveLog()
+	// 	luogu.LuoguRecords.SaveErr()
+	// 	luogu.LuoguRecords.Clear()
+	// 	return nil
+	// }()
 	func() error {
-		updateCookie := services.NewLuoguUpdateCookie()
-		err := updateCookie.Update()
+		cf := services.NewCfService()
+		err := cf.CfUserStatus.GetCfRecords()
 		if err != nil {
 			return err
 		}
-		luogu := services.NewLuogu()
-		err = luogu.LuoguSubmissionDetail.GetAndStoreSourceCode()
-		if err != nil {
-			return err
-		}
-		luogu.LuoguSubmissionDetail.SaveLog()
-		luogu.LuoguSubmissionDetail.SaveErr()
-		luogu.LuoguSubmissionDetail.Clear()
+		cf.CfUserStatus.SaveLog()
+		cf.CfUserStatus.SaveErr()
 		return nil
 	}()
 }

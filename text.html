@@ -1,0 +1,1603 @@
+<article>
+<h1 data-id="heading-0">一、Go语言的起源、发展以及普及</h1>
+                                                    <h2 data-id="heading-1">1.  学习Go语言</h2>
+                                                    <p>
+                                                        译 Golang 介绍和环境安装 | Golang 教程系列｜ Go 主题月](<a href="https://juejin.cn/post/6942492190291525662" target="_blank" title="https://juejin.cn/post/6942492190291525662">juejin.cn/post/694249…</a>
+                                                        )
+                                                    </p>
+                                                    <h3 data-id="heading-2">1.1 Go语言起源</h3>
+                                                    <h3 data-id="heading-3">1.2 Go语言的主要特征与发展的环境</h3>
+                                                    <h3 data-id="heading-4">1.3 Go语言常犯错误汇总</h3>
+                                                    <h3 data-id="heading-5">1.4 Golang书籍推荐</h3>
+                                                    <ul>
+                                                        <li>1.4.1 Go入门指南        比较适合新手，内容相对基础一些</li>
+                                                        <li>1.4.2 Go语言圣经        书如其名</li>
+                                                        <li>1.4.3 Go语言中文网        找对圈子，学的更快</li>
+                                                        <li>1.4.4 菜鸟教程        这个网站非常适合快速上手某门语言</li>
+                                                        <li>1.4.5 Go语言高级编程        内容适合进阶</li>
+                                                        <li>1.4.6 go语言原本        欧神出品，虽然号称进度只有9.9%/100%，但不妨碍它的优秀，值得一看</li>
+                                                        <li>1.4.7 golang设计模式        设计模式 Golang实现，《研磨设计模式》的golang实现</li>
+                                                        <li>1.4.8 Go实战开发        作者是著名的 Go 开源项目 beego 的作者，他的最佳实践非常值得阅读</li>
+                                                        <li>1.4.9 Go palyground        不用搭建本地 Go 环境，在线就编写 Go 的代码</li>
+                                                    </ul>
+                                                    <h3 data-id="heading-6">1.5 Go语言开源项目</h3>
+                                                    <blockquote>
+                                                        <ol>
+                                                            <li>xgen-编写XSD工具基础库，可将XML模式定义为多语言类型或声明的代码</li>
+                                                            <li>GQLEngine-高性能Go语言的GraphQL服务端落地框架</li>
+                                                            <li>Orange  一款基于Golang语言的Web开发框架</li>
+                                                            <li>Go-admin -基于Golang快速搭建可视化数据管理后台的框架</li>
+                                                            <li>Go-snowflake   Go语言实现的snowflake算法，为分布式系统实现唯一ID，单机测试1s可生成20id</li>
+                                                            <li>KubeVela  一个简单易用且高度可扩展的应用管理平台与核心引擎</li>
+                                                            <li>TiDB   见识过mysql性能瓶颈之后你会想要选择的一款数据库</li>
+                                                            <li>EasyMIDI   EasyMidi是一个简单可靠的库，用于处理标准Midi文件（SMF）。</li>
+                                                        </ol>
+                                                    </blockquote>
+                                                    <h3 data-id="heading-7">1.6 Go语言环境安装</h3>
+                                                    <p>
+                                                        下载地址：	<a href="https://link.juejin.cn?target=https%3A%2F%2Fwww.golangtc.com%2Fdownload" target="_blank" title="https://www.golangtc.com/download" ref="nofollow noopener noreferrer">www.golangtc.com/download</a>
+                                                    </p>
+                                                    <h2 data-id="heading-8">GOPATH</h2>
+                                                    <h1 data-id="heading-9">二、Go工作环境设置</h1>
+                                                    <h2 data-id="heading-10">1. 编辑器</h2>
+                                                    <pre>
+                                                        <code class="hljs language-diff" lang="diff">
+                                                            <span class="hljs-deletion">- Jetbrains GoLand  强烈推荐</span>
+                                                            <span class="hljs-deletion">- Jetbrains IDEA + go插件</span>
+                                                            <span class="hljs-deletion">- VS Code</span>
+                                                            <span class="hljs-deletion">- Atom</span>
+                                                            <span class="hljs-deletion">- liteide</span>
+                                                            <span class="hljs-deletion">- Sublime Text</span>
+                                                        </code>
+                                                    </pre>
+                                                    <h2 data-id="heading-11">2. 依赖管理</h2>
+                                                    <pre>
+                                                        <code class="hljs language-markdown" lang="markdown">
+                                                            <span class="hljs-bullet">-</span>
+                                                            glide
+<span class="hljs-bullet">-</span>
+                                                            安装：<span class="xml">&#x3C;https://glide.sh/></span>
+                                                            <span class="hljs-bullet">-</span>
+                                                            初始化
+<span class="hljs-bullet">-</span>
+                                                            依赖下载
+<span class="hljs-bullet">-</span>
+                                                            mod
+
+                                                        </code>
+                                                    </pre>
+                                                    <h2 data-id="heading-12">3. Go源码发布</h2>
+                                                    <h1 data-id="heading-13">三、包、函数、变量、常量、数据类型</h1>
+                                                    <h2 data-id="heading-14">1. 包相关</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6945023713930641445" target="_blank" title="https://juejin.cn/post/6945023713930641445">Go语言json包的使用技巧</a>
+                                                    </p>
+                                                    <h3 data-id="heading-15">1.1 包</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903808942735368" target="_blank" title="https://juejin.cn/post/6844903808942735368">拜拜了，GOPATH君！新版本Golang的包管理入门教程</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903778945237006" target="_blank" title="https://juejin.cn/post/6844903778945237006">Go的包管理工具（一）</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903762901860360" target="_blank" title="https://juejin.cn/post/6844903762901860360">Go 语言标准库 text/template 包深入浅出</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903793771937805" target="_blank" title="https://juejin.cn/post/6844903793771937805">Go 语言闭包详解</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903759886155790" target="_blank" title="https://juejin.cn/post/6844903759886155790">Go 包管理工具 govendor 使用指南</a>
+                                                    </p>
+                                                    <h3 data-id="heading-16">1.2 第三方包</h3>
+                                                    <h3 data-id="heading-17">1.3 导入语句</h3>
+                                                    <h4 data-id="heading-18">1.3.1 分组导入语句</h4>
+                                                    <h4 data-id="heading-19">1.3.2 多个导入语句</h4>
+                                                    <h3 data-id="heading-20">1.4 导出名</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903695893676045" target="_blank" title="https://juejin.cn/post/6844903695893676045">Go语法之包、导入包、导出名</a>
+                                                    </p>
+                                                    <h2 data-id="heading-21">2. 函数相关</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6955398927067643917" target="_blank" title="https://juejin.cn/post/6955398927067643917">Go语言从入门到精通：函数</a>
+                                                    </p>
+                                                    <h3 data-id="heading-22">2.1 函数操作</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903474568642567" target="_blank" title="https://juejin.cn/post/6844903474568642567">[译] 解析 Go 中的函数调用</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903474572820487" target="_blank" title="https://juejin.cn/post/6844903474572820487">[译] Go 函数调用 Redux</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903864555012104" target="_blank" title="https://juejin.cn/post/6844903864555012104">Go中的init函数</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903618890432520" target="_blank" title="https://juejin.cn/post/6844903618890432520">Golang中函数传参存在引用传递吗？</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6877505132620333064" target="_blank" title="https://juejin.cn/post/6877505132620333064">Golang 函数式编程简述</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903800042422280" target="_blank" title="https://juejin.cn/post/6844903800042422280">从内存分配策略(堆、栈)的角度分析,函数传递指针真的比传值效率高吗？</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904175478767624" target="_blank" title="https://juejin.cn/post/6844904175478767624">一篇文章 说清楚 Go语言里的函数</a>
+                                                    </p>
+                                                    <h3 data-id="heading-23">2.2 函数多返回值</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6863781364333248525" target="_blank" title="https://juejin.cn/post/6863781364333248525">通过汇编看golang函数的多返回值 | 🏆 技术专题第二期征文</a>
+                                                    </p>
+                                                    <h3 data-id="heading-24">2.3  函数值</h3>
+                                                    <h4 data-id="heading-25">2.3.1 函数的闭包</h4>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903793771937805" target="_blank" title="https://juejin.cn/post/6844903793771937805">Go 语言闭包详解</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903950504689677" target="_blank" title="https://juejin.cn/post/6844903950504689677">go 学习笔记之仅仅需要一个示例就能讲清楚什么闭包</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904047175008263" target="_blank" title="https://juejin.cn/post/6844904047175008263">GO-三个方面理解闭包</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903465274048519" target="_blank" title="https://juejin.cn/post/6844903465274048519">Go 语言中的闭包实现</a>
+                                                    </p>
+                                                    <h2 data-id="heading-26">3. 变量</h2>
+                                                    <h3 data-id="heading-27">3.1 变量简介</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903817071296525" target="_blank" title="https://juejin.cn/post/6844903817071296525">Golang环境变量设置详解</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903613005824008" target="_blank" title="https://juejin.cn/post/6844903613005824008">Go初始化变量的招式</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903809139900423" target="_blank" title="https://juejin.cn/post/6844903809139900423">Golang并发之共享内存变量</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903789988675597" target="_blank" title="https://juejin.cn/post/6844903789988675597">Golang从零开始：命名规范、变量和常量</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6856783152921346061" target="_blank" title="https://juejin.cn/post/6856783152921346061">【Go学习之路】Go变量</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903619527983111" target="_blank" title="https://juejin.cn/post/6844903619527983111">CGO_ENABLED环境变量对Go静态编译机制的影响</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904191358402574" target="_blank" title="https://juejin.cn/post/6844904191358402574">golang面试题：reflect（反射包）如何获取字段tag？为什么json包不能导出私有变量的tag？</a>
+                                                    </p>
+                                                    <h3 data-id="heading-28">3.2变量的初始化</h3>
+                                                    <h3 data-id="heading-29">3.3短变量声明</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6878161651724943368" target="_blank" title="https://juejin.cn/post/6878161651724943368">GO的短变量声明</a>
+                                                    </p>
+                                                    <h2 data-id="heading-30">3.4 零值</h2>
+                                                    <blockquote>
+                                                        <p>没有明确初始值的变量声明会被赋予他们的零值</p>
+                                                    </blockquote>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904003482943501" target="_blank" title="https://juejin.cn/post/6844904003482943501">编程书说的“Go程序员应该让聚合类型的零值也具有意义”是在讲什么</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6895231755091968013" target="_blank" title="https://juejin.cn/post/6895231755091968013">Golang 零值、空值与空结构</a>
+                                                    </p>
+                                                    <ul>
+                                                        <li>
+                                                            零值是:
+
+                                                            <ul>
+                                                                <li>数值类型为0</li>
+                                                                <li>布尔类型为false</li>
+                                                                <li>字符串为""（空字符串）</li>
+                                                            </ul>
+                                                        </li>
+                                                        <li>零值和空值的关系</li>
+                                                        <li>零值的空值的区别</li>
+                                                    </ul>
+                                                    <h2 data-id="heading-31">4. 常量</h2>
+                                                    <h3 data-id="heading-32">4.1 常量</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903789988675597" target="_blank" title="https://juejin.cn/post/6844903789988675597">Golang从零开始（二）：命名规范、变量和常量</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904145162338317" target="_blank" title="https://juejin.cn/post/6844904145162338317">Golang学习——常量const和iota</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904167299874830" target="_blank" title="https://juejin.cn/post/6844904167299874830">golang进阶一：类型比较，常量，nil</a>
+                                                    </p>
+                                                    <h3 data-id="heading-33">4.2 数值常量</h3>
+                                                    <h2 data-id="heading-34">5. 基本类型</h2>
+                                                    <h3 data-id="heading-35">5.1 bool</h3>
+                                                    <h3 data-id="heading-36">5.2 string</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903796930265096" target="_blank" title="https://juejin.cn/post/6844903796930265096">Go之如何截取string字符串？截取英文与中文字符串</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903743524175879" target="_blank" title="https://juejin.cn/post/6844903743524175879">Go系列 string、bytes、rune的区别</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903773551230990" target="_blank" title="https://juejin.cn/post/6844903773551230990">详解Go regexp包中 ReplaceAllString 的用法</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903796913471495" target="_blank" title="https://juejin.cn/post/6844903796913471495">Go之int整数与string字符串相互转换</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904016720199693" target="_blank" title="https://juejin.cn/post/6844904016720199693">golang中你不知道的 string</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903465928359944" target="_blank" title="https://juejin.cn/post/6844903465928359944">Go 标准库介绍一: strings</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903760041345032" target="_blank" title="https://juejin.cn/post/6844903760041345032">golang的fmt包String(),Error(),Format(),GoString()的接口实现</a>
+                                                    </p>
+                                                    <h3 data-id="heading-37">5.3 int  int8  int16  int32  int64uint uint8 uint16 uint32 uint64 uintptr</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904120998952967" target="_blank" title="https://juejin.cn/post/6844904120998952967">Golang 中 int，int64 和字符串互转（译文）</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903950911553550" target="_blank" title="https://juejin.cn/post/6844903950911553550">原来这才是 Go Interface</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903555141222407" target="_blank" title="https://juejin.cn/post/6844903555141222407">Golang interface接口深入理解</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903828177829896" target="_blank" title="https://juejin.cn/post/6844903828177829896">从goim定制, 浅谈 go interface 解耦合与gRPC</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904178280562701" target="_blank" title="https://juejin.cn/post/6844904178280562701">golang面试题：能说说uintptr和unsafe.Pointer的区别吗？</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6886045069149732877" target="_blank" title="https://juejin.cn/post/6886045069149732877">Golang中MulUintptr实现原理</a>
+                                                    </p>
+                                                    <h3 data-id="heading-38">5.4 byte // uint8 的别名</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903743524175879" target="_blank" title="https://juejin.cn/post/6844903743524175879">Go系列 string、bytes、rune的区别</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903796917682189" target="_blank" title="https://juejin.cn/post/6844903796917682189">Go之[]byte字节数组与string字符串相互转换</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903745747156999" target="_blank" title="https://juejin.cn/post/6844903745747156999">Strings、bytes and runes -- 就要学习 Go 语言</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904114745245709" target="_blank" title="https://juejin.cn/post/6844904114745245709">go中的strings, bytes, runes 和 characters</a>
+                                                    </p>
+                                                    <h3 data-id="heading-39">5.5 rune unicode码点</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903743524175879" target="_blank" title="https://juejin.cn/post/6844903743524175879">Go系列 string、bytes、rune的区别</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904121003147272" target="_blank" title="https://juejin.cn/post/6844904121003147272">Golang 中 runes 和 字符串互转（译文）</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903745747156999" target="_blank" title="https://juejin.cn/post/6844903745747156999">Strings、bytes and runes -- 就要学习 Go 语言</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6931523990280208392" target="_blank" title="https://juejin.cn/post/6931523990280208392">Golang 中[]byte, string和[]rune的相互转化的底层原理和剖析</a>
+                                                    </p>
+                                                    <h3 data-id="heading-40">5.6 float32 float64</h3>
+                                                    <h3 data-id="heading-41">5.7complex64 complex128</h3>
+                                                    <h3 data-id="heading-42">5.8 类型转换</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903973208457224" target="_blank" title="https://juejin.cn/post/6844903973208457224">Go基础类型转换</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904113914789902" target="_blank" title="https://juejin.cn/post/6844904113914789902">golang中的四种类型转换总结</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6862976040042987527" target="_blank" title="https://juejin.cn/post/6862976040042987527">Golang 中一个 time.Duration 相关类型转换问题</a>
+                                                    </p>
+                                                    <h3 data-id="heading-43">5.9 类型推倒</h3>
+                                                    <h1 data-id="heading-44">四、流程控制语句</h1>
+                                                    <blockquote>
+                                                        <p>流程控制语句：for、if、else、switch、defer</p>
+                                                    </blockquote>
+                                                    <h2 data-id="heading-45">1. 循环语句</h2>
+                                                    <h3 data-id="heading-46">1.1 for</h3>
+                                                    <h4 data-id="heading-47">1.1.1 for循环</h4>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6875102599595425800" target="_blank" title="https://juejin.cn/post/6875102599595425800">昨天那个在for循环里append元素的同事，今天还在么？</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904133208604679" target="_blank" title="https://juejin.cn/post/6844904133208604679">Golang 高并发编程For循环中使用Goroutine最容易犯的错误</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903696430546952" target="_blank" title="https://juejin.cn/post/6844903696430546952">Go语言性能优化- For Range 性能研究</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6868963573482127374" target="_blank" title="https://juejin.cn/post/6868963573482127374">[Golang]这几个for-range的坑，你必须要会呀，铁汁</a>
+                                                    </p>
+                                                    <h4 data-id="heading-48">1.1.2 初始化语句</h4>
+                                                    <h4 data-id="heading-49">1.1.3 条件表达式</h4>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903605367996424" target="_blank" title="https://juejin.cn/post/6844903605367996424">关于变量在 if-else 条件表达式里的作用域范围</a>
+                                                    </p>
+                                                    <h4 data-id="heading-50">1.1.4 循环条件</h4>
+                                                    <h4 data-id="heading-51">1.1.5 后置语句</h4>
+                                                    <h2 data-id="heading-52">2. 判断语句</h2>
+                                                    <h3 data-id="heading-53">2.1 IF</h3>
+                                                    <h4 data-id="heading-54">2.1.1 if 的简短语句</h4>
+                                                    <h4 data-id="heading-55">2.1.2 if 和 else</h4>
+                                                    <h3 data-id="heading-56">2.2 switch</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904145913118728" target="_blank" title="https://juejin.cn/post/6844904145913118728">Go 语言流程控制：switch-case</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903827359924237" target="_blank" title="https://juejin.cn/post/6844903827359924237">[译] part 10: golang switch 语句</a>
+                                                    </p>
+                                                    <p>switch 的求值顺序</p>
+                                                    <h2 data-id="heading-57">3. 后置调用 - defer</h2>
+                                                    <h3 data-id="heading-58">3.1 defer</h3>
+                                                    <blockquote>
+                                                        <p>
+                                                            包含该defer语句的函数执行完毕时，defer后的函数才会被执行 -<code>推迟调用</code>
+                                                            <br>在一个函数中执行多条defer语句，它们的执行顺序与声明顺序相反。
+                                                        </p>
+                                                    </blockquote>
+                                                    <h4 data-id="heading-59">3.1.1  原理</h4>
+                                                    <blockquote>
+                                                        <p>
+                                                            推迟的函数调用会被压入一个<code>栈</code>
+                                                            中。当外层函数返回时，被推迟的函数会按照后进先出的顺序调用。
+                                                        </p>
+                                                    </blockquote>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903507011567623" target="_blank" title="https://juejin.cn/post/6844903507011567623">Go 延迟函数 defer 详解</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904000567902216" target="_blank" title="https://juejin.cn/post/6844904000567902216">go 学习笔记之咬文嚼字带你弄清楚 defer 延迟函数</a>
+                                                    </p>
+                                                    <h1 data-id="heading-60">五、底层数据结构</h1>
+                                                    <h2 data-id="heading-61">1. 指针</h2>
+                                                    <blockquote>
+                                                        <p>Go 拥有指针。指针保存了值的内存地址。</p>
+                                                    </blockquote>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903831365648391" target="_blank" title="https://juejin.cn/post/6844903831365648391">Golang研学：在用好Golang指针类型</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903734745513991" target="_blank" title="https://juejin.cn/post/6844903734745513991">彻底学会 Go 指针 -- 就要学习 Go 语言</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903773559619591" target="_blank" title="https://juejin.cn/post/6844903773559619591">Golang中range指针数据的坑</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903725773897742" target="_blank" title="https://juejin.cn/post/6844903725773897742">Golang 指针：使用方法、特点 和 运算</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903922205720590" target="_blank" title="https://juejin.cn/post/6844903922205720590">Go之反射实现类型与指针拷贝</a>
+                                                    </p>
+                                                    <h2 data-id="heading-62">2. 结构体</h2>
+                                                    <blockquote>
+                                                        <p>一个结构体（struct）就是一组字段（field）。</p>
+                                                    </blockquote>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6850418111531712520" target="_blank" title="https://juejin.cn/post/6850418111531712520">golang | Go语言入门教程——结构体初始化与继承</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904161616592903" target="_blank" title="https://juejin.cn/post/6844904161616592903">15. 理解 Go 语言面向对象编程：结构体与继承</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903765103886343" target="_blank" title="https://juejin.cn/post/6844903765103886343">包罗万象的结构体 -- 就要学习 Go 语言</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6855129007193915400" target="_blank" title="https://juejin.cn/post/6855129007193915400">Golang自定义结构体转map</a>
+                                                    </p>
+                                                    <h3 data-id="heading-63">2.1 结构体字段</h3>
+                                                    <blockquote>
+                                                        <p>结构体字段使用点号来引用</p>
+                                                    </blockquote>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6855129007193915400" target="_blank" title="https://juejin.cn/post/6855129007193915400">Golang自定义结构体转map</a>
+                                                    </p>
+                                                    <h3 data-id="heading-64">2.2 结构体指针</h3>
+                                                    <blockquote>
+                                                        <p>结构体字段可以通过结构体指针来访问</p>
+                                                    </blockquote>
+                                                    <h3 data-id="heading-65">2.3 结构体声明</h3>
+                                                    <blockquote>
+                                                        <p>结构体声明可以通过直接列出字段的值来新分配一个结构体。</p>
+                                                    </blockquote>
+                                                    <h2 data-id="heading-66">3. 数组</h2>
+                                                    <blockquote>
+                                                        <p>类型[n]T表示拥有n个T类型的值的数组。</p>
+                                                    </blockquote>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903967114297352" target="_blank" title="https://juejin.cn/post/6844903967114297352">Go如何对数组切片进行去重</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903710791843854" target="_blank" title="https://juejin.cn/post/6844903710791843854">《快学 Go 语言》第 4 课 —— 低调的数组</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903921274585095" target="_blank" title="https://juejin.cn/post/6844903921274585095">Go切片与C数组转换</a>
+                                                    </p>
+                                                    <p>
+                                                        Go之[]byte字节数组与string字符串相互转换<a href="https://juejin.cn/post/6844903796917682189" target="_blank" title="https://juejin.cn/post/6844903796917682189">juejin.cn/post/684490…</a>
+                                                    </p>
+                                                    <h2 data-id="heading-67">4. 切片</h2>
+                                                    <blockquote>
+                                                        <p>每个数组的大小都是固定的。而切片则为数组元素提供动态大小的、灵活的视角。在实践中，切片比数组更常用。</p>
+                                                    </blockquote>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903712654098446" target="_blank" title="https://juejin.cn/post/6844903712654098446">深度解析 Go 语言中「切片」的三种特殊状态</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6888117219213967368" target="_blank" title="https://juejin.cn/post/6888117219213967368">（正经版）面试官：切片作为函数参数是传值还是传引用？</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903556290445325" target="_blank" title="https://juejin.cn/post/6844903556290445325">Go 切片使用注意事项</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903998734991368" target="_blank" title="https://juejin.cn/post/6844903998734991368">如何在Go中使用切片容量和长度</a>
+                                                    </p>
+                                                    <h3 data-id="heading-68">4.1 切片定义</h3>
+                                                    <blockquote>
+                                                        <p>切片就像引用的数组，切片并不直接存储数据，它只是描述了底层数组中的一段。</p>
+                                                    </blockquote>
+                                                    <h3 data-id="heading-69">4.2 切片文法</h3>
+                                                    <blockquote>
+                                                        <p>切片文法类似于没有长度的数组文法。</p>
+                                                    </blockquote>
+                                                    <h3 data-id="heading-70">4.3 切片的默认行为</h3>
+                                                    <h3 data-id="heading-71">4.4 切片的长度与容量</h3>
+                                                    <h3 data-id="heading-72">4.5 nil切片</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6882534005410005005" target="_blank" title="https://juejin.cn/post/6882534005410005005">连nil切片和空切片一不一样都不清楚？那BAT面试官只好让你回去等通知了。</a>
+                                                    </p>
+                                                    <h3 data-id="heading-73">4.6 用make创建切片</h3>
+                                                    <h3 data-id="heading-74">4.7 切片的切片</h3>
+                                                    <p>切片可包含任何类型，甚至包括其它的切片。</p>
+                                                    <h3 data-id="heading-75">4.8 向切片追加元素</h3>
+                                                    <h3 data-id="heading-76">4.9 range</h3>
+                                                    <p>for循环的range形式可遍历切片或映射。</p>
+                                                    <h2 data-id="heading-77">5. 映射（map）</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6925701771511726093" target="_blank" title="https://juejin.cn/post/6925701771511726093">gin 自动映射参数及自动校验</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903865431638023" target="_blank" title="https://juejin.cn/post/6844903865431638023">PHP转Go系列：map映射</a>
+                                                    </p>
+                                                    <h3 data-id="heading-78">5.1 映射的文法</h3>
+                                                    <h3 data-id="heading-79">5.2  修改映射</h3>
+                                                    <h1 data-id="heading-80">五、方法和接口</h1>
+                                                    <h2 data-id="heading-81">1. 方法</h2>
+                                                    <ul>
+                                                        <li>指针接收者</li>
+                                                        <li>方法与指针重定向</li>
+                                                        <li>选择值或指针作为接收者</li>
+                                                    </ul>
+                                                    <h2 data-id="heading-82">2. 接口</h2>
+                                                    <h3 data-id="heading-83">2.1 接口理解</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903555141222407" target="_blank" title="https://juejin.cn/post/6844903555141222407">Golang interface接口深入理解</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903809211170824" target="_blank" title="https://juejin.cn/post/6844903809211170824">Go 语言接口详解（一）</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903821416595464" target="_blank" title="https://juejin.cn/post/6844903821416595464">Go 语言接口详解（二）</a>
+                                                    </p>
+                                                    <h3 data-id="heading-84">2.2 接口与隐式形式</h3>
+                                                    <h3 data-id="heading-85">2.3 接口值</h3>
+                                                    <h4 data-id="heading-86">2.3.1 nil 的接口值</h4>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903905797603335" target="_blank" title="https://juejin.cn/post/6844903905797603335">Go “一个包含nil指针的接口不是nil接口”踩坑</a>
+                                                    </p>
+                                                    <h4 data-id="heading-87">2.3.2 空接口</h4>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904183770906638" target="_blank" title="https://juejin.cn/post/6844904183770906638">31. 说说 Go 语言中的空接口</a>
+                                                    </p>
+                                                    <h3 data-id="heading-88">2.4 接口类型断言</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904153056034823" target="_blank" title="https://juejin.cn/post/6844904153056034823">14. Go 语言中的类型断言是什么？</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6900192355324952589" target="_blank" title="https://juejin.cn/post/6900192355324952589">聊聊golang的类型断言</a>
+                                                    </p>
+                                                    <h3 data-id="heading-89">2.5 接口类型选择</h3>
+                                                    <h3 data-id="heading-90">2.6 Stringer</h3>
+                                                    <h1 data-id="heading-91">六、错误异常</h1>
+                                                    <h2 data-id="heading-92">1. 错误</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903757101137934" target="_blank" title="https://juejin.cn/post/6844903757101137934">Go语言(golang)的错误(error)处理的推荐方案</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903944490057736" target="_blank" title="https://juejin.cn/post/6844903944490057736">Golang error 的突围</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903810943418375" target="_blank" title="https://juejin.cn/post/6844903810943418375">[译] Part 31: golang 中的自定义 error</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903944741896206" target="_blank" title="https://juejin.cn/post/6844903944741896206">[译] Go 1.13 errors 包错误处理</a>
+                                                    </p>
+                                                    <h1 data-id="heading-93">七、IO读取</h1>
+                                                    <h2 data-id="heading-94">1.  Reader</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6900534635181113352" target="_blank" title="https://juejin.cn/post/6900534635181113352">Golang 最细节篇 —— Reader，ReaderAt 的区别，你如果是做存储的，可千万别搞错了；</a>
+                                                    </p>
+                                                    <h2 data-id="heading-95">2. 图像</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903541568454670" target="_blank" title="https://juejin.cn/post/6844903541568454670">golang 图像验证码</a>
+                                                        转载
+                                                    </p>
+                                                    <h2 data-id="heading-96">3.  阻塞 &#x26;非阻塞</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903598216871943" target="_blank" title="https://juejin.cn/post/6844903598216871943">在Golang中各种永远阻塞的姿势</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903945907748872" target="_blank" title="https://juejin.cn/post/6844903945907748872">Golang 实现轻量、快速的基于 Reactor 模式的非阻塞 TCP 网络库</a>
+                                                    </p>
+                                                    <h2 data-id="heading-97">4.  同步vs异步</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904164749918216" target="_blank" title="https://juejin.cn/post/6844904164749918216">面试官让我用channel实现sync包里的同步锁，是不是故意为难我？</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903511629496328" target="_blank" title="https://juejin.cn/post/6844903511629496328">Visual Studio Live Share - 和你的队友同步共享代码，即时编辑</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903423624609800" target="_blank" title="https://juejin.cn/post/6844903423624609800">kingtask：一个由 Go 开发的轻量级的异步定时任务系统</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903485494788103" target="_blank" title="https://juejin.cn/post/6844903485494788103">用一个简易的 web chat 说说 Python、Golang、Nodejs 的异步</a>
+                                                    </p>
+                                                    <h2 data-id="heading-98">5.  Select</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903940190912519" target="_blank" title="https://juejin.cn/post/6844903940190912519">深入理解go-channel和select的原理</a>
+                                                    </p>
+                                                    <h1 data-id="heading-99">八、并发</h1>
+                                                    <h2 data-id="heading-100">1. 协程相关</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903662553137165" target="_blank" title="https://juejin.cn/post/6844903662553137165">Golang 的 协程调度机制 与 GOMAXPROCS 性能调优</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903619163062280" target="_blank" title="https://juejin.cn/post/6844903619163062280">Go并发调度器解析之实现一个协程池</a>
+                                                        转载
+                                                    </p>
+                                                    <h2 data-id="heading-101">2. 原子性、可见性、有序性</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6911126210340716558" target="_blank" title="https://juejin.cn/post/6911126210340716558">Golang 并发编程核心—内存可见性</a>
+                                                    </p>
+                                                    <h2 data-id="heading-102">3. 并发控制</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903625773285384" target="_blank" title="https://juejin.cn/post/6844903625773285384">深入golang之---goroutine并发控制与通信</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903886243758093" target="_blank" title="https://juejin.cn/post/6844903886243758093">Go 译文之通过 context 实现并发控制</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6906408822701719560" target="_blank" title="https://juejin.cn/post/6906408822701719560">go并发之goroutine和channel，并发控制入门篇</a>
+                                                    </p>
+                                                    <h1 data-id="heading-103">九、语言特性</h1>
+                                                    <h2 data-id="heading-104">1. Goroutine</h2>
+                                                    <h2 data-id="heading-105">2.  Channel</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903634497437709" target="_blank" title="https://juejin.cn/post/6844903634497437709">go语言之行--golang核武器goroutine调度原理、channel详解</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903778617917453" target="_blank" title="https://juejin.cn/post/6844903778617917453">Golang —— goroutine（协程）和channel（管道）</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904016254599176" target="_blank" title="https://juejin.cn/post/6844904016254599176">深入理解Golang之channel</a>
+                                                    </p>
+                                                    <h2 data-id="heading-106">3.  GMP模型</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844904016254599176" target="_blank" title="https://juejin.cn/post/6844904016254599176">深入理解Golang之channel</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6879589946982662158" target="_blank" title="https://juejin.cn/post/6879589946982662158">Golang调度器的GMP模型</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6944925506340913188" target="_blank" title="https://juejin.cn/post/6944925506340913188">go并发奥秘：GMP模型 </a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6956008643456139301" target="_blank" title="https://juejin.cn/post/6956008643456139301">动图图解！GMP模型里为什么要有P？</a>
+                                                    </p>
+                                                    <h1 data-id="heading-107">十、框架</h1>
+                                                    <h2 data-id="heading-108">1. Web框架</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6943568184016535566juejin.cn" target="_blank" title="https://juejin.cn/post/6943568184016535566juejin.cn">慢聊Go之Go常见的Web 开发框架｜Go主题月</a>
+                                                    </p>
+                                                    <h3 data-id="heading-109">1.1 Revel</h3>
+                                                    <h3 data-id="heading-110">1.2 Beego</h3>
+                                                    <h3 data-id="heading-111">1.3 Martini</h3>
+                                                    <h3 data-id="heading-112">1.4 Gin Gonic</h3>
+                                                    <h3 data-id="heading-113">1.5 Buffalo</h3>
+                                                    <h3 data-id="heading-114">1.6 Goji</h3>
+                                                    <h3 data-id="heading-115">1.7 Tiger Tonic</h3>
+                                                    <h3 data-id="heading-116">1.8 Gocraft</h3>
+                                                    <h3 data-id="heading-117">1.9 Mango</h3>
+                                                    <h3 data-id="heading-118">1.10 GORM</h3>
+                                                    <h2 data-id="heading-119">2. 微服务框架</h2>
+                                                    <h3 data-id="heading-120">2.1 go-kit</h3>
+                                                    <h3 data-id="heading-121">2.2 Micro</h3>
+                                                    <h3 data-id="heading-122">2.3 go-zero</h3>
+                                                    <h3 data-id="heading-123">2.4 gRPC</h3>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6946452659159171102" target="_blank" title="https://juejin.cn/post/6946452659159171102">Go RPC入门指南1：RPC的使用边界在哪里？如何实现跨语言调用</a>
+                                                    </p>
+                                                    <h1 data-id="heading-124">十一、性能剖析</h1>
+                                                    <h2 data-id="heading-125">1.  Go语言性能分析</h2>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903588565630983" target="_blank" title="https://juejin.cn/post/6844903588565630983">go pprof 性能分析</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903495703740424" target="_blank" title="https://juejin.cn/post/6844903495703740424">Go 程序性能分析 101</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6844903798373089287" target="_blank" title="https://juejin.cn/post/6844903798373089287">golang 使用pprof和go-torch做性能分析</a>
+                                                    </p>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6950959850994008094" target="_blank" title="https://juejin.cn/post/6950959850994008094">多维度思考：如何提高项目的开发时间、提高安全性、提高运行速度，从多个维度带来的一些思考。</a>
+                                                    </p>
+                                                    <h1 data-id="heading-126">十二、问题排查</h1>
+                                                    <h1 data-id="heading-127">十三、Golang面试</h1>
+                                                    <p>
+                                                        <a href="https://juejin.cn/post/6953034008351473678" target="_blank" title="https://juejin.cn/post/6953034008351473678">Go语言控制CPU占用率呈正弦曲线 | Go主题月</a>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </article>
+                                        <div class="article-end" data-v-539963b4 data-v-61fb5e44>
+                                            <div class="rank-entry-bottom" data-v-539963b4 data-v-61fb5e44>
+                                            <!---->
+                                            </div>
+                                            <div class="tag-list-box" data-v-539963b4 data-v-61fb5e44>
+                                            <!---->
+                                            <!---->
+                                            <!---->
+                                            </div>
+                                        </div>
+                                        <!---->
+                                        <!---->
+                                        <!---->
+                                        <!---->
+                                        <!---->
+                                    </div>
+                                    <div id="sidebar-container" class="sidebar article-sidebar" data-v-01fd4ebd data-v-61fb5e44>
+                                        <div class="sidebar-block author-block author-block-container pure" data-v-7e7e812a data-v-1902877e data-v-01fd4ebd>
+                                            <a href="/user/2700056290929598/posts" target="_blank" rel="" class="jj-link user-item item" data-v-65b50b51 data-v-1902877e>
+                                                <div class="avatar jj-avatar avatar" data-v-03256cc6 data-v-1902877e>
+                                                    <img loading="eager" src="https://p9-passport.byteacctimg.com/img/user-avatar/cf08818d0a5015e53eac4a5f43efe16f~200x200.image" alt="avatar" class="lazy avatar-img immediate" data-v-5244ef91 data-v-03256cc6>
+                                                </div>
+                                                <div class="info-box" style="visibility:hidden;" data-v-65b50b51 data-v-1902877e>
+                                                    <span to="[object Object]" blank="true" class="username" data-v-292f6e48 data-v-1902877e>
+                                                        <span class="name" style="max-width:128px;" data-v-292f6e48>Deborah倩倩
+  </span>
+                                                        <span to="" blank="true" class="rank" data-v-23743940 data-v-292f6e48>
+                                                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AQMAAAAAMksxAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAA5JREFUKM9jGAWjAAcAAAIcAAE27nY6AAAAAElFTkSuQmCC" alt="创作等级LV.4" title="创作等级LV.4" class="lazy" style="aspect-ratio:NaN;" data-v-5244ef91 data-v-23743940>
+                                                        </span>
+                                                        <!---->
+                                                        <!---->
+                                                    </span>
+                                                    <div title="内容运营 @掘金" class="position" data-v-65b50b51 data-v-1902877e>内容运营 @掘金
+      </div>
+                                                    <div class="extra-container" data-v-65b50b51 data-v-1902877e>
+                                                    <!---->
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <div class="count-container" data-v-7e7e812a data-v-1902877e>
+                                                <a href="/user/2700056290929598/posts" target="_blank" rel="" class="jj-link stat-item item" data-v-65b50b51 data-v-1902877e>
+                                                    <div class="count" style="display:none;" data-v-65b50b51 data-v-1902877e>15
+      </div>
+                                                    <div data-v-65b50b51 data-v-1902877e>文章</div>
+                                                </a>
+                                                <a href="/user/2700056290929598/posts" target="_blank" rel="" class="jj-link stat-item item" data-v-65b50b51 data-v-1902877e>
+                                                    <div class="count" style="display:none;" data-v-65b50b51 data-v-1902877e>61k
+      </div>
+                                                    <div data-v-65b50b51 data-v-1902877e>阅读</div>
+                                                </a>
+                                                <a href="/user/2700056290929598/followers" target="_blank" rel="" class="jj-link stat-item item" data-v-65b50b51 data-v-1902877e>
+                                                    <div class="count" style="display:none;" data-v-65b50b51 data-v-1902877e>499
+      </div>
+                                                    <div data-v-65b50b51 data-v-1902877e>粉丝</div>
+                                                </a>
+                                            </div>
+                                            <div class="operate-btn hidden" style="position:relative;z-index:2;min-height:36px;" data-v-7e7e812a data-v-1902877e>
+                                            <!---->
+                                            <!---->
+                                            <!---->
+                                            </div>
+                                            <!---->
+                                        </div>
+                                        <div class="sticky-block-box" data-v-01fd4ebd>
+                                            <nav class="article-catalog catalog-block none" data-v-6239701c data-v-16ed86c3 data-v-01fd4ebd>
+                                                <div class="catalog-title" data-v-6239701c>
+                                                    <div data-v-6239701c>目录</div>
+                                                    <div class="direction" data-v-6239701c>
+                                                        <div class="word" data-v-6239701c>收起</div>
+                                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-rotate" data-v-6239701c data-v-6239701c>
+                                                            <g id="&amp;#229;&amp;#177;&amp;#149;&amp;#229;&amp;#188;&amp;#128;" data-v-6239701c data-v-6239701c>
+                                                                <path id="&amp;#232;&amp;#183;&amp;#175;&amp;#229;&amp;#190;&amp;#132;" fill-rule="evenodd" clip-rule="evenodd" d="M5.99854 7.93206L10.0644 3.86619C10.162 3.76856 10.3203 3.76856 10.418 3.86619L10.7715 4.21975C10.8691 4.31738 10.8691 4.47567 10.7715 4.5733L6.35209 8.99272C6.15683 9.18798 5.84025 9.18798 5.64498 8.99272L1.22557 4.5733C1.12794 4.47567 1.12794 4.31738 1.22557 4.21975L1.57912 3.86619C1.67675 3.76856 1.83504 3.76856 1.93267 3.86619L5.99854 7.93206Z" fill="#8A919F" data-v-6239701c data-v-6239701c></path>
+                                                            </g>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div class="catalog-body unfold" data-v-6239701c>
+                                                    <ul class="catalog-list" style="margin-top:0px;" data-v-6239701c>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-0" title="一、Go语言的起源、发展以及普及" class="catalog-aTag d1-aTag-title">一、Go语言的起源、发展以及普及
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-1" title="1.  学习Go语言" class="catalog-aTag d2-aTag-title">1.  学习Go语言
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-2" title="1.1 Go语言起源" class="catalog-aTag d3-aTag-title">1.1 Go语言起源
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-3" title="1.2 Go语言的主要特征与发展的环境" class="catalog-aTag d3-aTag-title">1.2 Go语言的主要特征与发展的环境
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-4" title="1.3 Go语言常犯错误汇总" class="catalog-aTag d3-aTag-title">1.3 Go语言常犯错误汇总
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-5" title="1.4 Golang书籍推荐" class="catalog-aTag d3-aTag-title">1.4 Golang书籍推荐
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-6" title="1.5 Go语言开源项目" class="catalog-aTag d3-aTag-title">1.5 Go语言开源项目
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-7" title="1.6 Go语言环境安装" class="catalog-aTag d3-aTag-title">1.6 Go语言环境安装
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-8" title="GOPATH" class="catalog-aTag d2-aTag-title">GOPATH
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-9" title="二、Go工作环境设置" class="catalog-aTag d1-aTag-title">二、Go工作环境设置
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-10" title="1. 编辑器" class="catalog-aTag d2-aTag-title">1. 编辑器
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-11" title="2. 依赖管理" class="catalog-aTag d2-aTag-title">2. 依赖管理
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-12" title="3. Go源码发布" class="catalog-aTag d2-aTag-title">3. Go源码发布
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-13" title="三、包、函数、变量、常量、数据类型" class="catalog-aTag d1-aTag-title">三、包、函数、变量、常量、数据类型
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-14" title="1. 包相关" class="catalog-aTag d2-aTag-title">1. 包相关
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-15" title="1.1 包" class="catalog-aTag d3-aTag-title">1.1 包
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-16" title="1.2 第三方包" class="catalog-aTag d3-aTag-title">1.2 第三方包
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-17" title="1.3 导入语句" class="catalog-aTag d3-aTag-title">1.3 导入语句
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-20" title="1.4 导出名" class="catalog-aTag d3-aTag-title">1.4 导出名
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-21" title="2. 函数相关" class="catalog-aTag d2-aTag-title">2. 函数相关
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-22" title="2.1 函数操作" class="catalog-aTag d3-aTag-title">2.1 函数操作
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-23" title="2.2 函数多返回值" class="catalog-aTag d3-aTag-title">2.2 函数多返回值
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-24" title="2.3  函数值" class="catalog-aTag d3-aTag-title">2.3  函数值
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-26" title="3. 变量" class="catalog-aTag d2-aTag-title">3. 变量
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-27" title="3.1 变量简介" class="catalog-aTag d3-aTag-title">3.1 变量简介
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-28" title="3.2变量的初始化" class="catalog-aTag d3-aTag-title">3.2变量的初始化
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-29" title="3.3短变量声明" class="catalog-aTag d3-aTag-title">3.3短变量声明
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-30" title="3.4 零值" class="catalog-aTag d2-aTag-title">3.4 零值
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-31" title="4. 常量" class="catalog-aTag d2-aTag-title">4. 常量
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-32" title="4.1 常量" class="catalog-aTag d3-aTag-title">4.1 常量
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-33" title="4.2 数值常量" class="catalog-aTag d3-aTag-title">4.2 数值常量
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-34" title="5. 基本类型" class="catalog-aTag d2-aTag-title">5. 基本类型
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-35" title="5.1 bool" class="catalog-aTag d3-aTag-title">5.1 bool
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-36" title="5.2 string" class="catalog-aTag d3-aTag-title">5.2 string
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-37" title="5.3 int  int8  int16  int32  int64uint uint8 uint16 uint32 uint64 uintptr" class="catalog-aTag d3-aTag-title">5.3 int  int8  int16  int32  int64uint uint8 uint16 uint32 uint64 uintptr
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-38" title="5.4 byte // uint8 的别名" class="catalog-aTag d3-aTag-title">5.4 byte // uint8 的别名
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-39" title="5.5 rune unicode码点" class="catalog-aTag d3-aTag-title">5.5 rune unicode码点
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-40" title="5.6 float32 float64" class="catalog-aTag d3-aTag-title">5.6 float32 float64
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-41" title="5.7complex64 complex128" class="catalog-aTag d3-aTag-title">5.7complex64 complex128
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-42" title="5.8 类型转换" class="catalog-aTag d3-aTag-title">5.8 类型转换
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-43" title="5.9 类型推倒" class="catalog-aTag d3-aTag-title">5.9 类型推倒
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-44" title="四、流程控制语句" class="catalog-aTag d1-aTag-title">四、流程控制语句
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-45" title="1. 循环语句" class="catalog-aTag d2-aTag-title">1. 循环语句
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-46" title="1.1 for" class="catalog-aTag d3-aTag-title">1.1 for
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-52" title="2. 判断语句" class="catalog-aTag d2-aTag-title">2. 判断语句
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-53" title="2.1 IF" class="catalog-aTag d3-aTag-title">2.1 IF
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-56" title="2.2 switch" class="catalog-aTag d3-aTag-title">2.2 switch
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-57" title="3. 后置调用 - defer" class="catalog-aTag d2-aTag-title">3. 后置调用 - defer
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-58" title="3.1 defer" class="catalog-aTag d3-aTag-title">3.1 defer
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-60" title="五、底层数据结构" class="catalog-aTag d1-aTag-title">五、底层数据结构
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-61" title="1. 指针" class="catalog-aTag d2-aTag-title">1. 指针
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-62" title="2. 结构体" class="catalog-aTag d2-aTag-title">2. 结构体
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-63" title="2.1 结构体字段" class="catalog-aTag d3-aTag-title">2.1 结构体字段
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-64" title="2.2 结构体指针" class="catalog-aTag d3-aTag-title">2.2 结构体指针
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-65" title="2.3 结构体声明" class="catalog-aTag d3-aTag-title">2.3 结构体声明
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-66" title="3. 数组" class="catalog-aTag d2-aTag-title">3. 数组
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-67" title="4. 切片" class="catalog-aTag d2-aTag-title">4. 切片
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-68" title="4.1 切片定义" class="catalog-aTag d3-aTag-title">4.1 切片定义
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-69" title="4.2 切片文法" class="catalog-aTag d3-aTag-title">4.2 切片文法
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-70" title="4.3 切片的默认行为" class="catalog-aTag d3-aTag-title">4.3 切片的默认行为
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-71" title="4.4 切片的长度与容量" class="catalog-aTag d3-aTag-title">4.4 切片的长度与容量
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-72" title="4.5 nil切片" class="catalog-aTag d3-aTag-title">4.5 nil切片
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-73" title="4.6 用make创建切片" class="catalog-aTag d3-aTag-title">4.6 用make创建切片
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-74" title="4.7 切片的切片" class="catalog-aTag d3-aTag-title">4.7 切片的切片
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-75" title="4.8 向切片追加元素" class="catalog-aTag d3-aTag-title">4.8 向切片追加元素
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-76" title="4.9 range" class="catalog-aTag d3-aTag-title">4.9 range
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-77" title="5. 映射（map）" class="catalog-aTag d2-aTag-title">5. 映射（map）
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-78" title="5.1 映射的文法" class="catalog-aTag d3-aTag-title">5.1 映射的文法
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-79" title="5.2  修改映射" class="catalog-aTag d3-aTag-title">5.2  修改映射
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-80" title="五、方法和接口" class="catalog-aTag d1-aTag-title">五、方法和接口
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-81" title="1. 方法" class="catalog-aTag d2-aTag-title">1. 方法
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-82" title="2. 接口" class="catalog-aTag d2-aTag-title">2. 接口
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-83" title="2.1 接口理解" class="catalog-aTag d3-aTag-title">2.1 接口理解
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-84" title="2.2 接口与隐式形式" class="catalog-aTag d3-aTag-title">2.2 接口与隐式形式
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-85" title="2.3 接口值" class="catalog-aTag d3-aTag-title">2.3 接口值
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-88" title="2.4 接口类型断言" class="catalog-aTag d3-aTag-title">2.4 接口类型断言
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-89" title="2.5 接口类型选择" class="catalog-aTag d3-aTag-title">2.5 接口类型选择
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-90" title="2.6 Stringer" class="catalog-aTag d3-aTag-title">2.6 Stringer
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-91" title="六、错误异常" class="catalog-aTag d1-aTag-title">六、错误异常
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-92" title="1. 错误" class="catalog-aTag d2-aTag-title">1. 错误
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-93" title="七、IO读取" class="catalog-aTag d1-aTag-title">七、IO读取
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-94" title="1.  Reader" class="catalog-aTag d2-aTag-title">1.  Reader
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-95" title="2. 图像" class="catalog-aTag d2-aTag-title">2. 图像
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-96" title="3.  阻塞&amp;非阻塞" class="catalog-aTag d2-aTag-title">3.  阻塞 &amp;非阻塞
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-97" title="4.  同步vs异步" class="catalog-aTag d2-aTag-title">4.  同步vs异步
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-98" title="5.  Select" class="catalog-aTag d2-aTag-title">5.  Select
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-99" title="八、并发" class="catalog-aTag d1-aTag-title">八、并发
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-100" title="1. 协程相关" class="catalog-aTag d2-aTag-title">1. 协程相关
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-101" title="2. 原子性、可见性、有序性" class="catalog-aTag d2-aTag-title">2. 原子性、可见性、有序性
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-102" title="3. 并发控制" class="catalog-aTag d2-aTag-title">3. 并发控制
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-103" title="九、语言特性" class="catalog-aTag d1-aTag-title">九、语言特性
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-104" title="1. Goroutine" class="catalog-aTag d2-aTag-title">1. Goroutine
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-105" title="2.  Channel" class="catalog-aTag d2-aTag-title">2.  Channel
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-106" title="3.  GMP模型" class="catalog-aTag d2-aTag-title">3.  GMP模型
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-107" title="十、框架" class="catalog-aTag d1-aTag-title">十、框架
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-108" title="1. Web框架" class="catalog-aTag d2-aTag-title">1. Web框架
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-109" title="1.1 Revel" class="catalog-aTag d3-aTag-title">1.1 Revel
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-110" title="1.2 Beego" class="catalog-aTag d3-aTag-title">1.2 Beego
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-111" title="1.3 Martini" class="catalog-aTag d3-aTag-title">1.3 Martini
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-112" title="1.4 Gin Gonic" class="catalog-aTag d3-aTag-title">1.4 Gin Gonic
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-113" title="1.5 Buffalo" class="catalog-aTag d3-aTag-title">1.5 Buffalo
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-114" title="1.6 Goji" class="catalog-aTag d3-aTag-title">1.6 Goji
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-115" title="1.7 Tiger Tonic" class="catalog-aTag d3-aTag-title">1.7 Tiger Tonic
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-116" title="1.8 Gocraft" class="catalog-aTag d3-aTag-title">1.8 Gocraft
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-117" title="1.9 Mango" class="catalog-aTag d3-aTag-title">1.9 Mango
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-118" title="1.10 GORM" class="catalog-aTag d3-aTag-title">1.10 GORM
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-119" title="2. 微服务框架" class="catalog-aTag d2-aTag-title">2. 微服务框架
+    </a>
+                                                                    </div>
+                                                                    <ul class="sub-list">
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-120" title="2.1 go-kit" class="catalog-aTag d3-aTag-title">2.1 go-kit
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-121" title="2.2 Micro" class="catalog-aTag d3-aTag-title">2.2 Micro
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-122" title="2.3 go-zero" class="catalog-aTag d3-aTag-title">2.3 go-zero
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                        <li class="item d3">
+                                                                            <div class="a-container">
+                                                                                <a href="#heading-123" title="2.4 gRPC" class="catalog-aTag d3-aTag-title">2.4 gRPC
+    </a>
+                                                                            </div>
+                                                                            <!---->
+                                                                        </li>
+                                                                    </ul>
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-124" title="十一、性能剖析" class="catalog-aTag d1-aTag-title">十一、性能剖析
+    </a>
+                                                            </div>
+                                                            <ul class="sub-list">
+                                                                <li class="item d2">
+                                                                    <div class="a-container">
+                                                                        <a href="#heading-125" title="1.  Go语言性能分析" class="catalog-aTag d2-aTag-title">1.  Go语言性能分析
+    </a>
+                                                                    </div>
+                                                                    <!---->
+                                                                </li>
+                                                            </ul>
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-126" title="十二、问题排查" class="catalog-aTag d1-aTag-title">十二、问题排查
+    </a>
+                                                            </div>
+                                                            <!---->
+                                                        </li>
+                                                        <li class="item d1" data-v-6239701c>
+                                                            <div class="a-container">
+                                                                <a href="#heading-127" title="十三、Golang面试" class="catalog-aTag d1-aTag-title">十三、Golang面试
+    </a>
+                                                            </div>
+                                                            <!---->
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </nav>
+                                            <!---->
+                                            <div class="adverts-list" data-v-0eca8145 data-v-01fd4ebd></div>
+                                            <!---->
+                                            <!---->
+                                        </div>
+                                        <!---->
+                                    </div>
+                                    <!---->
+                                    <!---->
+                                    <div id="article-suspended-panel" data-v-539963b4 data-v-61fb5e44></div>
+                                    <!---->
+                                </div>
+                                <!---->
+                                <!---->
+                                <!---->
+                                <!---->
+                                <!---->
+                                <!---->
+                                <!---->
+                            </main>
+                            <!---->
+                        </div>
+                        <!---->
+                    </div>
+                    <!---->
+                    <div class="global-component-box">
+                    <!---->
+                    </div>
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                    <!---->
+                </div>
+            </div>
+        </div>
+    </article>
