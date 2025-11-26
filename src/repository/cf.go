@@ -15,7 +15,7 @@ func NewCfRepository() *CfRepository {
 }
 
 func (r *CfRepository) GetCfAccountData() ([]models.CfUserData, error) {
-	rows, err := db.Pool.Query("SELECT o.cf_account,u.real_name from user as u,oj_account as o where u.id=o.user_id and cf_account !=' ' and cf_account is not null and cf_account!='' and (u.role_id=1 or u.role_id=3)")
+	rows, err := db.Pool.Query("SELECT o.cf_account,u.real_name from user as u,oj_account as o where u.id=o.user_id and o.cf_account !=' ' and o.cf_account is not null and o.cf_account!='' and (u.role_id=1 or u.role_id=3)")
 	if err != nil {
 		return nil, err
 	}

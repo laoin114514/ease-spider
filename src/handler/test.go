@@ -1,35 +1,23 @@
 package handler
 
 import (
+	"log"
 	"spider/src/services"
 )
 
 // 调试脚本（测试用）
 func Test() {
-	// func() error {
-	// 	updateCookie := services.NewLuoguUpdateCookie()
-	// 	err := updateCookie.Update()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	luogu := services.NewLuogu()
-	// 	err = luogu.LuoguRecords.GetAndStore()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	luogu.LuoguRecords.SaveLog()
-	// 	luogu.LuoguRecords.SaveErr()
-	// 	luogu.LuoguRecords.Clear()
-	// 	return nil
-	// }()
+	cfService := services.NewCfService()
 	func() error {
-		cf := services.NewCfService()
-		err := cf.CfUserStatus.GetCfRecords()
+		log.Println("开始获取cf提交记录")
+		err := cfService.CfUserStatus.GetCfRecords()
 		if err != nil {
 			return err
 		}
-		cf.CfUserStatus.SaveLog()
-		cf.CfUserStatus.SaveErr()
+		cfService.CfUserStatus.SaveLog()
+		cfService.CfUserStatus.SaveErr()
+		cfService.CfUserStatus.Clear()
+		log.Println("cf提交记录获取完成")
 		return nil
 	}()
 }

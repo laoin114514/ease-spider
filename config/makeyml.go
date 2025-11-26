@@ -36,9 +36,10 @@ func storeYml() string {
 dingding:
   appKey: dingsgji79glruqayy49
   appSecret: 0jzUXpbjMFs4jK3NNE1Hn3PTBJ8TZfVKurIR4_XI_2jDVmGD3Dkle7xQ4xtHH8e6
+  weekRange: 1
 luogu:
   isInServer: false
-  luoguRecordsConcurrency: 4
+  luoguRecordsConcurrency: 5
   luoguSolutionConcurrency: 5
   luoguSubmissionDetailConcurrency: 5
   luoguTeamID: 116191
@@ -63,6 +64,7 @@ timerFrequency:
   luogu_solution: 1h
   cf_records: 2m
   luogu_records: 2m
+  reload_config: 1h
 debug:
   all: true`
 }

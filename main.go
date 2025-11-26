@@ -38,7 +38,6 @@ func main() {
 	utils.InitGenerateCFurl()
 
 	log.Println("系统初始化完成，开始执行定时任务...")
-
 	var wg sync.WaitGroup
 	wg.Add(1)
 	defer wg.Wait()
