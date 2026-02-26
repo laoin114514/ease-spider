@@ -77,3 +77,17 @@ func (r *CfRepository) GetTeamContests() ([]db.Cf_team_contests, error) {
 	}
 	return cfTeamContests, nil
 }
+func (r *CfRepository) GetTeamOfficailId() ([]int, error) {
+	rows, err := db.Pool.Query("SELECT official_contest_id from cf_team_problem")
+	if err != nil {
+		return []int{}, err
+	}
+	defer rows.Close()
+	var ids []int
+	for rows.Next() {
+		var id int
+		rows.Scan(&id)
+		ids = append(ids, id)
+	}
+	return ids, nil
+}
