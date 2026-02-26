@@ -9,14 +9,9 @@ import (
 	"sync"
 )
 
-func main() {
-	// 初始化配置文件
-	err := config.MakeYml()
-	if err != nil {
-		log.Fatalf("配置文件初始化失败: %v", err)
-	}
+func init() {
 	// 初始化配置
-	err = config.Init()
+	err := config.Init()
 	if err != nil {
 		log.Fatalf("配置初始化失败: %v", err)
 	}
@@ -38,6 +33,8 @@ func main() {
 	utils.InitGenerateCFurl()
 
 	log.Println("系统初始化完成，开始执行定时任务...")
+}
+func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	defer wg.Wait()

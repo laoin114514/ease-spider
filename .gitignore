@@ -12,3 +12,5 @@
 /test.py
 /test.pyc
 /test.pyc
+config.dev.yml
+.env

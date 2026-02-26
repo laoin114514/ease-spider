@@ -1,8 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/joho/godotenv"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -61,7 +63,19 @@ type debugConfig struct {
 var AppConfig *Config
 
 func Init() error {
-	yamlFile, err := os.ReadFile("config.yml")
+	err := godotenv.Load("config/.env")
+	if err != nil {
+		return err
+	}
+	path := ""
+	if os.Getenv("RUN_MODE") == "dev" {
+		path = "config/config.dev.yml"
+	} else if os.Getenv("RUN_MODE") == "prod" {
+		path = "config/config.prod.yml"
+	} else {
+		return fmt.Errorf("环境变量RUN_MODE必须为dev或prod")
+	}
+	yamlFile, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
