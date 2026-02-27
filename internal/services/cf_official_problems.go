@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"spider/config"
 	"spider/config/db"
-	"spider/src/models"
-	"spider/src/repository"
-	"spider/src/utils"
+	"spider/internal/models"
+	"spider/internal/repository"
+	"spider/internal/utils"
 	"strings"
 )
 

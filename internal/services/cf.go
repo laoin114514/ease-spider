@@ -1,8 +1,8 @@
 package services
 
 import (
-	"spider/src/repository"
-	"spider/src/utils"
+	"spider/internal/repository"
+	"spider/internal/utils"
 )
 
 // CfService 是CF服务的主结构，包含所有CF相关的子服务

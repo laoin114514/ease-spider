@@ -2,9 +2,9 @@ package services
 
 import (
 	"spider/config"
-	"spider/src/models"
-	"spider/src/repository"
-	"spider/src/utils"
+	"spider/internal/models"
+	"spider/internal/repository"
+	"spider/internal/utils"
 )
 
 // Luogu 是洛谷服务的主结构，包含所有洛谷相关的子服务

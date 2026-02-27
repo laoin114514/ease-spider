@@ -2,7 +2,7 @@ package services
 
 import (
 	"os"
-	"spider/src/utils"
+	"spider/internal/utils"
 )
 
 // BaseService 提供所有服务的日志功能

@@ -3,8 +3,8 @@ package utils
 import (
 	"fmt"
 	"math/rand"
-	"spider/src/models"
-	"spider/src/repository"
+	"spider/internal/models"
+	"spider/internal/repository"
 
 	"time"
 )

@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/exec"
 	"spider/config"
-	"spider/src/constants"
-	"spider/src/utils"
+	"spider/internal/constants"
+	"spider/internal/utils"
 	"strconv"
 	"time"
 

@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 	"spider/config/db"
-	"spider/src/models"
+	"spider/internal/models"
 	"time"
 )
 

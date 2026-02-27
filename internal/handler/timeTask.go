@@ -3,8 +3,8 @@ package handler
 import (
 	"log"
 	"spider/config"
-	"spider/src/services"
-	"spider/src/utils"
+	"spider/internal/services"
+	"spider/internal/utils"
 )
 
 func TimeTask() {

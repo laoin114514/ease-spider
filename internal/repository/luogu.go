@@ -2,7 +2,7 @@ package repository
 
 import (
 	"spider/config/db"
-	"spider/src/models"
+	"spider/internal/models"
 )
 
 type LuoguRepository struct {

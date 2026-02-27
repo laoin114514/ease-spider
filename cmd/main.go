@@ -4,8 +4,8 @@ import (
 	"log"
 	"spider/config"
 	"spider/config/db"
-	"spider/src/handler"
-	"spider/src/utils"
+	"spider/internal/handler"
+	"spider/internal/utils"
 	"sync"
 )
 

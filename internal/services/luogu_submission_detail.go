@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"spider/config"
-	"spider/src/constants"
-	"spider/src/models"
-	"spider/src/repository"
-	"spider/src/utils"
+	"spider/internal/constants"
+	"spider/internal/models"
+	"spider/internal/repository"
+	"spider/internal/utils"
 	"strconv"
 )
 

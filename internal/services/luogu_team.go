@@ -3,9 +3,9 @@ package services
 import (
 	"fmt"
 	"spider/config"
-	"spider/src/models"
-	"spider/src/repository"
-	"spider/src/utils"
+	"spider/internal/models"
+	"spider/internal/repository"
+	"spider/internal/utils"
 	"strconv"
 )
 
