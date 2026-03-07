@@ -17,7 +17,8 @@ type Crawler interface {
 type Meta struct {
 	Interval         time.Duration
 	StartImmediately bool
-	Logger           *log.Logger
+	//自定义日志(默认使用系统日志)
+	Logger *log.Logger
 }
 
 type Context struct {

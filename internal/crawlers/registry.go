@@ -45,6 +45,7 @@ func (t *task2) Meta() easecrawler.Meta {
 func (t *task2) Run(c *easecrawler.Context) error {
 	if logger, ok := easecrawler.GetAs[*log.Logger](c, easecrawler.ContextLoggerKey); ok {
 		logger.Println("task2 running")
+		logger.Fatalln("123123")
 	} else {
 		fmt.Println("task2 running")
 	}
