@@ -1,7 +1,6 @@
 package crawlers
 
 import (
-	"context"
 	"fmt"
 	"log"
 	easecrawler "spider/pkg/ease-crawler"
@@ -16,13 +15,12 @@ func (t *task1) Name() string {
 
 func (t *task1) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Group:            "task1",
 		Interval:         1 * time.Second,
 		StartImmediately: true,
 	}
 }
 
-func (t *task1) Run(ctx context.Context, c *easecrawler.Context) error {
+func (t *task1) Run(c *easecrawler.Context) error {
 	if logger, ok := easecrawler.GetAs[*log.Logger](c, easecrawler.ContextLoggerKey); ok {
 		logger.Println("task1 running")
 	} else {
@@ -39,13 +37,12 @@ func (t *task2) Name() string {
 
 func (t *task2) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Group:            "task2",
 		Interval:         5 * time.Second,
 		StartImmediately: true,
 	}
 }
 
-func (t *task2) Run(ctx context.Context, c *easecrawler.Context) error {
+func (t *task2) Run(c *easecrawler.Context) error {
 	if logger, ok := easecrawler.GetAs[*log.Logger](c, easecrawler.ContextLoggerKey); ok {
 		logger.Println("task2 running")
 	} else {
@@ -55,8 +52,7 @@ func (t *task2) Run(ctx context.Context, c *easecrawler.Context) error {
 }
 
 func Run() {
-	engine := easecrawler.NewEngine()
-	defer engine.Close()
+	engine := easecrawler.New()
 	g1 := engine.Group("g1")
 	g11 := g1.Group("g11")
 	g11.Register(&task1{})

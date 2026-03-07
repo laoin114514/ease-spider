@@ -1,7 +1,6 @@
 package easecrawler
 
 import (
-	"context"
 	"log"
 	"sync"
 	"time"
@@ -10,13 +9,12 @@ import (
 const ContextLoggerKey = "logger"
 
 type Crawler interface {
-	Run(ctx context.Context, c *Context) error
+	Run(c *Context) error
 	Name() string
 	Meta() Meta
 }
 
 type Meta struct {
-	Group            string
 	Interval         time.Duration
 	StartImmediately bool
 	Logger           *log.Logger
