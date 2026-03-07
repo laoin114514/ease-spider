@@ -45,7 +45,6 @@ func (t *task2) Meta() easecrawler.Meta {
 func (t *task2) Run(c *easecrawler.Context) error {
 	if logger, ok := easecrawler.GetAs[*log.Logger](c, easecrawler.ContextLoggerKey); ok {
 		logger.Println("task2 running")
-		logger.Fatalln("123123")
 	} else {
 		fmt.Println("task2 running")
 	}
@@ -54,10 +53,10 @@ func (t *task2) Run(c *easecrawler.Context) error {
 
 func Run() {
 	engine := easecrawler.New()
-	g1 := engine.Group("g1")
-	g11 := g1.Group("g11")
+	g1 := engine.Group("测试1")
+	g11 := g1.Group("测试1")
 	g11.Register(&task1{})
-	g2 := g1.Group("g2")
+	g2 := g1.Group("测试2")
 	g2.Register(&task2{})
 	engine.Run()
 }

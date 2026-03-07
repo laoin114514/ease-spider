@@ -11,16 +11,33 @@ import (
 	"time"
 )
 
+// Engine 是框架核心调度器。
+//
+// 主要职责：
+//  1. 管理分组结构（通过内嵌 CrawlerGroup 作为根组）
+//  2. 管理已注册插件（crawlers）
+//  3. 按 Meta 配置调度插件执行
+//  4. 维护日志输出（全局日志 + 分组目录下插件日志）
+//  5. 维护运行时资源（文件句柄等）
 type Engine struct {
+	// 根分组，路径为 "/"。
 	CrawlerGroup
-	ctx          *Context
-	mu           sync.RWMutex
+	// 框架级上下文容器（当前保留，后续可注入全局依赖）。
+	ctx *Context
+	// 全局读写锁：保护分组树、注册表、日志文件映射等共享状态。
+	mu sync.RWMutex
+	// 全局兜底日志器。
 	globalLogger *log.Logger
-	logRootDir   string
-	crawlers     map[string]*registeredCrawler
-	logFiles     map[string]*os.File
+	// 日志根目录，默认 "logs"。
+	logRootDir string
+	// 全局插件注册表：key = groupPath/name。
+	crawlers map[string]*registeredCrawler
+	// 打开的日志文件句柄，便于 Close() 时统一释放。
+	logFiles map[string]*os.File
 }
 
+// registeredCrawler 是注册后插件的内部表示。
+// 保存运行所需元数据，避免每次执行重复计算。
 type registeredCrawler struct {
 	path    string
 	name    string
@@ -28,6 +45,13 @@ type registeredCrawler struct {
 	log     *log.Logger
 }
 
+// CrawlerGroup 表示分组节点。
+//
+// 设计说明：
+//   - path: 当前分组路径
+//   - children: 子分组索引（用于链式 Group）
+//   - parent: 父分组引用（当前主要用于结构表达）
+//   - engine: 回指引擎，便于访问共享注册表和锁
 type CrawlerGroup struct {
 	path     string
 	engine   *Engine
@@ -35,6 +59,7 @@ type CrawlerGroup struct {
 	parent   *CrawlerGroup
 }
 
+// New 创建引擎实例，并初始化根分组。
 func New() *Engine {
 	e := &Engine{
 		CrawlerGroup: CrawlerGroup{
@@ -49,10 +74,13 @@ func New() *Engine {
 		crawlers:     make(map[string]*registeredCrawler),
 		logFiles:     make(map[string]*os.File),
 	}
+	// 让根分组可以访问引擎。
 	e.engine = e
 	return e
 }
 
+// SetLogRootDir 设置日志根目录。
+// 空字符串会回退为默认值 "logs"。
 func (e *Engine) SetLogRootDir(dir string) {
 	dir = strings.TrimSpace(dir)
 	if dir == "" {
@@ -63,10 +91,14 @@ func (e *Engine) SetLogRootDir(dir string) {
 	e.logRootDir = dir
 }
 
+// Run 使用 background context 启动所有注册插件。
+// 该函数会阻塞（直到所有调度 goroutine 退出，通常需配合 RunWithContext）。
 func (g *CrawlerGroup) Run() {
 	g.RunWithContext(context.Background())
 }
 
+// RunWithContext 启动所有注册插件，并受 ctx 生命周期控制。
+// 当 ctx.Done() 触发后，各插件循环会退出，RunWithContext 返回。
 func (g *CrawlerGroup) RunWithContext(ctx context.Context) {
 	g.engine.mu.RLock()
 	items := make([]*registeredCrawler, 0, len(g.engine.crawlers))
@@ -86,6 +118,13 @@ func (g *CrawlerGroup) RunWithContext(ctx context.Context) {
 	wg.Wait()
 }
 
+// runCrawlerLoop 执行单个插件的调度循环。
+//
+// 行为：
+//  1. 读取 Meta（Interval / StartImmediately / Logger）
+//  2. 可选先执行一次
+//  3. 按 Interval 周期执行
+//  4. 收到 ctx.Done 后停止
 func (e *Engine) runCrawlerLoop(ctx context.Context, item *registeredCrawler) {
 	meta := item.crawler.Meta()
 	interval := meta.Interval
@@ -96,9 +135,11 @@ func (e *Engine) runCrawlerLoop(ctx context.Context, item *registeredCrawler) {
 	runOnce := func() {
 		logger := item.log
 		if meta.Logger != nil {
+			// 插件可显式覆盖默认日志器。
 			logger = meta.Logger
 		}
 		cctx := &Context{}
+		// 注入日志器，供插件内部统一输出。
 		cctx.Set(ContextLoggerKey, logger)
 		err := item.crawler.Run(cctx)
 		if err != nil {
@@ -125,6 +166,13 @@ func (e *Engine) runCrawlerLoop(ctx context.Context, item *registeredCrawler) {
 	}
 }
 
+// Register 在当前分组下注册一个插件。
+//
+// 关键规则：
+//  1. 名称不能为空
+//  2. 同一 groupPath/name 不能重复注册
+//  3. 日志路径统一为 logs/<group-path>/<crawler>.log
+//  4. 注册失败不 panic，记录日志并返回（降级处理）
 func (g *CrawlerGroup) Register(crawler Crawler) {
 	name := strings.TrimSpace(crawler.Name())
 	if name == "" {
@@ -165,6 +213,12 @@ func (g *CrawlerGroup) Register(crawler Crawler) {
 	g.engine.logFiles[key] = f
 }
 
+// Group 获取/创建子分组（支持链式调用）。
+//
+// 行为：
+//  1. 空名称直接返回当前分组
+//  2. 已存在子分组则复用
+//  3. 新建子分组并初始化对应日志目录
 func (g *CrawlerGroup) Group(name string) *CrawlerGroup {
 	name = strings.TrimSpace(name)
 	if name == "" {
@@ -194,6 +248,8 @@ func (g *CrawlerGroup) Group(name string) *CrawlerGroup {
 	return newGroup
 }
 
+// Close 关闭引擎持有的所有日志文件句柄。
+// 建议在程序退出前调用，避免文件句柄泄漏。
 func (e *Engine) Close() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -211,23 +267,33 @@ func (e *Engine) Close() error {
 	return firstErr
 }
 
+// crawlerLogPath 计算单个插件日志文件路径：
+// logs/<group-path>/<crawler>.log
 func (e *Engine) crawlerLogPath(groupPath, crawlerName string) string {
 	groupPath = cleanGroupPath(groupPath)
 	fileName := sanitizeFileName(crawlerName) + ".log"
 	return filepath.Join(e.logRootDir, filepath.FromSlash(groupPath), fileName)
 }
 
+// cleanGroupPath 规范化分组路径并做安全处理。
+//
+// 处理逻辑：
+//   - 统一分隔符为 '/'
+//   - 去掉首尾 '/'
+//   - 替换 ".." 防止目录穿越
+//   - 空路径回退到日志根目录
 func cleanGroupPath(path string) string {
 	p := strings.TrimSpace(path)
 	p = strings.ReplaceAll(p, "\\", "/")
 	p = strings.Trim(p, "/")
 	p = strings.ReplaceAll(p, "..", "_")
 	if p == "" {
-		return "root"
+		return "/"
 	}
 	return p
 }
 
+// sanitizeFileName 清洗插件名称，避免非法文件名字符。
 func sanitizeFileName(name string) string {
 	n := strings.TrimSpace(name)
 	if n == "" {
@@ -247,6 +313,8 @@ func sanitizeFileName(name string) string {
 	return r.Replace(n)
 }
 
+// logf 输出框架级日志（写到全局 logger）。
+// 格式：[groupPath][crawlerName] message
 func (e *Engine) logf(path, name, format string, args ...any) {
 	e.globalLogger.Printf("[%s][%s] %s", cleanGroupPath(path), name, fmt.Sprintf(format, args...))
 }
