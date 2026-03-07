@@ -107,6 +107,12 @@ func (g *CrawlerGroup) RunWithContext(ctx context.Context) {
 	}
 	g.engine.mu.RUnlock()
 
+	g.engine.globalLogger.Printf("crawler引擎启动, 插件总数=%d", len(items))
+	for _, item := range items {
+		meta := item.crawler.Meta()
+		g.engine.globalLogger.Printf("插件发现: 名称=%s, 元信息={间隔=%s,启动即跑=%t,自定义日志=%t}", item.name, meta.Interval, meta.StartImmediately, meta.Logger != nil)
+	}
+
 	var wg sync.WaitGroup
 	for _, item := range items {
 		wg.Add(1)
