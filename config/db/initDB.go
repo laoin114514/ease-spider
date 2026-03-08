@@ -3,8 +3,8 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"spider/config"
+	ease "spider/pkg/ease-crawler"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -31,7 +31,7 @@ func Init() error {
 	if err := Pool.Ping(); err != nil {
 		return fmt.Errorf("数据库连接失败: %v", err)
 	}
-	log.Printf(
+	ease.Logger.Printf(
 		"数据库连接成功,配置信息: \n"+
 			"    用户名: %s\n"+
 			"    密码: %s\n"+
