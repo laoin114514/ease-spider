@@ -7,6 +7,7 @@ import (
 	"spider/internal/constants"
 	"spider/internal/models"
 	"spider/internal/utils"
+	cfurlgenerator "spider/pkg/cf-url-generator"
 	"time"
 )
 
@@ -95,7 +96,7 @@ func (g *GetUserRecords) loadExistingRecords(cfUserData *models.CfUserData) erro
 // buildRequestURL 构建请求URL - 私有方法
 func (g *GetUserRecords) buildRequestURL(account string, isApiKey bool) (string, error) {
 	// 尝试使用HTTPS
-	url, err := utils.GenerateCFurlInstance.User.Status(
+	url, err := cfurlgenerator.GenerateCFurlInstance.User.Status(
 		isApiKey,
 		&models.UserStatusParams{
 			Handle: account,
@@ -105,7 +106,7 @@ func (g *GetUserRecords) buildRequestURL(account string, isApiKey bool) (string,
 	)
 	if err != nil {
 		// 回退到HTTP
-		url, err = utils.GenerateCFurlInstance.User.Status(
+		url, err = cfurlgenerator.GenerateCFurlInstance.User.Status(
 			false,
 			&models.UserStatusParams{
 				Handle: account,

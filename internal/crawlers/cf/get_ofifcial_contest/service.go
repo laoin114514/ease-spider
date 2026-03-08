@@ -6,6 +6,7 @@ import (
 	"spider/internal/constants"
 	"spider/internal/models"
 	"spider/internal/utils"
+	cfurlgenerator "spider/pkg/cf-url-generator"
 	"time"
 )
 
@@ -40,7 +41,7 @@ func (g *GetOfifcialContest) GetCfOfficialContests() error {
 
 // buildOfficialContestsURL 构建官方比赛请求URL - 私有方法
 func (g *GetOfifcialContest) buildOfficialContestsURL() (string, error) {
-	return utils.GenerateCFurlInstance.Contest.List(config.AppConfig.Cf.ManagerAccount, &models.ContestListParams{
+	return cfurlgenerator.GenerateCFurlInstance.Contest.List(config.AppConfig.Cf.ManagerAccount, &models.ContestListParams{
 		GroupCode: config.AppConfig.Cf.GroupCode,
 	})
 }

@@ -23,11 +23,8 @@ type contest struct {
 }
 type problemSet struct{}
 
-var GenerateCFurlInstance *GenerateCFurl
+var GenerateCFurlInstance *GenerateCFurl = newGenerateCFurl()
 
-func InitGenerateCFurl() {
-	GenerateCFurlInstance = newGenerateCFurl()
-}
 func newGenerateCFurl() *GenerateCFurl {
 	return &GenerateCFurl{
 		baseUrl:    BaseUrl,

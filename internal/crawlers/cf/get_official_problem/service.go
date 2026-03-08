@@ -5,6 +5,7 @@ import (
 	"spider/config/db"
 	"spider/internal/models"
 	"spider/internal/utils"
+	cfurlgenerator "spider/pkg/cf-url-generator"
 	"strings"
 )
 
@@ -39,7 +40,7 @@ func (g *GetOfifcialProblems) GetCfOfficialProblems() error {
 
 // buildProblemsURL 构建题目请求URL - 私有方法
 func (g *GetOfifcialProblems) buildProblemsURL() (string, error) {
-	return utils.GenerateCFurlInstance.ProblemSet.Problems(&models.ProblemsetProblemsParams{})
+	return cfurlgenerator.GenerateCFurlInstance.ProblemSet.Problems(&models.ProblemsetProblemsParams{})
 }
 
 // fetchProblemsData 获取题目数据 - 私有方法

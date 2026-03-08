@@ -29,7 +29,6 @@ func init() {
 
 	// 初始化JSON数据库和CF URL生成器
 	utils.InitGlobalJSONDB("data.json")
-	utils.InitGenerateCFurl()
 
 	ease.Logger.Println("系统初始化完成，开始执行定时任务...")
 }
