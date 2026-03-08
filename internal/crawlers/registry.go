@@ -2,6 +2,7 @@ package crawlers
 
 import (
 	luoguGetCookie "spider/internal/crawlers/luogu/get_cookie"
+	luoguGetRecordDetail "spider/internal/crawlers/luogu/get_record_detail"
 	luoguGetSolutions "spider/internal/crawlers/luogu/get_solutions"
 	luoguGetUserRecords "spider/internal/crawlers/luogu/get_user_records"
 	easecrawler "spider/pkg/ease-crawler"
@@ -14,6 +15,7 @@ func Run() {
 		luogu.Register(luoguGetUserRecords.NewGetUserRecords())
 		luogu.Register(luoguGetCookie.NewGetCookie())
 		luogu.Register(luoguGetSolutions.NewGetSolutions())
+		luogu.Register(luoguGetRecordDetail.NewGetRecordDetail())
 	}
 
 	e.Run()
