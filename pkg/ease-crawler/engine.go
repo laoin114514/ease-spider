@@ -27,7 +27,7 @@ type Engine struct {
 	// 全局读写锁：保护分组树、注册表、日志文件映射等共享状态。
 	mu sync.RWMutex
 	// 全局兜底日志器。
-	globalLogger *log.Logger
+	engineLogger *EaseLogger
 	// 日志根目录，默认 "logs"。
 	logRootDir string
 	// 全局插件注册表：key = groupPath/name。
@@ -42,7 +42,7 @@ type registeredCrawler struct {
 	path    string
 	name    string
 	crawler Crawler
-	log     *log.Logger
+	log     *EaseLogger
 }
 
 // CrawlerGroup 表示分组节点。
@@ -69,11 +69,12 @@ func New() *Engine {
 		},
 		mu:           sync.RWMutex{},
 		ctx:          new(Context),
-		globalLogger: log.New(os.Stdout, "", log.LstdFlags),
+		engineLogger: NewLogger(os.Stdout, "[engine] ", log.LstdFlags),
 		logRootDir:   "logs",
 		crawlers:     make(map[string]*registeredCrawler),
 		logFiles:     make(map[string]*os.File),
 	}
+
 	// 让根分组可以访问引擎。
 	e.engine = e
 	return e
@@ -107,10 +108,10 @@ func (g *CrawlerGroup) RunWithContext(ctx context.Context) {
 	}
 	g.engine.mu.RUnlock()
 
-	g.engine.globalLogger.Printf("crawler引擎启动, 插件总数=%d", len(items))
+	g.engine.engineLogger.Printf("crawler引擎启动, 插件总数=%d", len(items))
 	for _, item := range items {
 		meta := item.crawler.Meta()
-		g.engine.globalLogger.Printf("插件发现: 名称=%s, 元信息={间隔=%s,启动即跑=%t,自定义日志=%t}", item.name, meta.Interval, meta.StartImmediately, meta.Logger != nil)
+		g.engine.engineLogger.Printf("插件发现: 名称=%s, 元信息={间隔=%s,启动即跑=%t,自定义日志=%t}", item.name, meta.Interval, meta.StartImmediately, meta.Logger != nil)
 	}
 
 	var wg sync.WaitGroup
@@ -161,6 +162,13 @@ func (e *Engine) runCrawlerLoop(ctx context.Context, item *registeredCrawler) {
 
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
+	defer func() {
+		err := recover()
+		if err != nil {
+			item.log.Errorf("运行失败: %v", err)
+			return
+		}
+	}()
 	for {
 		select {
 		case <-ctx.Done():
@@ -209,7 +217,7 @@ func (g *CrawlerGroup) Register(crawler Crawler) {
 		return
 	}
 
-	logger := log.New(f, "", log.LstdFlags)
+	logger := NewLogger(f, "", log.LstdFlags)
 	g.engine.crawlers[key] = &registeredCrawler{
 		path:    groupPath,
 		name:    name,
@@ -322,5 +330,5 @@ func sanitizeFileName(name string) string {
 // logf 输出框架级日志（写到全局 logger）。
 // 格式：[groupPath][crawlerName] message
 func (e *Engine) logf(path, name, format string, args ...any) {
-	e.globalLogger.Printf("[%s][%s] %s", cleanGroupPath(path), name, fmt.Sprintf(format, args...))
+	e.engineLogger.Printf("[%s][%s] %s", cleanGroupPath(path), name, fmt.Sprintf(format, args...))
 }

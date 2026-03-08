@@ -1,7 +1,6 @@
 package easecrawler
 
 import (
-	"log"
 	"sync"
 	"time"
 )
@@ -33,7 +32,7 @@ type Meta struct {
 	StartImmediately bool
 	// Logger 允许插件自带日志器（可覆盖框架自动分配的 logger）。
 	// 一般情况下不必设置，框架会按分组自动注入。
-	Logger *log.Logger
+	Logger *EaseLogger
 }
 
 // Context 是插件运行时上下文容器。
