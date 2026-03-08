@@ -38,6 +38,14 @@ func InitLogger(out io.Writer, prefix string, flags int) {
 	Logger = NewLogger(out, prefix, flags)
 }
 
+func (l *EaseLogger) SetPrefix(prefix string) {
+	l.logWriter.SetPrefix(prefix)
+}
+
+func (l *EaseLogger) GetPrefix() string {
+	return l.logWriter.Prefix()
+}
+
 // 通用日志方法，提取重复逻辑
 func (l *EaseLogger) log(level string, format string, v ...any) {
 	l.mu.Lock()

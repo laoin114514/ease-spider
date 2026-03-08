@@ -34,7 +34,8 @@ type Engine struct {
 	// 全局插件注册表：key = groupPath/name。
 	crawlers map[string]*registeredCrawler
 	// 打开的日志文件句柄，便于 Close() 时统一释放。
-	logFiles map[string]*os.File
+	logFiles     map[string]*os.File
+	loggerPrefix string
 }
 
 // registeredCrawler 是注册后插件的内部表示。
@@ -70,14 +71,16 @@ func New() *Engine {
 		},
 		mu:           sync.RWMutex{},
 		ctx:          new(Context),
-		engineLogger: NewLogger(os.Stdout, "[engine] ", log.LstdFlags),
+		engineLogger: NewLogger(os.Stdout, "", log.LstdFlags),
 		logRootDir:   "logs",
 		crawlers:     make(map[string]*registeredCrawler),
 		logFiles:     make(map[string]*os.File),
+		loggerPrefix: "[ease-engine] ",
 	}
 
 	// 让根分组可以访问引擎。
 	e.engine = e
+	e.engineLogger.SetPrefix(e.loggerPrefix)
 	return e
 }
 

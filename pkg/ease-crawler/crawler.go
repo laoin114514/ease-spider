@@ -1,6 +1,8 @@
 package easecrawler
 
 import (
+	"log"
+	"os"
 	"sync"
 	"time"
 )
@@ -8,6 +10,7 @@ import (
 // ContextLoggerKey 是框架约定的日志器注入键。
 // 插件在 Run 中可通过 GetAs[*log.Logger](ctx, ContextLoggerKey) 获取专属 logger。
 const ContextLoggerKey = "logger"
+const LoggerPrefix = "[ease]"
 
 // Crawler 是插件最小实现接口。
 //
@@ -75,4 +78,12 @@ func GetAs[T any](c *Context, key string) (T, bool) {
 		return zero, false
 	}
 	return val, true
+}
+
+func GetCrawlerLogger(c *Context) *EaseLogger {
+	logger, ok := GetAs[*EaseLogger](c, ContextLoggerKey)
+	if !ok {
+		return NewLogger(os.Stdout, LoggerPrefix, log.LstdFlags)
+	}
+	return logger
 }
