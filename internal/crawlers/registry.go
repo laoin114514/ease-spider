@@ -1,7 +1,8 @@
 package crawlers
 
 import (
-	getcookie "spider/internal/crawlers/luogu/get_cookie"
+	luoguGetCookie "spider/internal/crawlers/luogu/get_cookie"
+	luoguGetUserRecords "spider/internal/crawlers/luogu/get_user_records"
 	easecrawler "spider/pkg/ease-crawler"
 )
 
@@ -9,7 +10,8 @@ func Run() {
 	e := easecrawler.New()
 	luogu := e.Group("luogu")
 	{
-		luogu.Register(getcookie.NewLuoguGetCookie())
+		luogu.Register(luoguGetUserRecords.NewGetUserRecords())
+		luogu.Register(luoguGetCookie.NewGetCookie())
 	}
 
 	e.Run()

@@ -14,3 +14,4 @@
 /test.pyc
 config.dev.yml
 .env
+public/captcha.jpg

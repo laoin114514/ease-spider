@@ -13,7 +13,7 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-func (l *LuoguGetCookie) Update() error {
+func (l *GetCookie) Update() error {
 	l.init()
 	l.initRedirect()
 	l.getCaptcha()
@@ -32,14 +32,14 @@ func (l *LuoguGetCookie) Update() error {
 	l.log.Println("登录成功")
 	return nil
 }
-func (l *LuoguGetCookie) init() {
+func (l *GetCookie) init() {
 	c := l.restyInit()
 	resp, _ := c.R().Get("https://www.luogu.com.cn/auth/login")
 	cookie := resp.Cookies()
 	l.cookiePool["cookie2"] = cookie[0].Name + "=" + cookie[0].Value
 }
 
-func (l *LuoguGetCookie) initRedirect() {
+func (l *GetCookie) initRedirect() {
 	c := l.restyInit()
 	resp, _ := c.R().
 		SetHeader("Cookie", l.cookiePool["cookie2"]).
@@ -48,13 +48,13 @@ func (l *LuoguGetCookie) initRedirect() {
 	l.cookiePool["cookie1"] = cookie[0].Name + "=" + cookie[0].Value
 }
 
-func (l *LuoguGetCookie) restyInit() *resty.Client {
+func (l *GetCookie) restyInit() *resty.Client {
 	c := resty.New()
 	c.SetRedirectPolicy(resty.NoRedirectPolicy()).
 		SetHeader("User-Agent", config.AppConfig.Luogu.UserAgent)
 	return c
 }
-func (l *LuoguGetCookie) getCaptcha() {
+func (l *GetCookie) getCaptcha() {
 	c := l.restyInit()
 	now := time.Now()
 	stamp := float64(now.UnixMicro()) / 1000
@@ -63,7 +63,7 @@ func (l *LuoguGetCookie) getCaptcha() {
 	newCookie := resp.Cookies()
 	l.cookiePool["cookie2"] = newCookie[0].Name + "=" + newCookie[0].Value
 }
-func (l *LuoguGetCookie) redirCaptcha() {
+func (l *GetCookie) redirCaptcha() {
 	c := l.restyInit()
 	now := time.Now()
 	stamp := float64(now.UnixMicro()) / 1000
@@ -75,7 +75,7 @@ func (l *LuoguGetCookie) redirCaptcha() {
 	l.cookiePool["cookie2"] = newCookie[0].Name + "=" + newCookie[0].Value
 	l.saveImage(resp.Body())
 }
-func (l *LuoguGetCookie) saveImage(content []byte) {
+func (l *GetCookie) saveImage(content []byte) {
 	file, err := os.OpenFile("public/captcha.jpg", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		l.log.Println(err)
@@ -84,7 +84,7 @@ func (l *LuoguGetCookie) saveImage(content []byte) {
 	defer file.Close()
 	file.Write(content)
 }
-func (l *LuoguGetCookie) login(captcha string) error {
+func (l *GetCookie) login(captcha string) error {
 	c := l.restyInit()
 	cookie := l.cookiePool["cookie1"] + "; " + l.cookiePool["cookie2"]
 	resp, err := c.R().
@@ -116,7 +116,7 @@ type ocrServerOut struct {
 	} `json:"data"`
 }
 
-func (l *LuoguGetCookie) identify(isInServer bool) (string, error) {
+func (l *GetCookie) identify(isInServer bool) (string, error) {
 	c := resty.New()
 	var result ocrServerOut
 	resp, err := c.R().

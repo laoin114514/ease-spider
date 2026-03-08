@@ -5,27 +5,27 @@ import (
 	"time"
 )
 
-type LuoguGetCookie struct {
+type GetCookie struct {
 	log        *easecrawler.EaseLogger
 	cookiePool map[string]string
 }
 
-func NewLuoguGetCookie() *LuoguGetCookie {
-	return &LuoguGetCookie{
+func NewGetCookie() *GetCookie {
+	return &GetCookie{
 		cookiePool: make(map[string]string),
 	}
 }
 
-func (l *LuoguGetCookie) Name() string {
-	return "luogu_get_cookie"
+func (l *GetCookie) Name() string {
+	return "get_cookie"
 }
-func (l *LuoguGetCookie) Meta() easecrawler.Meta {
+func (l *GetCookie) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         1 * time.Minute,
+		Interval:         30 * time.Second,
 		StartImmediately: true,
 	}
 }
-func (l *LuoguGetCookie) Run(c *easecrawler.Context) error {
+func (l *GetCookie) Run(c *easecrawler.Context) error {
 	l.log = easecrawler.GetCrawlerLogger(c)
 	l.Update()
 	return nil
