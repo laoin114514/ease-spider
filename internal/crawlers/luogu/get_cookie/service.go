@@ -116,8 +116,11 @@ func (l *LuoguGetCookie) login(captcha string) error {
 }
 
 type ocrServerOut struct {
-	Code   int    `json:"code"`
-	Result string `json:"result"`
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Data    struct {
+		Text string `json:"text"`
+	} `json:"data"`
 }
 
 func (l *LuoguGetCookie) identify(isInServer bool) (string, error) {
@@ -136,5 +139,5 @@ func (l *LuoguGetCookie) identify(isInServer bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return result.Result, nil
+	return result.Data.Text, nil
 }

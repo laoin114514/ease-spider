@@ -1,7 +1,6 @@
 package getcookie
 
 import (
-	"errors"
 	easecrawler "spider/pkg/ease-crawler"
 	"time"
 )
@@ -27,11 +26,7 @@ func (l *LuoguGetCookie) Meta() easecrawler.Meta {
 	}
 }
 func (l *LuoguGetCookie) Run(c *easecrawler.Context) error {
-	log, ok := easecrawler.GetAs[*easecrawler.EaseLogger](c, easecrawler.ContextLoggerKey)
-	if !ok {
-		return errors.New("logger not found")
-	}
-	l.log = log
+	l.log = easecrawler.GetCrawlerLogger(c)
 	l.Update()
 	return nil
 }
