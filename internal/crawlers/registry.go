@@ -1,6 +1,8 @@
 package crawlers
 
 import (
+	cfGetTeamContestProblems "spider/internal/crawlers/cf/get_team_contest_problems"
+	cfGetTeamContests "spider/internal/crawlers/cf/get_team_contests"
 	cfGetUserRecords "spider/internal/crawlers/cf/get_user_records"
 	luoguGetCookie "spider/internal/crawlers/luogu/get_cookie"
 	luoguGetRecordDetail "spider/internal/crawlers/luogu/get_record_detail"
@@ -23,6 +25,8 @@ func Run() {
 	cf := e.Group("cf")
 	{
 		cf.Register(cfGetUserRecords.NewGetUserRecords())
+		cf.Register(cfGetTeamContests.NewGetTeamContests())
+		cf.Register(cfGetTeamContestProblems.NewGetTeamContestProblems())
 	}
 
 	e.Run()
