@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -140,16 +141,21 @@ func (e *Engine) runCrawlerLoop(ctx context.Context, item *registeredCrawler) {
 	}
 
 	runOnce := func() {
+		defer func() {
+			if r := recover(); r != nil {
+				item.log.Errorf("插件panic: %v\n%s", r, string(debug.Stack()))
+				e.logf(item.path, item.name, "插件panic已恢复: %v", r)
+			}
+		}()
+
 		logger := item.log
 		if meta.Logger != nil {
-			// 插件可显式覆盖默认日志器。
 			logger = meta.Logger
 		}
 		cctx := &Context{}
-		// 注入日志器，供插件内部统一输出。
 		cctx.Set(ContextLoggerKey, logger)
-		err := item.crawler.Run(cctx)
-		if err != nil {
+
+		if err := item.crawler.Run(cctx); err != nil {
 			e.logf(item.path, item.name, "运行失败: %v", err)
 			return
 		}
@@ -162,13 +168,6 @@ func (e *Engine) runCrawlerLoop(ctx context.Context, item *registeredCrawler) {
 
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-	defer func() {
-		err := recover()
-		if err != nil {
-			item.log.Errorf("运行失败: %v", err)
-			return
-		}
-	}()
 	for {
 		select {
 		case <-ctx.Done():
