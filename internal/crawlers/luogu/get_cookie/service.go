@@ -76,20 +76,13 @@ func (l *LuoguGetCookie) redirCaptcha() {
 	l.saveImage(resp.Body())
 }
 func (l *LuoguGetCookie) saveImage(content []byte) {
-	file1, err := os.OpenFile("ocr/captcha.jpg", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	file, err := os.OpenFile("public/captcha.jpg", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		l.log.Println(err)
 		return
 	}
-	defer file1.Close()
-	file1.Write(content)
-	file2, err := os.OpenFile("ocr/captcha.txt", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		l.log.Println(err)
-		return
-	}
-	defer file2.Close()
-	file2.Write(content)
+	defer file.Close()
+	file.Write(content)
 }
 func (l *LuoguGetCookie) login(captcha string) error {
 	c := l.restyInit()
@@ -127,7 +120,7 @@ func (l *LuoguGetCookie) identify(isInServer bool) (string, error) {
 	c := resty.New()
 	var result ocrServerOut
 	resp, err := c.R().
-		SetFile("file", "ocr/captcha.jpg").
+		SetFile("file", "public/captcha.jpg").
 		Post("http://127.0.0.1:8000/ocr/classify")
 	if err != nil {
 		return "", err
