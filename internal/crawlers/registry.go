@@ -11,6 +11,7 @@ import (
 
 func Run() {
 	e := easecrawler.New()
+
 	luogu := e.Group("luogu")
 	{
 		luogu.Register(luoguGetUserRecords.NewGetUserRecords())
@@ -18,9 +19,11 @@ func Run() {
 		luogu.Register(luoguGetSolutions.NewGetSolutions())
 		luogu.Register(luoguGetRecordDetail.NewGetRecordDetail())
 	}
+
 	cf := e.Group("cf")
 	{
 		cf.Register(cfGetUserRecords.NewGetUserRecords())
 	}
+
 	e.Run()
 }
