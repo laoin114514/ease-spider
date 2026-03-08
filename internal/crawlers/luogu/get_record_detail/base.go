@@ -24,7 +24,7 @@ func (g *GetRecordDetail) Name() string {
 }
 func (g *GetRecordDetail) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         1 * time.Minute,
+		Interval:         1 * time.Hour,
 		StartImmediately: true,
 	}
 }

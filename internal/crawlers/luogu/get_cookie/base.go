@@ -21,7 +21,7 @@ func (l *GetCookie) Name() string {
 }
 func (l *GetCookie) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         30 * time.Second,
+		Interval:         24 * time.Hour,
 		StartImmediately: true,
 	}
 }

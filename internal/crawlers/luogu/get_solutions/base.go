@@ -25,7 +25,7 @@ func (g *GetSolutions) Name() string {
 }
 func (g *GetSolutions) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         1 * time.Minute,
+		Interval:         1 * time.Hour,
 		StartImmediately: true,
 	}
 }

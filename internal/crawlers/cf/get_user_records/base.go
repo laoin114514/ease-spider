@@ -21,7 +21,7 @@ func (g *GetUserRecords) Name() string {
 }
 func (g *GetUserRecords) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         1 * time.Minute,
+		Interval:         5 * time.Minute,
 		StartImmediately: true,
 	}
 }
