@@ -1,0 +1,127 @@
+package cfurlgenerator
+
+import (
+	"fmt"
+	"math/rand"
+	"spider/internal/models"
+	"spider/internal/repository"
+	"time"
+)
+
+// ============================CF URL生成器===============================================
+const BaseUrl = "https://codeforces.com/api/"
+
+type GenerateCFurl struct {
+	baseUrl    string
+	User       *user
+	Contest    *contest
+	ProblemSet *problemSet
+	*models.CfUserData
+}
+type user struct{}
+type contest struct {
+}
+type problemSet struct{}
+
+var GenerateCFurlInstance *GenerateCFurl = newGenerateCFurl()
+
+func newGenerateCFurl() *GenerateCFurl {
+	return &GenerateCFurl{
+		baseUrl:    BaseUrl,
+		User:       &user{},
+		ProblemSet: &problemSet{},
+	}
+}
+
+// 组合url和apikey
+func combineUrlWithApikey[T any](handle string, method string, pararms T) (string, error) {
+	baseUrl := BaseUrl
+	repository := repository.NewCfRepository()
+	//获取apikey
+	apikey, secret, err := repository.GetCfApikey(handle)
+	if err != nil {
+		return "", err
+	}
+	now := time.Now()
+	time := now.Unix()
+	randomKey := randomNumber(6)
+	//将参数转换为字符串
+	pararmStr, err := NewStructTransfer(pararms).
+		AddParam("apiKey", apikey).
+		AddParam("time", time).
+		ToOrderStr()
+	if err != nil {
+		return "", err
+	}
+	tail := fmt.Sprintf("%v?%v", method, pararmStr)
+	hashCode := NewHashEncoder().Hash512(fmt.Sprintf("%v/%v#%v", randomKey, tail, secret))
+	url := fmt.Sprintf("%v%v&apiSig=%v%v", baseUrl, tail, randomKey, hashCode)
+	return url, nil
+}
+func combineUrlWithNoApikey[T any](method string, pararms T) (string, error) {
+	baseUrl := BaseUrl
+	pararmStr, err := NewStructTransfer(pararms).
+		ToOrderStr()
+	if err != nil {
+		return "", err
+	}
+	tail := fmt.Sprintf("%v?%v", method, pararmStr)
+	return fmt.Sprintf("%v%v?%v", baseUrl, method, tail), nil
+}
+func randomNumber(n int) string {
+	str := ""
+	for i := 0; i < n; i++ {
+		rand.Seed(time.Now().UnixNano())
+		str += fmt.Sprintf("%d", rand.Intn(10))
+	}
+	return str
+}
+
+// ============================================User============================================//
+func (u *user) Status(useApikey bool, query *UserStatusParams) (string, error) {
+	if useApikey {
+		return combineUrlWithApikey(query.Handle, "user.status", query)
+	}
+	return combineUrlWithNoApikey("user.status", query)
+}
+func (u *user) Rating(query *UserRatingParams) (string, error) {
+	return combineUrlWithApikey(query.Handle, "user.rating", query)
+}
+func (u *user) RatedList(query *UserRatedListParams) (string, error) {
+	return combineUrlWithApikey("", "user.ratedList", query)
+}
+
+func (u *user) Info(query *UserInfoParams) (string, error) {
+	return combineUrlWithApikey(query.Handles, "user.info", query)
+}
+
+func (u *user) Friends(handle string, query *UserFriendsParams) (string, error) {
+	return combineUrlWithApikey(handle, "user.friends", query)
+}
+
+func (u *user) BlogEntries(query *UserBlogEntriesParams) (string, error) {
+	return combineUrlWithApikey(query.Handle, "user.blogEntries", query)
+}
+
+func (u *user) RecentActions(query *RecentActionsParams) (string, error) {
+	return combineUrlWithApikey("", "user.recentActions", query)
+}
+
+// ============================================Contest============================================//
+func (c *contest) List(handle string, query *ContestListParams) (string, error) {
+	return combineUrlWithApikey(handle, "contest.list", query)
+}
+func (c *contest) Standings(handle string, query *ContestStandingsParams) (string, error) {
+	return combineUrlWithApikey(handle, "contest.standings", query)
+}
+func (c *contest) Status(handle string, query *ContestStatusParams) (string, error) {
+	return combineUrlWithApikey(handle, "contest.status", query)
+}
+
+// ============================================ProblemSet============================================//
+func (p *problemSet) Problems(query *ProblemsetProblemsParams) (string, error) {
+	return combineUrlWithNoApikey("problemset.problems", query)
+}
+func (p *problemSet) RecentStatus(query *ProblemsetRecentStatusParams) (string, error) {
+	return combineUrlWithNoApikey("problemset.recentStatus", query)
+}

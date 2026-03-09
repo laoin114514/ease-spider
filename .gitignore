@@ -1,0 +1,17 @@
+/config.yml
+/config.json
+/ocr/
+/logs/
+/data.json
+/spider
+/spider.exe
+/spider-linux
+/spider.exe
+/test.json
+/solution.html
+/test.py
+/test.pyc
+/test.pyc
+config.dev.yml
+.env
+public/captcha.jpg
