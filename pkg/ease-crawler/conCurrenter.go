@@ -14,6 +14,7 @@ type ConCurrenter[T any] struct {
 	wg          *sync.WaitGroup
 	concurrency int
 	timeout     time.Duration
+	log         *EaseLogger
 }
 
 func NewConCurrenter[T any](concurrency int) *ConCurrenter[T] {
@@ -30,6 +31,10 @@ func NewConCurrenterWithTimeout[T any](concurrency int, timeout time.Duration) *
 		wg:          &sync.WaitGroup{},
 		timeout:     timeout, // 超时时间
 	}
+}
+
+func (c *ConCurrenter[T]) SetLogger(log *EaseLogger) {
+	c.log = log
 }
 
 // 并发器主函数
@@ -75,6 +80,9 @@ func (c *ConCurrenter[T]) Run(params []T, handler func(T) error) error {
 	for err := range errCh {
 		if err != nil {
 			strErrors = append(strErrors, err.Error())
+		}
+		if c.log != nil {
+			c.log.Errorf("并发容器发生错误: %s", err.Error())
 		}
 	}
 
