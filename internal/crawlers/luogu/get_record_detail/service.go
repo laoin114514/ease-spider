@@ -109,10 +109,10 @@ func NewLuoguTeam() *LuoguTeam {
 
 func (l *LuoguTeam) GetMembers() error {
 	req := utils.NewRequest[models.LuoguTeamResponse](true)
-	url := fmt.Sprintf("https://www.luogu.com.cn/api/team/members/%d", config.AppConfig.Luogu.LuoguTeamID)
-	resp, err := req.Get(url, map[string]string{})
+	url := fmt.Sprintf("https://www.luogu.com.cn/team/%d/member", config.AppConfig.Luogu.LuoguTeamID)
+	resp, err := req.SetCookie(utils.JsonDB.Get("Cookie").(string)).Get(url, map[string]string{})
 	if err != nil {
-		return err
+		return errors.New("获取洛谷团队成员失败" + err.Error() + url)
 	}
 	for _, member := range resp.Members.Result {
 		l.results[strconv.FormatInt(member.User.UID, 10)] = true
