@@ -2,7 +2,6 @@ package getcheckrecords
 
 import (
 	"spider/internal/repository"
-	"spider/internal/utils"
 	easecrawler "spider/pkg/ease-crawler"
 	"time"
 )
@@ -16,11 +15,10 @@ type GetCheckRecords struct {
 }
 
 func NewGetCheckRecords() *GetCheckRecords {
-	JsonDB := utils.JsonDB
 	return &GetCheckRecords{
 		repo:        repository.NewDingdingRepository(),
 		token:       "",
-		dingUserMap: JsonDB.Get("dingUserId").(map[string]any),
+		dingUserMap: make(map[string]any),
 		insertCount: 0,
 	}
 }

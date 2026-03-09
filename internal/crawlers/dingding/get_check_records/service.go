@@ -17,7 +17,12 @@ func (g *GetCheckRecords) GetDingdingCheckUpData() error {
 	if err != nil {
 		return err
 	}
-
+	dingUserMap, err := g.repo.GetDingUserMap()
+	if err != nil {
+		g.log.Errorf("获取钉钉用户映射失败 %s", err.Error())
+		return err
+	}
+	g.dingUserMap = dingUserMap
 	// 获取钉钉打卡数据（周）
 	err = g.getDataWithWeek(config.AppConfig.Dingding.WeekRange)
 	if err != nil {
