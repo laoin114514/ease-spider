@@ -38,5 +38,6 @@ func Run() {
 	{
 		dingding.Register(getcheckrecords.NewGetCheckRecords())
 	}
+
 	e.Run()
 }

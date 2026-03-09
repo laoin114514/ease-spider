@@ -78,50 +78,50 @@ func randomNumber(n int) string {
 }
 
 // ============================================User============================================//
-func (u *user) Status(useApikey bool, query *models.UserStatusParams) (string, error) {
+func (u *user) Status(useApikey bool, query *UserStatusParams) (string, error) {
 	if useApikey {
 		return combineUrlWithApikey(query.Handle, "user.status", query)
 	}
 	return combineUrlWithNoApikey("user.status", query)
 }
-func (u *user) Rating(query *models.UserRatingParams) (string, error) {
+func (u *user) Rating(query *UserRatingParams) (string, error) {
 	return combineUrlWithApikey(query.Handle, "user.rating", query)
 }
-func (u *user) RatedList(query *models.UserRatedListParams) (string, error) {
+func (u *user) RatedList(query *UserRatedListParams) (string, error) {
 	return combineUrlWithApikey("", "user.ratedList", query)
 }
 
-func (u *user) Info(query *models.UserInfoParams) (string, error) {
+func (u *user) Info(query *UserInfoParams) (string, error) {
 	return combineUrlWithApikey(query.Handles, "user.info", query)
 }
 
-func (u *user) Friends(handle string, query *models.UserFriendsParams) (string, error) {
+func (u *user) Friends(handle string, query *UserFriendsParams) (string, error) {
 	return combineUrlWithApikey(handle, "user.friends", query)
 }
 
-func (u *user) BlogEntries(query *models.UserBlogEntriesParams) (string, error) {
+func (u *user) BlogEntries(query *UserBlogEntriesParams) (string, error) {
 	return combineUrlWithApikey(query.Handle, "user.blogEntries", query)
 }
 
-func (u *user) RecentActions(query *models.RecentActionsParams) (string, error) {
+func (u *user) RecentActions(query *RecentActionsParams) (string, error) {
 	return combineUrlWithApikey("", "user.recentActions", query)
 }
 
 // ============================================Contest============================================//
-func (c *contest) List(handle string, query *models.ContestListParams) (string, error) {
+func (c *contest) List(handle string, query *ContestListParams) (string, error) {
 	return combineUrlWithApikey(handle, "contest.list", query)
 }
-func (c *contest) Standings(handle string, query *models.ContestStandingsParams) (string, error) {
+func (c *contest) Standings(handle string, query *ContestStandingsParams) (string, error) {
 	return combineUrlWithApikey(handle, "contest.standings", query)
 }
-func (c *contest) Status(handle string, query *models.ContestStatusParams) (string, error) {
+func (c *contest) Status(handle string, query *ContestStatusParams) (string, error) {
 	return combineUrlWithApikey(handle, "contest.status", query)
 }
 
 // ============================================ProblemSet============================================//
-func (p *problemSet) Problems(query *models.ProblemsetProblemsParams) (string, error) {
+func (p *problemSet) Problems(query *ProblemsetProblemsParams) (string, error) {
 	return combineUrlWithNoApikey("problemset.problems", query)
 }
-func (p *problemSet) RecentStatus(query *models.ProblemsetRecentStatusParams) (string, error) {
+func (p *problemSet) RecentStatus(query *ProblemsetRecentStatusParams) (string, error) {
 	return combineUrlWithNoApikey("problemset.recentStatus", query)
 }

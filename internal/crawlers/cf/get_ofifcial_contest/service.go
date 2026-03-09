@@ -41,7 +41,7 @@ func (g *GetOfifcialContest) GetCfOfficialContests() error {
 
 // buildOfficialContestsURL 构建官方比赛请求URL - 私有方法
 func (g *GetOfifcialContest) buildOfficialContestsURL() (string, error) {
-	return cfurlgenerator.GenerateCFurlInstance.Contest.List(config.AppConfig.Cf.ManagerAccount, &models.ContestListParams{
+	return cfurlgenerator.GenerateCFurlInstance.Contest.List(config.AppConfig.Cf.ManagerAccount, &cfurlgenerator.ContestListParams{
 		GroupCode: config.AppConfig.Cf.GroupCode,
 	})
 }

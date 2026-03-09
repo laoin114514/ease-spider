@@ -1,4 +1,4 @@
-package models
+package cfurlgenerator
 
 // ==================== Codeforces API 请求参数结构体 ====================
 

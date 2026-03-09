@@ -98,7 +98,7 @@ func (g *GetUserRecords) buildRequestURL(account string, isApiKey bool) (string,
 	// 尝试使用HTTPS
 	url, err := cfurlgenerator.GenerateCFurlInstance.User.Status(
 		isApiKey,
-		&models.UserStatusParams{
+		&cfurlgenerator.UserStatusParams{
 			Handle: account,
 			From:   1,
 			Count:  constants.CfMaxRecords,
@@ -108,7 +108,7 @@ func (g *GetUserRecords) buildRequestURL(account string, isApiKey bool) (string,
 		// 回退到HTTP
 		url, err = cfurlgenerator.GenerateCFurlInstance.User.Status(
 			false,
-			&models.UserStatusParams{
+			&cfurlgenerator.UserStatusParams{
 				Handle: account,
 				From:   1,
 				Count:  constants.CfMaxRecords,
