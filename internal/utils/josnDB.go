@@ -14,11 +14,8 @@ type JSONDB struct {
 	path  string
 }
 
-var JsonDB *JSONDB
+var JsonDB *JSONDB = NewJSONDB("data.json")
 
-func InitGlobalJSONDB(path string) {
-	JsonDB = NewJSONDB(path)
-}
 func NewJSONDB(path string) *JSONDB {
 	return &JSONDB{
 		data: make(map[string]any),
