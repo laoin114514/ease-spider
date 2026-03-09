@@ -11,6 +11,7 @@ import (
 	"spider/internal/constants"
 	"spider/internal/models"
 	"spider/internal/utils"
+	easecrawler "spider/pkg/ease-crawler"
 	"strconv"
 	"time"
 
@@ -53,7 +54,8 @@ func (g *GetSolutions) GetSolutionListByProblemId(problemID string) ([]models.So
 		pageRange = append(pageRange, i)
 	}
 	//初始化并发器
-	conCurrenter := utils.NewConCurrenter[int](config.AppConfig.Luogu.LuoguSolutionConcurrency)
+	conCurrenter := easecrawler.NewConCurrenter[int](config.AppConfig.Luogu.LuoguSolutionConcurrency)
+	conCurrenter.SetLogger(g.log)
 	conCurrenter.Run(pageRange, func(page int) error {
 		solutions, err := g.analyzeSolution(problemID, page)
 		if err != nil {

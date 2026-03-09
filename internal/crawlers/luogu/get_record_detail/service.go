@@ -8,6 +8,7 @@ import (
 	"spider/internal/models"
 	"spider/internal/repository"
 	"spider/internal/utils"
+	easecrawler "spider/pkg/ease-crawler"
 	"strconv"
 )
 
@@ -35,10 +36,10 @@ func (g *GetRecordDetail) GetAndStoreSourceCode() error {
 	g.log.Printf("总共 %d个提交记录需要获取源代码\n团队成员：%v", len(subids), luoguTeam.results)
 
 	// 创建并发器
-	conCurrenter := utils.NewConCurrenter[string](config.AppConfig.Luogu.LuoguSubmissionDetailConcurrency)
-
+	conCurrenter := easecrawler.NewConCurrenter[string](config.AppConfig.Luogu.LuoguSubmissionDetailConcurrency)
+	conCurrenter.SetLogger(g.log)
 	// 并发获取提交记录源代码
-	err = conCurrenter.Run(subids, func(subid string) error {
+	conCurrenter.Run(subids, func(subid string) error {
 		name, err := g.repo.GetNameBySubid(subid)
 		if err != nil {
 			g.log.Errorf("获取提交记录名称失败 %s", err.Error())
@@ -74,7 +75,7 @@ func (g *GetRecordDetail) GetAndStoreSourceCode() error {
 		return nil
 	})
 	g.log.Printf("插入提交记录源代码完成 %d", g.count)
-	return err
+	return nil
 }
 
 func (g *GetRecordDetail) getSourceCodeBySubid(subid string) (models.LuoguSubmissionDetailResponse, error) {

@@ -8,6 +8,7 @@ import (
 	"spider/internal/models"
 	"spider/internal/utils"
 	cfurlgenerator "spider/pkg/cf-url-generator"
+	easecrawler "spider/pkg/ease-crawler"
 	"time"
 )
 
@@ -16,7 +17,8 @@ func (g *GetUserRecords) GetCfRecords() error {
 	g.log.Printf("开始获取CF用户提交记录")
 
 	// 构建并发工具类
-	conCurrenter := utils.NewConCurrenter[models.CfUserData](config.AppConfig.Cf.CfRecordsConcurrency)
+	conCurrenter := easecrawler.NewConCurrenter[models.CfUserData](config.AppConfig.Cf.CfRecordsConcurrency)
+	conCurrenter.SetLogger(g.log)
 
 	// 获取CF用户数据
 	cfUserDatas, err := g.repo.GetCfAccountData()

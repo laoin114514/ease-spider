@@ -8,6 +8,7 @@ import (
 	"spider/internal/models"
 	"spider/internal/utils"
 	cfurlgenerator "spider/pkg/cf-url-generator"
+	easecrawler "spider/pkg/ease-crawler"
 )
 
 // GetCfTeamContestsProblems 获取CF团队比赛题目 - 对外提供的主要接口
@@ -22,8 +23,8 @@ func (g *GetTeamContestProblems) GetCfTeamContestsProblems() error {
 	}
 
 	// 构建并发工具类
-	conCurrenter := utils.NewConCurrenter[db.Cf_team_contests](config.AppConfig.Cf.CfTeamContestProblemsConcurrency)
-
+	conCurrenter := easecrawler.NewConCurrenter[db.Cf_team_contests](config.AppConfig.Cf.CfTeamContestProblemsConcurrency)
+	conCurrenter.SetLogger(g.log)
 	// 并发处理团队比赛题目
 	conCurrenter.Run(teamContests, func(teamContest db.Cf_team_contests) error {
 		return g.processTeamContestProblems(teamContest)

@@ -9,13 +9,15 @@ import (
 	"spider/internal/constants"
 	"spider/internal/models"
 	"spider/internal/utils"
+	easecrawler "spider/pkg/ease-crawler"
 	"strconv"
 	"time"
 )
 
 // GetLuoguUsersRecords 获取洛谷用户提交记录
 func (g *GetUserRecords) GetAndStore() error {
-	conCurrenter := utils.NewConCurrenter[models.LuoguUserDeliver](config.AppConfig.Luogu.LuoguRecordsConcurrency)
+	conCurrenter := easecrawler.NewConCurrenter[models.LuoguUserDeliver](config.AppConfig.Luogu.LuoguRecordsConcurrency)
+	conCurrenter.SetLogger(g.log)
 	luoguUserDelivers, err := g.repo.GetUserNameMap()
 	if err != nil {
 		return err
@@ -25,6 +27,7 @@ func (g *GetUserRecords) GetAndStore() error {
 	conCurrenter.Run(luoguUserDelivers, func(luoguUser models.LuoguUserDeliver) error {
 		return g.processUserRecords(luoguUser)
 	})
+
 	return nil
 }
 
