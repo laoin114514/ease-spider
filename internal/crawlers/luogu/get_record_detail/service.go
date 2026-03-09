@@ -94,7 +94,6 @@ func (g *GetRecordDetail) getSourceCodeBySubid(subid string) (models.LuoguSubmis
 
 type LuoguTeam struct {
 	repo    *repository.LuoguRepository
-	debug   *utils.Debug
 	results map[string]bool
 	count   int
 }
@@ -102,7 +101,6 @@ type LuoguTeam struct {
 func NewLuoguTeam() *LuoguTeam {
 	return &LuoguTeam{
 		repo:    repository.NewLuoguRepository(),
-		debug:   utils.NewDebug(config.AppConfig.DebugConfig.All),
 		count:   0,
 		results: make(map[string]bool),
 	}
@@ -119,6 +117,5 @@ func (l *LuoguTeam) GetMembers() error {
 		l.results[strconv.FormatInt(member.User.UID, 10)] = true
 		l.count++
 	}
-	l.debug.Debug(fmt.Sprintf("获取洛谷团队成员完成 %d", l.count))
-	return nil
+	return errors.New("获取洛谷团队成员完成" + strconv.Itoa(l.count))
 }
