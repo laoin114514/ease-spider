@@ -27,9 +27,6 @@ func init() {
 		ease.Logger.Fatalf("数据库初始化失败: %v", err)
 	}
 
-	// 初始化JSON数据库和CF URL生成器
-	utils.InitGlobalJSONDB("data.json")
-
 	ease.Logger.Println("系统初始化完成，开始执行定时任务...")
 }
 func main() {
