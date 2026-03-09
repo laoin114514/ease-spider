@@ -1,14 +1,14 @@
-package models
+package getcheckrecords
 
 // 钉钉打卡数据响应结构体
-type DingdingCheckUpData struct {
-	Errcode int64                 `json:"errcode"`
-	Errmsg  string                `json:"errmsg"`
-	Records []DingdingCheckRecord `json:"recordresult"`
+type CheckUpData struct {
+	Errcode int64         `json:"errcode"`
+	Errmsg  string        `json:"errmsg"`
+	Records []CheckRecord `json:"recordresult"`
 }
 
 // 钉钉打卡记录结构体
-type DingdingCheckRecord struct {
+type CheckRecord struct {
 	BaseCheckTime  int64  `json:"baseCheckTime"`  // 基准打卡时间
 	BaseMacAddr    string `json:"baseMacAddr"`    // 基准MAC地址
 	BizId          string `json:"bizId"`          // 业务ID
@@ -33,7 +33,7 @@ type DingdingCheckRecord struct {
 }
 
 //钉钉token响应结构体
-type DingdingTokenResponse struct {
+type TokenResponse struct {
 	AccessToken string `json:"accessToken"`
 	ExpiresIn   int64  `json:"expiresIn"`
 }

@@ -4,7 +4,6 @@ import (
 	"spider/config"
 	"spider/config/db"
 	"spider/internal/constants"
-	"spider/internal/models"
 	"spider/internal/utils"
 	"time"
 )
@@ -34,7 +33,7 @@ func (g *GetCheckRecords) getDingdingToken() (string, error) {
 	appKey := config.AppConfig.Dingding.AppKey
 	appSecret := config.AppConfig.Dingding.AppSecret
 
-	req := utils.NewRequest[models.DingdingTokenResponse](true)
+	req := utils.NewRequest[TokenResponse](true)
 
 	url := "https://api.dingtalk.com/v1.0/oauth2/accessToken"
 	token, err := req.Post(url,
@@ -51,7 +50,7 @@ func (g *GetCheckRecords) getDingdingToken() (string, error) {
 // 获取钉钉打卡数据（周）
 func (g *GetCheckRecords) getDataWithWeek(week int) error {
 	dateFormat := utils.NewDateFormat()
-	req := utils.NewRequest[models.DingdingCheckUpData](true)
+	req := utils.NewRequest[CheckUpData](true)
 
 	for i := int64(0); i < int64(week); i++ {
 		from := dateFormat.BeforDateTimeWithDay(i + 7)
@@ -83,7 +82,7 @@ func (g *GetCheckRecords) getDataWithWeek(week int) error {
 }
 
 // 构建钉钉打卡表格
-func (g *GetCheckRecords) buildDingdingCheckUpTable(checkUpData models.DingdingCheckRecord) db.Ding_checkUp {
+func (g *GetCheckRecords) buildDingdingCheckUpTable(checkUpData CheckRecord) db.Ding_checkUp {
 	var table db.Ding_checkUp
 	table.Ding_id = checkUpData.UserId
 	table.Time = time.UnixMilli(checkUpData.UserCheckTime).Add(constants.TimeZoneOffsetHours * time.Hour)
