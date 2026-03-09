@@ -95,3 +95,21 @@ func (t *RAMDB) Delete(key string) {
 	defer t.mutex.Unlock()
 	delete(t.data, key)
 }
+
+func GetAs[T any](c *map[string]any, key string) (T, bool) {
+	if c == nil {
+		var zero T
+		return zero, false
+	}
+	v, ok := (*c)[key]
+	if !ok {
+		var zero T
+		return zero, false
+	}
+	val, ok := v.(T)
+	if !ok {
+		var zero T
+		return zero, false
+	}
+	return val, true
+}
