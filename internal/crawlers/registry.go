@@ -14,7 +14,7 @@ import (
 	easecrawler "spider/pkg/ease-crawler"
 )
 
-func Run() {
+func Register() *easecrawler.Engine {
 	e := easecrawler.New()
 
 	luogu := e.Group("luogu")
@@ -39,5 +39,7 @@ func Run() {
 		dingding.Register(getcheckrecords.NewGetCheckRecords())
 	}
 
-	e.Run()
+	a := e.Group("cf")
+	a.Group("")
+	return e
 }

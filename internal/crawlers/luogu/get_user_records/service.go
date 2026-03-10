@@ -22,6 +22,7 @@ func (g *GetUserRecords) GetAndStore() error {
 	if err != nil {
 		return err
 	}
+	g.log.Printf("总共 %d个用户需要获取提交记录", len(luoguUserDelivers))
 
 	// 通过并发器来获取洛谷用户提交记录
 	conCurrenter.Run(luoguUserDelivers, func(luoguUser models.LuoguUserDeliver) error {
@@ -51,12 +52,10 @@ func (g *GetUserRecords) processUserRecords(luoguUser models.LuoguUserDeliver) e
 	// 获取初始化数据：总数和每页数量
 	initData, err := g.fetchInitialData(luoguUser.Uid)
 	if err != nil {
-		g.log.Errorf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error())
-		return err
+		return fmt.Errorf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error())
 	}
 	if initData.Code == http.StatusNotFound {
-		g.log.Errorf("%s的uid不存在", luoguUser.RealName)
-		return fmt.Errorf("用户uid不存在")
+		return fmt.Errorf("%s的uid不存在", luoguUser.RealName)
 	}
 
 	// 计算页数
@@ -64,13 +63,15 @@ func (g *GetUserRecords) processUserRecords(luoguUser models.LuoguUserDeliver) e
 
 	// 增量爬取
 	err = g.fetchRecordsIncrementally(&luoguUser, page)
-	// if err != nil {
-	// 	l.logError(luoguUser.RealName, "获取提交记录失败", err)
-	// }
+	if err != nil {
+		return err
+	}
 
 	// 如果已爬取数据与数据库已爬取数据数量一致，则不进行全量爬取
 	if g.isDataConsistent(luoguUser, initData.CurrentData.Records.Count) {
+		//如果增量爬取没有数据，则不进行全量爬取
 		if luoguUser.Count == 0 {
+			g.log.Printf("%s无新增过题数据", luoguUser.RealName)
 			return nil
 		}
 		g.log.Printf("%s获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count)
@@ -81,16 +82,14 @@ func (g *GetUserRecords) processUserRecords(luoguUser models.LuoguUserDeliver) e
 	g.logDataInconsistency(luoguUser, initData.CurrentData.Records.Count)
 	err = g.fetchRecordsFully(&luoguUser, page)
 	if err != nil {
-		g.log.Errorf("%s重新获取提交记录失败 %s", luoguUser.RealName, err.Error())
-		return err
+		return fmt.Errorf("%s重新获取提交记录失败 %s", luoguUser.RealName, err.Error())
 	}
 
 	if luoguUser.Count == 0 {
-		g.log.Printf("%s重新获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count)
-		return nil
+		return fmt.Errorf("%s重新获取提交记录失败，无新增过题数据", luoguUser.RealName)
 	}
 	g.log.Printf("%s重新获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count)
-	return err
+	return nil
 }
 
 // fetchInitialData 获取初始数据 - 私有方法
@@ -131,7 +130,7 @@ func (g *GetUserRecords) fetchRecordsIncrementally(luoguUser *models.LuoguUserDe
 
 		err = g.processPageRecords(data.CurrentData.Records.Result, luoguUser, i, true)
 		if err != nil {
-			return err
+			return nil
 		}
 	}
 	return nil
@@ -177,7 +176,6 @@ func (g *GetUserRecords) processPageRecords(records []models.LuoguRecord, luoguU
 			if strictMode {
 				return fmt.Errorf("%s处理第%d页提交记录失败 %s", luoguUser.RealName, page, err.Error())
 			}
-			g.log.Errorf("%s第%d页提交记录插入失败 %s", luoguUser.RealName, page, err.Error())
 			continue
 		}
 		luoguUser.Count++
@@ -230,5 +228,5 @@ func (g *GetUserRecords) isDataConsistent(luoguUser models.LuoguUserDeliver, tot
 // logDataInconsistency 记录数据不一致日志
 func (g *GetUserRecords) logDataInconsistency(luoguUser models.LuoguUserDeliver, actualCount int) {
 	msg := fmt.Sprintf("%s爬取实际数量%d，数据库已爬取数量%d", luoguUser.RealName, actualCount, len(luoguUser.OldDataSet)+luoguUser.Count)
-	g.log.Printf(msg)
+	g.log.Warnf(msg)
 }
