@@ -96,6 +96,37 @@ func (e *Engine) SetLogRootDir(dir string) {
 	e.logRootDir = dir
 }
 
+// 获取单个插件
+func (e *Engine) GetCrawler(key string) *registeredCrawler {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	return e.crawlers[key]
+}
+
+// 获取所有插件
+func (e *Engine) GetCrawlers() map[string]*registeredCrawler {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	out := make(map[string]*registeredCrawler, len(e.crawlers))
+	for k, v := range e.crawlers {
+		out[k] = v
+	}
+	return out
+}
+
+// 开发模式运行单个插件
+func (e *Engine) DevRun(key string) {
+	crawler := e.GetCrawler(key)
+	if crawler == nil {
+		e.engineLogger.Errorf("插件不存在: %s", key)
+		return
+	}
+	logger := Logger
+	cctx := &Context{}
+	cctx.Set(ContextLoggerKey, logger)
+	crawler.crawler.Run(cctx)
+}
+
 // Run 使用 background context 启动所有注册插件。
 // 该函数会阻塞（直到所有调度 goroutine 退出，通常需配合 RunWithContext）。
 func (g *CrawlerGroup) Run() {

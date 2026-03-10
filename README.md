@@ -1,206 +1,183 @@
-# Spider 爬虫系统开发文档
+# Spider 插件化爬虫项目说明
 
-## 项目简介
+本项目基于 `pkg/ease-crawler` 构建，采用“**分组 + 插件**”的方式组织抓取任务。
 
-Spider 是一个基于 Go 语言开发的竞赛数据爬虫系统，主要用于爬取和监控 Codeforces 和洛谷平台的竞赛数据。系统采用定时任务机制，自动收集用户提交记录、比赛信息、题目数据等，并通过钉钉机器人进行消息推送。
+你可以把它理解成：
 
-## 核心功能
+- `engine` 负责调度（间隔执行、启动即跑、日志注入、panic 兜底）
+- `internal/crawlers/*` 负责具体业务插件
+- `internal/crawlers/registry.go` 负责统一注册所有插件
 
-### 数据爬取
-- **Codeforces**: 官方比赛、题目、用户提交记录、团队比赛数据
-- **洛谷**: 用户提交记录、题解、源码、训练详情、团队数据
-- **钉钉**: 消息推送和通知服务
+---
 
-### 定时任务
-- 支持多种定时频率配置（秒/分钟/小时/天）
-- 并发控制，避免API限制
-- 自动重试和错误处理
+## 1. 插件在哪里注册
 
-### 🛠 工具集
-- HTTP请求封装
-- JSON数据库
-- 并发控制器
-- 日志管理
-- 配置验证
+统一注册入口：
 
-## 项目结构
+- `internal/crawlers/registry.go`
 
-```
-spider/
-├── config/                 # 配置管理
-│   ├── config.go          # 配置结构定义
-│   └── db/                # 数据库相关
-├── src/
-│   ├── constants/         # 常量定义
-│   ├── handler/           # 任务处理器
-│   ├── models/           # 数据模型
-│   ├── repository/       # 数据访问层
-│   ├── services/         # 业务逻辑层
-│   └── utils/            # 工具函数
-├── help/                 # 文档
-├── logs/                 # 日志文件
-├── ocr/                  # OCR功能（可选）
-└── main.go              # 程序入口
-```
+当前注册方式（示例）：
 
-## 安装和运行
+- `luogu` 分组注册洛谷相关插件
+- `cf` 分组注册 Codeforces 相关插件
+- `dingding` 分组注册钉钉相关插件
 
-### 环境要求
+即在 `Run()` 里通过：
 
-- Go 1.19 或更高版本
-- MySQL 5.7 或更高版本
-- Python 3.8+ (用于OCR功能,不用时可忽略)
+- `e := easecrawler.New()`
+- `group := e.Group("xxx")`
+- `group.Register(plugin)`
+- `e.Run()`
 
-### 安装步骤
+完成启动。
 
-1. **克隆项目**
-```bash
-git clone https://gitlab.unde.site/QingLuan/spider.git
-cd spider
-git checkout feature/go
-```
+---
 
-2. **安装依赖**
-```bash
-go mod tidy
-```
+## 2. 插件目录规范（推荐）
 
-3. **配置数据库**
-```sql
--- 创建数据库
-CREATE DATABASE gxuicpc CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+每个插件目录建议保持三层结构：
 
--- 创建用户
-CREATE USER 'gxuicpc'@'%' IDENTIFIED BY 'gxuicpc';
-GRANT ALL PRIVILEGES ON gxuicpc.* TO 'gxuicpc'@'%';
-FLUSH PRIVILEGES;
-```
+- `base.go`：插件定义与框架接口实现
+- `model.go`：该插件专用结构体（请求/响应/中间结构）
+- `service.go`：业务逻辑实现（抓取、解析、入库）
 
-4. **配置系统**
-编辑 `config.yml` 文件，配置数据库连接、API密钥、定时任务频率等参数。
+目录示例：
 
-5. **运行程序**
-```bash
-# 开发环境运行
-go run main.go
+- `internal/crawlers/luogu/get_cookie/base.go`
+- `internal/crawlers/luogu/get_cookie/model.go`
+- `internal/crawlers/luogu/get_cookie/service.go`
 
-# 编译后运行
-go build -o spider
-./spider
-```
+---
 
-6. **构建成linux可执行文件**
-```bash
-.\buildTolinux.bat
-```
+## 3. 插件体应该怎么写
 
-## 配置说明
-
-### 主要配置项
-
-```yaml
-database:          # 数据库配置
-  host: 210.36.22.245
-  port: 3002
-  user: gxuicpc
-  password: gxuicpc
-  dbName: gxuicpc
-
-luogu:            # 洛谷配置
-  luoguRecordsConcurrency: 4      # 并发数
-  luoguTeamID: 116191             # 团队ID
-  username: laoyin               # 用户名
-  password: 683305SAO           # 密码
-
-cf:               # Codeforces配置
-  cfRecordsConcurrency: 4        # 并发数
-  managerAccount: 233zhang      # 管理员账号
-
-timerFrequency:   # 定时任务频率
-  cf_records: 2m                # CF记录爬取频率
-  luogu_records: 2m             # 洛谷记录爬取频率
-  luogu_update_cookie: 1h       # Cookie更新频率
-```
-
-## 开发指南
-
-### 数据库管理
-
-1. **新建表格**: 在 `/config/db/tableModels.go` 中更新表结构
-2. **数据查询**: 在各服务对应的 repository 中编写查询逻辑
-3. **数据插入**: 使用预定义的表结构，避免字段错误
-
-### 服务开发
-
-1. **模型定义**: 在 `src/models/` 中定义数据结构
-2. **业务逻辑**: 在 `src/services/` 中实现核心功能
-3. **数据访问**: 在 `src/repository/` 中处理数据库操作
-4. **任务处理**: 在 `src/handler/` 中处理定时任务
-
-### 工具使用
-
-- **HTTP请求**: 使用 `utils.NewRequest[T]()` 进行API调用
-- **并发控制**: 使用 `utils.NewConCurrenter[T]()` 控制并发
-- **日志管理**: 使用 `utils.NewLogContainer()` 收集日志
-- **配置验证**: 使用 `utils.NewConfigValidator()` 验证配置
-
-### 定时任务
-
-在 `src/handler/timeTask.go` 中添加新的定时任务：
+最小插件需要实现 `Crawler` 接口：
 
 ```go
-timer.RunWithTimer(
-    utils.NewDateFormat().AnalysisTimerFrequency("30m"),
-    "任务描述",
-    func() error {
-        // 任务逻辑
-        return nil
-    },
+package demo
+
+import (
+    easecrawler "spider/pkg/ease-crawler"
+    "time"
 )
+
+type DemoCrawler struct {
+    log *easecrawler.EaseLogger
+}
+
+func NewDemoCrawler() *DemoCrawler {
+    return &DemoCrawler{}
+}
+
+func (d *DemoCrawler) Name() string {
+    return "demo_task"
+}
+
+func (d *DemoCrawler) Meta() easecrawler.Meta {
+    return easecrawler.Meta{
+        Interval:         1 * time.Minute,
+        StartImmediately: true,
+    }
+}
+
+func (d *DemoCrawler) Run(c *easecrawler.Context) error {
+    d.log = easecrawler.GetCrawlerLogger(c)
+    return d.DoWork()
+}
 ```
 
-## API接口
+说明：
 
-### Codeforces API
-- 官方比赛列表
-- 题目信息
-- 用户提交记录
-- 团队比赛数据
+- `Name()`：插件唯一标识（同分组下不可重复）
+- `Meta()`：调度配置
+  - `Interval`：执行周期
+  - `StartImmediately`：启动时是否先执行一次
+  - `Logger`：可选，自定义日志器
+- `Run()`：框架调用入口，建议只做上下文准备，具体逻辑放 `service.go`
 
-### 洛谷 API
-- 用户提交记录
-- 题解内容
-- 源码获取
-- 训练详情
-- 团队信息
+---
 
-## 日志管理
+## 4. service.go 该怎么组织
 
-系统自动生成日志文件到 `logs/` 目录：
-- `.log` 文件：正常日志
-- `.err.log` 文件：错误日志
+`service.go` 建议只放业务步骤，示例模式：
 
-## 故障排除
+1. 初始化上下文（请求客户端、cookie 等）
+2. 拉取远端数据
+3. 解析/转换
+4. 入库
+5. 记录日志并返回错误
 
-### 常见问题
+常见结构：
 
-1. **数据库连接失败**: 检查 `config.yml` 中的数据库配置
-2. **API请求失败**: 检查网络连接和API密钥
-3. **并发过高**: 调整配置文件中的并发数设置
-4. **Cookie过期**: 系统会自动更新，检查用户名密码是否正确
+- `Update()` / `GetAndStore()`：对外主流程
+- `initXXX()`：初始化
+- `fetchXXX()`：抓取
+- `processXXX()`：处理
+- `saveXXX()`：持久化
 
-### 调试模式
+---
 
-在 `config.yml` 中设置：
-```yaml
-debug:
-  all: true
+## 5. 日志规则
+
+框架会为每个插件创建日志文件，默认路径：
+
+- `logs/<group>/<plugin>.log`
+
+例如：
+
+- `logs/luogu/get_cookie.log`
+- `logs/cf/get_user_records.log`
+
+在插件内部通过：
+
+- `easecrawler.GetCrawlerLogger(c)`
+
+拿到注入日志器后，统一 `Printf/Errorf/Warnf` 输出。
+
+---
+
+## 6. 新增插件完整步骤
+
+1. 新建目录：`internal/crawlers/<group>/<plugin>/`
+2. 新增 `base.go`，实现 `Name/Meta/Run`
+3. 新增 `service.go`，承载业务逻辑
+4. （可选）新增 `model.go`，放插件专用结构
+5. 在 `internal/crawlers/registry.go` 注册插件
+6. 启动验证日志文件与任务执行
+
+---
+
+## 7. 运行方式
+
+```bash
+go run ./cmd/app/main.go
 ```
 
-## 贡献指南
+---
 
-1. Fork 项目
-2. 创建功能分支
-3. 提交更改
-4. 推送到分支
-5. 创建 Pull Request
+## 8. 常见问题排查
+
+### 1) 插件没有执行
+
+检查：
+
+- 是否在 `registry.go` 中注册
+- `Meta.Interval` 是否设置合理
+- 是否启动了主程序
+
+### 2) 日志文件没生成
+
+检查：
+
+- 是否调用了 `GetCrawlerLogger(c)` 并有日志输出
+- 进程对 `logs/` 目录是否有写权限
+
+### 3) 运行时 panic 导致任务中断
+
+框架调度层已做 panic recover，单插件 panic 不应导致主进程退出。
+若仍退出，请检查 panic 是否发生在插件外部初始化链路。
+
+### 4) `interface {} is nil, not string`
+
+通常是 `utils.JsonDB.Get("Cookie")` 返回 `nil` 但代码强转为 `string`。
+建议先做存在性判断，再断言类型。

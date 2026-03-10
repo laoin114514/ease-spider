@@ -109,7 +109,11 @@ func NewLuoguTeam() *LuoguTeam {
 func (l *LuoguTeam) GetMembers() error {
 	req := utils.NewRequest[models.LuoguTeamResponse](true)
 	url := fmt.Sprintf("https://www.luogu.com.cn/team/%d/member", config.AppConfig.Luogu.LuoguTeamID)
-	resp, err := req.SetCookie(utils.JsonDB.Get("Cookie").(string)).Get(url, map[string]string{})
+	resp, err := req.
+		SetCookie(utils.JsonDB.Get("Cookie").(string)).
+		SetHeader("User-Agent", config.AppConfig.Luogu.UserAgent).
+		SetHeader("x-lentille-request", "content-only").
+		Get(url, map[string]string{})
 	if err != nil {
 		return errors.New("获取洛谷团队成员失败" + err.Error() + url)
 	}

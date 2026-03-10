@@ -29,5 +29,6 @@ func (g *GetUserRecords) Run(c *easecrawler.Context) error {
 	g.log = easecrawler.GetCrawlerLogger(c)
 	g.log.Println("开始获取用户记录")
 	g.GetAndStore()
+	g.ChangePrivateProblem()
 	return nil
 }

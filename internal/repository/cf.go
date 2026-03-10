@@ -15,7 +15,7 @@ func NewCfRepository() *CfRepository {
 }
 
 func (r *CfRepository) GetCfAccountData() ([]models.CfUserData, error) {
-	rows, err := db.Pool.Query("SELECT o.cf_account,u.real_name from user as u,oj_account as o where u.id=o.user_id and o.cf_account !=' ' and o.cf_account is not null and o.cf_account!='' and (u.role_id=1 or u.role_id=3)")
+	rows, err := db.Pool.Query("SELECT u.cf_account,u.real_name from user as u where u.cf_account !=' ' and u.cf_account is not null and u.cf_account!='' and (u.role_id=1 or u.role_id=3)")
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (r *CfRepository) GetCfRecordsIdToset(account string) (map[int]bool, error)
 }
 func (r *CfRepository) GetCfApikey(handle string) (string, string, error) {
 	var apikey, secret string
-	db.Pool.QueryRow("SELECT cf_apikey, cf_secret FROM oj_account WHERE cf_account = ?", handle).Scan(&apikey, &secret)
+	db.Pool.QueryRow("SELECT cf_apikey, cf_secret FROM user WHERE cf_account = ?", handle).Scan(&apikey, &secret)
 	if apikey == "" || secret == "" {
 		return "", "", errors.New("apikey不存在")
 	}
