@@ -2,13 +2,15 @@ package getuserrecords
 
 import (
 	"spider/internal/repository"
+	cfurlgenerator "spider/pkg/cf-url-generator"
 	easecrawler "spider/pkg/ease-crawler"
 	"time"
 )
 
 type GetUserRecords struct {
-	log  *easecrawler.EaseLogger
-	repo *repository.CfRepository
+	log          *easecrawler.EaseLogger
+	repo         *repository.CfRepository
+	urlGenerator *cfurlgenerator.GenerateCFurl
 }
 
 func NewGetUserRecords() *GetUserRecords {
@@ -26,6 +28,11 @@ func (g *GetUserRecords) Meta() easecrawler.Meta {
 	}
 }
 func (g *GetUserRecords) Run(c *easecrawler.Context) error {
+	apiKeyPool, err := g.repo.GetCfApikeyPool()
+	if err != nil {
+		return err
+	}
+	g.urlGenerator = cfurlgenerator.NewGenerator(apiKeyPool)
 	g.log = easecrawler.GetCrawlerLogger(c)
 	g.GetCfRecords()
 	return nil

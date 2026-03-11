@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"errors"
 	"spider/config/db"
 	"spider/internal/models"
+	cfurlgenerator "spider/pkg/cf-url-generator"
 	"time"
 )
 
@@ -48,13 +48,22 @@ func (r *CfRepository) GetCfRecordsIdToset(account string) (map[int]bool, error)
 	}
 	return cfRecords, nil
 }
-func (r *CfRepository) GetCfApikey(handle string) (string, string, error) {
-	var apikey, secret string
-	db.Pool.QueryRow("SELECT cf_apikey, cf_secret FROM user WHERE cf_account = ?", handle).Scan(&apikey, &secret)
-	if apikey == "" || secret == "" {
-		return "", "", errors.New("apikey不存在")
+func (r *CfRepository) GetCfApikeyPool() (map[string]*cfurlgenerator.UserApikey, error) {
+	rows, err := db.Pool.Query("SELECT cf_account, cf_apikey, cf_secret FROM user WHERE cf_account != '' AND cf_account IS NOT NULL AND cf_account != ' ' AND (role_id = 1 OR role_id = 3) AND cf_apikey IS NOT NULL AND cf_secret IS NOT NULL")
+	if err != nil {
+		return nil, err
 	}
-	return apikey, secret, nil
+	defer rows.Close()
+	apiKeyPool := make(map[string]*cfurlgenerator.UserApikey)
+	for rows.Next() {
+		var account, apikey, secret string
+		err := rows.Scan(&account, &apikey, &secret)
+		if err != nil {
+			return nil, err
+		}
+		apiKeyPool[account] = &cfurlgenerator.UserApikey{Apikey: apikey, SecretKey: secret}
+	}
+	return apiKeyPool, nil
 }
 func (r *CfRepository) GetTeamContests() ([]db.Cf_team_contests, error) {
 	rows, err := db.Pool.Query("SELECT Contest_id, Contest_name, Start_time, PrePare_by FROM cf_team_contests")

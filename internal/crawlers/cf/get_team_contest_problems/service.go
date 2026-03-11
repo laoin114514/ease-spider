@@ -62,7 +62,7 @@ func (g *GetTeamContestProblems) processTeamContestProblems(teamContest db.Cf_te
 
 // buildTeamContestProblemsURL 构建团队比赛题目请求URL - 私有方法
 func (g *GetTeamContestProblems) buildTeamContestProblemsURL(teamContest db.Cf_team_contests) (string, error) {
-	return cfurlgenerator.GenerateCFurlInstance.Contest.Standings(teamContest.PrePare_by, &cfurlgenerator.ContestStandingsParams{
+	return g.urlGenerator.Contest.Standings(teamContest.PrePare_by, &cfurlgenerator.ContestStandingsParams{
 		ContestID:      teamContest.Contest_id,
 		AsManager:      true,
 		From:           1,
