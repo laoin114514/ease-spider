@@ -10,11 +10,12 @@ import (
 )
 
 // ============================并发器===============================================
+// 并发器结构
 type ConCurrenter[T any] struct {
 	wg          *sync.WaitGroup
-	concurrency int
-	timeout     time.Duration
-	log         *EaseLogger
+	concurrency int					//并发数
+	timeout     time.Duration		//记录超时
+	log         *EaseLogger			//简单的日志
 }
 
 func NewConCurrenter[T any](concurrency int) *ConCurrenter[T] {
@@ -33,6 +34,7 @@ func NewConCurrenterWithTimeout[T any](concurrency int, timeout time.Duration) *
 	}
 }
 
+// 设置并发器的日志记录器
 func (c *ConCurrenter[T]) SetLogger(log *EaseLogger) {
 	c.log = log
 }
