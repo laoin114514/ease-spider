@@ -3,15 +3,17 @@ package getteamcontests
 import (
 	"spider/config"
 	"spider/internal/repository"
+	cfurlgenerator "spider/pkg/cf-url-generator"
 	easecrawler "spider/pkg/ease-crawler"
 	"time"
 )
 
 type GetTeamContests struct {
-	log        *easecrawler.EaseLogger
-	repo       *repository.CfRepository
-	useAccount string
-	count      int
+	log          *easecrawler.EaseLogger
+	repo         *repository.CfRepository
+	urlGenerator *cfurlgenerator.GenerateCFurl
+	useAccount   string
+	count        int
 }
 
 func NewGetTeamContests() *GetTeamContests {
@@ -31,6 +33,11 @@ func (g *GetTeamContests) Meta() easecrawler.Meta {
 	}
 }
 func (g *GetTeamContests) Run(c *easecrawler.Context) error {
+	apiKeyPool, err := g.repo.GetCfApikeyPool()
+	if err != nil {
+		return err
+	}
+	g.urlGenerator = cfurlgenerator.NewGenerator(apiKeyPool)
 	g.log = easecrawler.GetCrawlerLogger(c)
 	g.GetCfTeamContests()
 	return nil

@@ -40,7 +40,7 @@ func (g *GetOfifcialProblems) GetCfOfficialProblems() error {
 
 // buildProblemsURL 构建题目请求URL - 私有方法
 func (g *GetOfifcialProblems) buildProblemsURL() (string, error) {
-	return cfurlgenerator.GenerateCFurlInstance.ProblemSet.Problems(&cfurlgenerator.ProblemsetProblemsParams{})
+	return g.urlGenerator.ProblemSet.Problems(&cfurlgenerator.ProblemsetProblemsParams{})
 }
 
 // fetchProblemsData 获取题目数据 - 私有方法

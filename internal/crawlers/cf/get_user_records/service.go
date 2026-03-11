@@ -57,7 +57,7 @@ func (g *GetUserRecords) processUserRecords(cfUserData models.CfUserData) error 
 	// 发起请求
 	resp, err := g.fetchUserStatus(url)
 	if err != nil {
-		g.log.Errorf(fmt.Sprintf("%s请求数据失败，尝试无apiKey请求", cfUserData.RealName), err)
+		g.log.Errorf("%s请求数据失败，尝试无apiKey请求 %s", cfUserData.RealName, err.Error())
 		url, err = g.buildRequestURL(cfUserData.Account, false)
 		if err != nil {
 			g.log.Errorf("%s构建请求URL失败 %s", cfUserData.RealName, err.Error())
@@ -98,7 +98,7 @@ func (g *GetUserRecords) loadExistingRecords(cfUserData *models.CfUserData) erro
 // buildRequestURL 构建请求URL - 私有方法
 func (g *GetUserRecords) buildRequestURL(account string, isApiKey bool) (string, error) {
 	// 尝试使用HTTPS
-	url, err := cfurlgenerator.GenerateCFurlInstance.User.Status(
+	url, err := g.urlGenerator.User.Status(
 		isApiKey,
 		&cfurlgenerator.UserStatusParams{
 			Handle: account,
@@ -108,7 +108,7 @@ func (g *GetUserRecords) buildRequestURL(account string, isApiKey bool) (string,
 	)
 	if err != nil {
 		// 回退到HTTP
-		url, err = cfurlgenerator.GenerateCFurlInstance.User.Status(
+		url, err = g.urlGenerator.User.Status(
 			false,
 			&cfurlgenerator.UserStatusParams{
 				Handle: account,

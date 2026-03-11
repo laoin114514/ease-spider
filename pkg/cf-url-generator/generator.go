@@ -1,10 +1,11 @@
 package cfurlgenerator
 
 import (
+	"errors"
 	"fmt"
+	"math"
 	"math/rand"
-	"spider/internal/models"
-	"spider/internal/repository"
+	"sync"
 	"time"
 )
 
@@ -12,39 +13,70 @@ import (
 const BaseUrl = "https://codeforces.com/api/"
 
 type GenerateCFurl struct {
+	mu         sync.RWMutex
 	baseUrl    string
 	User       *user
 	Contest    *contest
 	ProblemSet *problemSet
-	*models.CfUserData
+	apiKeyPool map[string]*UserApikey
 }
-type user struct{}
+
+type UserApikey struct {
+	Apikey    string
+	SecretKey string
+}
+
+type user struct {
+	g *GenerateCFurl
+}
 type contest struct {
+	g *GenerateCFurl
 }
-type problemSet struct{}
+type problemSet struct {
+	g *GenerateCFurl
+}
 
-var GenerateCFurlInstance *GenerateCFurl = newGenerateCFurl()
-
-func newGenerateCFurl() *GenerateCFurl {
-	return &GenerateCFurl{
+func NewGenerator(apiKeyPool map[string]*UserApikey) *GenerateCFurl {
+	g := &GenerateCFurl{
 		baseUrl:    BaseUrl,
 		User:       &user{},
 		ProblemSet: &problemSet{},
+		Contest:    &contest{},
+		apiKeyPool: apiKeyPool,
 	}
+	g.User.g = g
+	g.Contest.g = g
+	g.ProblemSet.g = g
+	return g
+}
+func (g *GenerateCFurl) SetApiKeyPool(apiKeyPool map[string]*UserApikey) {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	g.apiKeyPool = apiKeyPool
+}
+func (g *GenerateCFurl) getApikeyFromPool(handle string) (string, string, error) {
+	g.mu.RLock()
+	defer g.mu.RUnlock()
+	if handle == "" {
+		return "", "", errors.New("handle不能为空")
+	}
+	userApiKey, ok := g.apiKeyPool[handle]
+	if ok && userApiKey.Apikey != "" && userApiKey.SecretKey != "" {
+		return userApiKey.Apikey, userApiKey.SecretKey, nil
+	}
+	return "", "", errors.New("apikey不存在")
 }
 
 // 组合url和apikey
-func combineUrlWithApikey[T any](handle string, method string, pararms T) (string, error) {
+func (g *GenerateCFurl) combineUrlWithApikey(handle string, method string, pararms any) (string, error) {
 	baseUrl := BaseUrl
-	repository := repository.NewCfRepository()
-	//获取apikey
-	apikey, secret, err := repository.GetCfApikey(handle)
+	apikey, secret, err := g.getApikeyFromPool(handle)
 	if err != nil {
 		return "", err
 	}
 	now := time.Now()
 	time := now.Unix()
-	randomKey := randomNumber(6)
+	randomKey := g.randomNumber(6)
 	//将参数转换为字符串
 	pararmStr, err := NewStructTransfer(pararms).
 		AddParam("apiKey", apikey).
@@ -58,7 +90,7 @@ func combineUrlWithApikey[T any](handle string, method string, pararms T) (strin
 	url := fmt.Sprintf("%v%v&apiSig=%v%v", baseUrl, tail, randomKey, hashCode)
 	return url, nil
 }
-func combineUrlWithNoApikey[T any](method string, pararms T) (string, error) {
+func (g *GenerateCFurl) combineUrlWithNoApikey(method string, pararms any) (string, error) {
 	baseUrl := BaseUrl
 	pararmStr, err := NewStructTransfer(pararms).
 		ToOrderStr()
@@ -66,62 +98,57 @@ func combineUrlWithNoApikey[T any](method string, pararms T) (string, error) {
 		return "", err
 	}
 	tail := fmt.Sprintf("%v?%v", method, pararmStr)
-	return fmt.Sprintf("%v%v?%v", baseUrl, method, tail), nil
+	return fmt.Sprintf("%v%v", baseUrl, tail), nil
 }
-func randomNumber(n int) string {
-	str := ""
-	for i := 0; i < n; i++ {
-		rand.Seed(time.Now().UnixNano())
-		str += fmt.Sprintf("%d", rand.Intn(10))
-	}
-	return str
+func (g *GenerateCFurl) randomNumber(n int) string {
+	return fmt.Sprintf("%06d", rand.Intn(int(math.Pow10(n))))
 }
 
 // ============================================User============================================//
 func (u *user) Status(useApikey bool, query *UserStatusParams) (string, error) {
 	if useApikey {
-		return combineUrlWithApikey(query.Handle, "user.status", query)
+		return u.g.combineUrlWithApikey(query.Handle, "user.status", query)
 	}
-	return combineUrlWithNoApikey("user.status", query)
+	return u.g.combineUrlWithNoApikey("user.status", query)
 }
 func (u *user) Rating(query *UserRatingParams) (string, error) {
-	return combineUrlWithApikey(query.Handle, "user.rating", query)
+	return u.g.combineUrlWithApikey(query.Handle, "user.rating", query)
 }
 func (u *user) RatedList(query *UserRatedListParams) (string, error) {
-	return combineUrlWithApikey("", "user.ratedList", query)
+	return u.g.combineUrlWithNoApikey("user.ratedList", query)
 }
 
 func (u *user) Info(query *UserInfoParams) (string, error) {
-	return combineUrlWithApikey(query.Handles, "user.info", query)
+	return u.g.combineUrlWithNoApikey("user.info", query)
 }
 
 func (u *user) Friends(handle string, query *UserFriendsParams) (string, error) {
-	return combineUrlWithApikey(handle, "user.friends", query)
+	return u.g.combineUrlWithApikey(handle, "user.friends", query)
 }
 
 func (u *user) BlogEntries(query *UserBlogEntriesParams) (string, error) {
-	return combineUrlWithApikey(query.Handle, "user.blogEntries", query)
+	return u.g.combineUrlWithApikey(query.Handle, "user.blogEntries", query)
 }
 
 func (u *user) RecentActions(query *RecentActionsParams) (string, error) {
-	return combineUrlWithApikey("", "user.recentActions", query)
+	return u.g.combineUrlWithNoApikey("user.recentActions", query)
 }
 
 // ============================================Contest============================================//
 func (c *contest) List(handle string, query *ContestListParams) (string, error) {
-	return combineUrlWithApikey(handle, "contest.list", query)
+	return c.g.combineUrlWithApikey(handle, "contest.list", query)
 }
 func (c *contest) Standings(handle string, query *ContestStandingsParams) (string, error) {
-	return combineUrlWithApikey(handle, "contest.standings", query)
+	return c.g.combineUrlWithApikey(handle, "contest.standings", query)
 }
 func (c *contest) Status(handle string, query *ContestStatusParams) (string, error) {
-	return combineUrlWithApikey(handle, "contest.status", query)
+	return c.g.combineUrlWithApikey(handle, "contest.status", query)
 }
 
 // ============================================ProblemSet============================================//
 func (p *problemSet) Problems(query *ProblemsetProblemsParams) (string, error) {
-	return combineUrlWithNoApikey("problemset.problems", query)
+	return p.g.combineUrlWithNoApikey("problemset.problems", query)
 }
 func (p *problemSet) RecentStatus(query *ProblemsetRecentStatusParams) (string, error) {
-	return combineUrlWithNoApikey("problemset.recentStatus", query)
+	return p.g.combineUrlWithNoApikey("problemset.recentStatus", query)
 }

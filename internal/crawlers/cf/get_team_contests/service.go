@@ -43,7 +43,7 @@ func (g *GetTeamContests) GetCfTeamContests() error {
 // buildTeamContestsURL 构建团队比赛请求URL - 私有方法
 func (g *GetTeamContests) buildTeamContestsURL() (string, error) {
 	GroupCode := config.AppConfig.Cf.GroupCode
-	return cfurlgenerator.GenerateCFurlInstance.Contest.List(g.useAccount, &cfurlgenerator.ContestListParams{
+	return g.urlGenerator.Contest.List(g.useAccount, &cfurlgenerator.ContestListParams{
 		GroupCode: GroupCode,
 	})
 }
