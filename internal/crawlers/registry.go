@@ -11,6 +11,7 @@ import (
 	luoguGetRecordDetail "spider/internal/crawlers/luogu/get_record_detail"
 	luoguGetSolutions "spider/internal/crawlers/luogu/get_solutions"
 	luoguGetUserRecords "spider/internal/crawlers/luogu/get_user_records"
+	niukeGetUserRecords "spider/internal/crawlers/niuke/get_user_records"
 	easecrawler "spider/pkg/ease-crawler"
 )
 
@@ -37,6 +38,11 @@ func Register() *easecrawler.Engine {
 	dingding := e.Group("dingding")
 	{
 		dingding.Register(getcheckrecords.NewGetCheckRecords())
+	}
+
+	niuke := e.Group("niuke")
+	{
+		niuke.Register(niukeGetUserRecords.NewGetUserRecords())
 	}
 
 	a := e.Group("cf")
