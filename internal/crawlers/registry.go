@@ -12,7 +12,8 @@ import (
 	luoguGetSolutions "spider/internal/crawlers/luogu/get_solutions"
 	luoguGetUserRecords "spider/internal/crawlers/luogu/get_user_records"
 	niukeGetUserRecords "spider/internal/crawlers/niuke/get_user_records"
-	easecrawler "spider/pkg/ease-crawler"
+
+	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 func Register() *easecrawler.Engine {
