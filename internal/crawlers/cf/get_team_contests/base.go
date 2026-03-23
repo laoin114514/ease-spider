@@ -4,8 +4,9 @@ import (
 	"spider/config"
 	"spider/internal/repository"
 	cfurlgenerator "spider/pkg/cf-url-generator"
-	easecrawler "spider/pkg/ease-crawler"
 	"time"
+
+	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 type GetTeamContests struct {

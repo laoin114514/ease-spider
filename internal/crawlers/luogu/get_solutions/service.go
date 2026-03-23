@@ -11,9 +11,10 @@ import (
 	"spider/internal/constants"
 	"spider/internal/models"
 	"spider/internal/utils"
-	easecrawler "spider/pkg/ease-crawler"
 	"strconv"
 	"time"
+
+	easecrawler "github.com/laoin114514/ease-crawler"
 
 	"github.com/go-resty/resty/v2"
 )

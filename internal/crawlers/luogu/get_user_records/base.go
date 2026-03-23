@@ -2,8 +2,9 @@ package getuserrecords
 
 import (
 	"spider/internal/repository"
-	easecrawler "spider/pkg/ease-crawler"
 	"time"
+
+	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 type GetUserRecords struct {

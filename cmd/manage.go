@@ -7,7 +7,8 @@ import (
 	"spider/config/db"
 	"spider/internal/crawlers"
 	"spider/internal/utils"
-	ease "spider/pkg/ease-crawler"
+
+	ease "github.com/laoin114514/ease-crawler"
 )
 
 func init() {

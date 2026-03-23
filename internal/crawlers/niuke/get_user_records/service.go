@@ -11,7 +11,8 @@ import (
 
 	"spider/internal/models"
 	"spider/internal/repository"
-	easecrawler "spider/pkg/ease-crawler"
+
+	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 // APIRecord 单条提交记录（完整映射API返回的所有字段）

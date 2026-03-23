@@ -8,7 +8,8 @@ import (
 	"spider/internal/models"
 	"spider/internal/utils"
 	cfurlgenerator "spider/pkg/cf-url-generator"
-	easecrawler "spider/pkg/ease-crawler"
+
+	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 // GetCfTeamContestsProblems 获取CF团队比赛题目 - 对外提供的主要接口

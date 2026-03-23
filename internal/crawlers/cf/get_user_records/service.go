@@ -8,8 +8,9 @@ import (
 	"spider/internal/models"
 	"spider/internal/utils"
 	cfurlgenerator "spider/pkg/cf-url-generator"
-	easecrawler "spider/pkg/ease-crawler"
 	"time"
+
+	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 // GetCfRecords 获取CF用户提交记录 - 对外提供的主要接口

@@ -8,8 +8,9 @@ import (
 	"spider/internal/models"
 	"spider/internal/repository"
 	"spider/internal/utils"
-	easecrawler "spider/pkg/ease-crawler"
 	"strconv"
+
+	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 // 获取源代码

@@ -2,7 +2,8 @@ package getuserrecords
 
 import (
 	"spider/internal/repository"
-	easecrawler "spider/pkg/ease-crawler"
+
+	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 // GetUserRecords 牛客用户记录插件
