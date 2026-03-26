@@ -27,7 +27,10 @@ RUN apk add --no-cache ca-certificates tzdata \
     && addgroup -S app && adduser -S app -G app
 
 COPY --from=builder /spider /spider
-RUN chown -R app:app /spider
+RUN mkdir -p /spider/data /spider/logs /config \
+    && chown -R app:app /spider /config
+
+VOLUME ["/spider/data", "/spider/logs", "/config"]
 
 USER app
 CMD ["./spider"]
