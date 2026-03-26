@@ -121,7 +121,7 @@ func (l *GetCookie) identify(isInServer bool) (string, error) {
 	var result ocrServerOut
 	resp, err := c.R().
 		SetFile("file", "data/captcha.jpg").
-		Post("http://127.0.0.1:8000/ocr/classify")
+		Post("http://172.16.40.37:8000/ocr/classify")
 	if err != nil {
 		return "", err
 	}
