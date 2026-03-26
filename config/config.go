@@ -69,9 +69,9 @@ func Init() error {
 	}
 	path := ""
 	if os.Getenv("RUN_MODE") == "dev" {
-		path = "config/config.dev.yml"
+		path = "/config/config.dev.yml"
 	} else if os.Getenv("RUN_MODE") == "prod" {
-		path = "config/config.prod.yml"
+		path = "/config/config.prod.yml"
 	} else {
 		return fmt.Errorf("环境变量RUN_MODE必须为dev或prod")
 	}
