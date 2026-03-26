@@ -2,6 +2,7 @@ package getuserrecords
 
 import (
 	"spider/internal/repository"
+	"time"
 
 	easecrawler "github.com/laoin114514/ease-crawler"
 )
@@ -26,7 +27,7 @@ func (g *GetUserRecords) Name() string {
 // Meta 返回插件元数据
 func (g *GetUserRecords) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         0, // 只执行一次
+		Interval:         1 * time.Hour, // 只执行一次
 		StartImmediately: true,
 	}
 }
