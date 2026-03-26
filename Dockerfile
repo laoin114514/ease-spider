@@ -26,9 +26,8 @@ WORKDIR /spider
 RUN apk add --no-cache ca-certificates tzdata \
     && addgroup -S app && adduser -S app -G app
 
-COPY --from=builder /spider/spider /spider/spider
-COPY --from=builder /spider/config /spider/config
-COPY --from=builder /spider/config /config
+COPY --from=builder /spider /spider
+RUN chown -R app:app /spider
 
 USER app
 CMD ["./spider"]

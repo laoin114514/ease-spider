@@ -14,7 +14,7 @@ type JSONDB struct {
 	path  string
 }
 
-var JsonDB *JSONDB = NewJSONDB("data.json")
+var JsonDB *JSONDB = NewJSONDB("data/data.json")
 
 func NewJSONDB(path string) *JSONDB {
 	return &JSONDB{
