@@ -76,7 +76,7 @@ func (l *GetCookie) redirCaptcha() {
 	l.saveImage(resp.Body())
 }
 func (l *GetCookie) saveImage(content []byte) {
-	file, err := os.OpenFile("public/captcha.jpg", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	file, err := os.OpenFile("data/captcha.jpg", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		l.log.Println(err)
 		return
@@ -120,7 +120,7 @@ func (l *GetCookie) identify(isInServer bool) (string, error) {
 	c := resty.New()
 	var result ocrServerOut
 	resp, err := c.R().
-		SetFile("file", "public/captcha.jpg").
+		SetFile("file", "data/captcha.jpg").
 		Post("http://127.0.0.1:8000/ocr/classify")
 	if err != nil {
 		return "", err
