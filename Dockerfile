@@ -1,17 +1,24 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1.7
 
-FROM golang:1.24-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
 WORKDIR /spider
 
 RUN apk add --no-cache ca-certificates
 
-ENV GOPROXY=https://goproxy.cn,direct
+ENV GOPROXY=https://goproxy.cn,direct \
+    GOSUMDB=sum.golang.google.cn
 
 COPY go.mod go.sum ./
-RUN go mod download
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o spider .
+
+ARG TARGETOS
+ARG TARGETARCH
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH:-amd64} go build -trimpath -ldflags="-s -w" -o spider .
 
 FROM alpine:3.20
 WORKDIR /spider
@@ -21,6 +28,7 @@ RUN apk add --no-cache ca-certificates tzdata \
 
 COPY --from=builder /spider/spider /spider/spider
 COPY --from=builder /spider/config /spider/config
+COPY --from=builder /spider/config /config
 
 USER app
 CMD ["./spider"]
