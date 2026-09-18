@@ -1,24 +1,26 @@
 package getuserrecords
 
 import (
+	"context"
 	"fmt"
-	"math"
-	"net/http"
 	"spider/config"
 	"spider/config/db"
 	"spider/internal/constants"
 	"spider/internal/models"
-	"spider/internal/utils"
+	"spider/pkg/luogu2api"
 	"strconv"
 	"time"
 
 	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
-// GetLuoguUsersRecords 获取洛谷用户提交记录
+// GetAndStore 获取并入库洛谷用户提交记录
 func (g *GetUserRecords) GetAndStore() error {
-	conCurrenter := easecrawler.NewConCurrenter[models.LuoguUserDeliver](config.AppConfig.Luogu.LuoguRecordsConcurrency)
-	conCurrenter.SetLogger(g.log)
+	client, err := g.getClient()
+	if err != nil {
+		return err
+	}
+
 	luoguUserDelivers, err := g.repo.GetUserNameMap()
 	if err != nil {
 		return err
@@ -26,8 +28,11 @@ func (g *GetUserRecords) GetAndStore() error {
 	g.log.Printf("总共 %d个用户需要获取提交记录", len(luoguUserDelivers))
 
 	// 通过并发器来获取洛谷用户提交记录
-	conCurrenter.Run(luoguUserDelivers, func(luoguUser models.LuoguUserDeliver) error {
-		return g.processUserRecords(luoguUser)
+	conCurrenter := easecrawler.NewConCurrenter[models.LuoguUserDeliver](config.AppConfig.Luogu.LuoguRecordsConcurrency)
+	conCurrenter.SetLogger(g.log)
+	// 单个用户的失败由并发器收集并打印进插件日志，这里不重复返回
+	_ = conCurrenter.Run(luoguUserDelivers, func(luoguUser models.LuoguUserDeliver) error {
+		return g.processUserRecords(client, luoguUser)
 	})
 
 	return nil
@@ -47,41 +52,63 @@ func (g *GetUserRecords) ChangePrivateProblem() error {
 	return nil
 }
 
-// processUserRecords 处理单个用户的提交记录 - 私有方法
-func (g *GetUserRecords) processUserRecords(luoguUser models.LuoguUserDeliver) error {
-
-	// 获取初始化数据：总数和每页数量
-	initData, err := g.fetchInitialData(luoguUser.Uid)
+// getClient 构造 luogu2api SDK 客户端：懒加载，构造一次后复用。
+//
+// 记录接口需要洛谷登录态，服务端会从号池选号、cookie 失效时自动换号重试，
+// 所以这里只需要服务地址与访问令牌，不需要账号密码。
+func (g *GetUserRecords) getClient() (*luogu2api.Client, error) {
+	if g.sdk != nil {
+		return g.sdk, nil
+	}
+	cfg := config.AppConfig.Luogu2Api
+	client, err := luogu2api.NewSDK(cfg.BaseURL, cfg.AdminToken)
 	if err != nil {
+		return nil, fmt.Errorf("初始化luogu2api SDK失败(检查配置 luogu2api.baseUrl / luogu2api.adminToken) %s", err.Error())
+	}
+	g.sdk = client
+	return g.sdk, nil
+}
+
+// processUserRecords 处理单个用户的提交记录 - 私有方法
+func (g *GetUserRecords) processUserRecords(client *luogu2api.Client, luoguUser models.LuoguUserDeliver) error {
+	uid, err := luoguUID(&luoguUser)
+	if err != nil {
+		return err
+	}
+
+	// 获取初始化数据：总数和总页数（第 1 页顺带交给增量爬取，不重复请求）
+	initPage, err := g.fetchRecordPage(client, uid, 1)
+	if err != nil {
+		if luogu2api.IsNotFound(err) {
+			return fmt.Errorf("%s的uid不存在", luoguUser.RealName)
+		}
 		return fmt.Errorf("%s获取提交记录失败 %s", luoguUser.RealName, err.Error())
 	}
-	if initData.Code == http.StatusNotFound {
-		return fmt.Errorf("%s的uid不存在", luoguUser.RealName)
+	if initPage.Count == 0 {
+		g.log.Printf("%s在洛谷没有提交记录", luoguUser.RealName)
+		return nil
 	}
 
-	// 计算页数
-	page := g.calculatePage(initData)
-
 	// 增量爬取
-	err = g.fetchRecordsIncrementally(&luoguUser, page)
+	err = g.fetchRecordsIncrementally(client, &luoguUser, initPage)
 	if err != nil {
 		return err
 	}
 
 	// 如果已爬取数据与数据库已爬取数据数量一致，则不进行全量爬取
-	if g.isDataConsistent(luoguUser, initData.CurrentData.Records.Count) {
+	if g.isDataConsistent(luoguUser, initPage.Count) {
 		//如果增量爬取没有数据，则不进行全量爬取
 		if luoguUser.Count == 0 {
 			g.log.Printf("%s无新增过题数据", luoguUser.RealName)
 			return nil
 		}
 		g.log.Printf("%s获取提交记录完成 %d", luoguUser.RealName, luoguUser.Count)
-		return err
+		return nil
 	}
 
 	// 爬取数据与数据库已爬取数据不一致，进行全量爬取
-	g.logDataInconsistency(luoguUser, initData.CurrentData.Records.Count)
-	err = g.fetchRecordsFully(&luoguUser, page)
+	g.logDataInconsistency(luoguUser, initPage.Count)
+	err = g.fetchRecordsFully(client, &luoguUser, initPage.TotalPages)
 	if err != nil {
 		return fmt.Errorf("%s重新获取提交记录失败 %s", luoguUser.RealName, err.Error())
 	}
@@ -93,44 +120,31 @@ func (g *GetUserRecords) processUserRecords(luoguUser models.LuoguUserDeliver) e
 	return nil
 }
 
-// fetchInitialData 获取初始数据 - 私有方法
-func (g *GetUserRecords) fetchInitialData(uid string) (*models.LuoguRecordsResponse, error) {
-	req := utils.NewRequest[models.LuoguRecordsResponse](true)
-	data, err := req.SetCookie(utils.JsonDB.Get("Cookie").(string)).Get(
-		"https://www.luogu.com.cn/record/list",
-		map[string]string{
-			"user":         uid,
-			"page":         "1",
-			"_contentOnly": "1",
-		},
-	)
-	return &data, err
+// fetchRecordPage 通过 luogu2api SDK 获取指定页的提交记录 - 私有方法
+func (g *GetUserRecords) fetchRecordPage(client *luogu2api.Client, uid int, page int) (*luogu2api.RecordPage, error) {
+	// SDK 自带 30s 单次请求超时，这里的 ctx 只负责取消传播，不再叠加 deadline
+	return client.Record.ListByUser(context.Background(), uid, luogu2api.RecordListParams{Page: page})
 }
 
 // fetchRecordsIncrementally 增量爬取不重复数据 - 私有方法
-func (g *GetUserRecords) fetchRecordsIncrementally(luoguUser *models.LuoguUserDeliver, page int) error {
+func (g *GetUserRecords) fetchRecordsIncrementally(client *luogu2api.Client, luoguUser *models.LuoguUserDeliver, firstPage *luogu2api.RecordPage) error {
+	uid, err := luoguUID(luoguUser)
+	if err != nil {
+		return err
+	}
 	luoguUser.Count = 0
-	cookie := utils.JsonDB.Get("Cookie").(string)
-	req := utils.NewRequest[models.LuoguRecordsResponse](true)
 
-	for i := 1; i <= page; i++ {
-		data, err := req.SetCookie(cookie).Get(
-			"https://www.luogu.com.cn/record/list",
-			map[string]string{
-				"user":         luoguUser.Uid,
-				"page":         strconv.Itoa(i),
-				"_contentOnly": "1",
-			},
-		)
-		if err != nil {
-			return fmt.Errorf("%s获取第%d页提交记录失败 %s", luoguUser.RealName, i, err.Error())
-		}
-		if data.Code != 200 {
-			return fmt.Errorf("%s获取第%d页提交记录失败，状态码： %d", luoguUser.RealName, i, data.Code)
-		}
+	// 第 1 页初始化时已经取回，直接处理
+	if g.processPageRecords(firstPage.Records, luoguUser, 1, true) {
+		return nil
+	}
 
-		err = g.processPageRecords(data.CurrentData.Records.Result, luoguUser, i, true)
+	for page := 2; page <= firstPage.TotalPages; page++ {
+		records, err := g.fetchRecordPage(client, uid, page)
 		if err != nil {
+			return fmt.Errorf("%s获取第%d页提交记录失败 %s", luoguUser.RealName, page, err.Error())
+		}
+		if g.processPageRecords(records.Records, luoguUser, page, true) {
 			return nil
 		}
 	}
@@ -138,54 +152,59 @@ func (g *GetUserRecords) fetchRecordsIncrementally(luoguUser *models.LuoguUserDe
 }
 
 // fetchRecordsFully 全量爬取所有页数的数据
-func (g *GetUserRecords) fetchRecordsFully(luoguUser *models.LuoguUserDeliver, page int) error {
+func (g *GetUserRecords) fetchRecordsFully(client *luogu2api.Client, luoguUser *models.LuoguUserDeliver, totalPages int) error {
+	uid, err := luoguUID(luoguUser)
+	if err != nil {
+		return err
+	}
 	luoguUser.Count = 0
-	cookie := utils.JsonDB.Get("Cookie").(string)
-	req := utils.NewRequest[models.LuoguRecordsResponse](true)
 
-	for i := 1; i <= page; i++ {
-		data, _ := req.SetCookie(cookie).Get(
-			"https://www.luogu.com.cn/record/list",
-			map[string]string{
-				"user":         luoguUser.Uid,
-				"page":         strconv.Itoa(i),
-				"_contentOnly": "1",
-			},
-		)
-		g.processPageRecords(data.CurrentData.Records.Result, luoguUser, i, false)
+	for page := 1; page <= totalPages; page++ {
+		records, err := g.fetchRecordPage(client, uid, page)
+		if err != nil {
+			// 全量爬取是数据不一致时的兜底修复，单页失败不中断，继续翻后面的页
+			g.log.Errorf("%s获取第%d页提交记录失败 %s", luoguUser.RealName, page, err.Error())
+			continue
+		}
+		g.processPageRecords(records.Records, luoguUser, page, false)
 	}
 	return nil
 }
 
-// processPageRecords 处理单页记录
-func (g *GetUserRecords) processPageRecords(records []models.LuoguRecord, luoguUser *models.LuoguUserDeliver, page int, strictMode bool) error {
-	for _, record := range records {
-		if g.shouldSkipRecord(&record, luoguUser, page) {
+// processPageRecords 处理单页记录，返回是否应当停止继续翻页。
+//
+// incremental 为 true（增量爬取）时：更新的记录只会出现在最前面几页，遇到已入库的记录
+// 或插入失败就说明增量到头了，返回 true 交由调用方结束本次增量；
+// 为 false（全量爬取）时：跳过已入库的记录，单条插入失败只记日志，继续处理本页剩余记录。
+func (g *GetUserRecords) processPageRecords(records []luogu2api.RecordSummary, luoguUser *models.LuoguUserDeliver, page int, incremental bool) bool {
+	for i := range records {
+		record := &records[i]
+		if g.shouldSkipRecord(record, luoguUser, page) {
 			continue
 		}
 
-		if luoguUser.OldDataSet[strconv.Itoa(int(record.ID))] {
-			if strictMode {
-				return fmt.Errorf("%s第%d页提交记录已存在 %s", luoguUser.RealName, page, strconv.Itoa(int(record.ID)))
+		if luoguUser.OldDataSet[strconv.Itoa(record.ID)] {
+			if incremental {
+				return true
 			}
 			continue
 		}
 
-		table := g.buildSubmissionTable(&record)
-		err := db.Insert_luogu_sub(table)
+		err := db.Insert_luogu_sub(g.buildSubmissionTable(record))
 		if err != nil {
-			if strictMode {
-				return fmt.Errorf("%s处理第%d页提交记录失败 %s", luoguUser.RealName, page, err.Error())
+			g.log.Errorf("%s处理第%d页提交记录失败 %s", luoguUser.RealName, page, err.Error())
+			if incremental {
+				return true
 			}
 			continue
 		}
 		luoguUser.Count++
 	}
-	return nil
+	return false
 }
 
 // shouldSkipRecord 判断是否应该跳过该提交记录
-func (g *GetUserRecords) shouldSkipRecord(record *models.LuoguRecord, luoguUser *models.LuoguUserDeliver, page int) bool {
+func (g *GetUserRecords) shouldSkipRecord(record *luogu2api.RecordSummary, luoguUser *models.LuoguUserDeliver, page int) bool {
 	// 如果提交记录状态为还在测评，则跳过
 	nowTime := time.Now().Unix()
 	if record.Status == 0 && nowTime-record.SubmitTime < 60*5 {
@@ -193,32 +212,40 @@ func (g *GetUserRecords) shouldSkipRecord(record *models.LuoguRecord, luoguUser 
 		return true
 	}
 	// 如果洛谷UID不匹配，则更新洛谷UID
-	if int(record.User.UID) == 0 {
-		record.User.UID, _ = strconv.ParseInt(luoguUser.Uid, 10, 64)
+	if record.User.UID == 0 {
+		record.User.UID, _ = strconv.Atoi(luoguUser.Uid)
 	}
 	return false
 }
 
 // buildSubmissionTable 构建提交记录表
-func (g *GetUserRecords) buildSubmissionTable(record *models.LuoguRecord) db.Luogu_all_submissions {
-	difficulty := constants.LuoguDifficultyMap
-	if record.Problem.Difficulty >= len(difficulty) {
-		difficulty = append(difficulty, "unknown")
-	}
+func (g *GetUserRecords) buildSubmissionTable(record *luogu2api.RecordSummary) db.Luogu_all_submissions {
 	return db.Luogu_all_submissions{
-		Sub_id:        fmt.Sprintf("%d", record.ID),
-		Uid:           fmt.Sprintf("%d", record.User.UID),
+		Sub_id:        strconv.Itoa(record.ID),
+		Uid:           strconv.Itoa(record.User.UID),
 		Problem_id:    record.Problem.PID,
 		Problem_name:  record.Problem.Title,
-		Difficulty:    difficulty[record.Problem.Difficulty],
+		Difficulty:    luoguDifficulty(record.Problem.Difficulty),
 		Is_pass:       record.Status == constants.LuoguStatusAccepted,
 		Creation_time: time.Unix(record.SubmitTime, 0).Add(constants.TimeZoneOffsetHours * time.Hour),
 	}
 }
 
-// calculatePage 计算页数
-func (g *GetUserRecords) calculatePage(luoguRecordsResponse *models.LuoguRecordsResponse) int {
-	return int(math.Ceil(float64(luoguRecordsResponse.CurrentData.Records.Count) / float64(luoguRecordsResponse.CurrentData.Records.PerPage)))
+// luoguUID 解析洛谷UID；数据库里的值不是数字时返回带真实姓名的错误 - 私有方法
+func luoguUID(luoguUser *models.LuoguUserDeliver) (int, error) {
+	uid, err := strconv.Atoi(luoguUser.Uid)
+	if err != nil {
+		return 0, fmt.Errorf("%s的洛谷UID %q 不是合法的数字 %s", luoguUser.RealName, luoguUser.Uid, err.Error())
+	}
+	return uid, nil
+}
+
+// luoguDifficulty 难度值转难度名；越界（洛谷新增难度等级）时回退为 unknown - 私有方法
+func luoguDifficulty(difficulty int) string {
+	if difficulty < 0 || difficulty >= len(constants.LuoguDifficultyMap) {
+		return "unknown"
+	}
+	return constants.LuoguDifficultyMap[difficulty]
 }
 
 // isDataConsistent 检查数据一致性

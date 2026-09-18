@@ -41,11 +41,10 @@
 - `model.go`：该插件专用结构体（请求/响应/中间结构）
 - `service.go`：业务逻辑实现（抓取、解析、入库）
 
-目录示例：
+目录示例（洛谷分组目前只剩提交记录一个插件，因此没有 `model.go`）：
 
-- `internal/crawlers/luogu/get_cookie/base.go`
-- `internal/crawlers/luogu/get_cookie/model.go`
-- `internal/crawlers/luogu/get_cookie/service.go`
+- `internal/crawlers/luogu/get_user_records/base.go`
+- `internal/crawlers/luogu/get_user_records/service.go`
 
 ---
 
@@ -125,7 +124,7 @@ func (d *DemoCrawler) Run(c *easecrawler.Context) error {
 
 例如：
 
-- `logs/luogu/get_cookie.log`
+- `logs/luogu/get_user_records.log`
 - `logs/cf/get_user_records.log`
 
 在插件内部通过：
@@ -150,8 +149,14 @@ func (d *DemoCrawler) Run(c *easecrawler.Context) error {
 ## 7. 运行方式
 
 ```bash
-go run ./cmd/app/main.go
+go run ./cmd run                          # 启动全部插件
+go run ./cmd list                         # 查看已注册插件
+go run ./cmd devrun luogu/get_user_records  # 单跑某个插件
 ```
+
+洛谷提交记录经 Luogu2Api 服务（`pkg/luogu2api` SDK）获取，运行前需在
+`config/config.dev.yml` / `config/config.prod.yml` 的 `luogu2api` 段填好 `baseUrl`
+与 `adminToken`（后者与服务端 `ADMIN_TOKEN` 一致），两项为空时启动阶段就会失败。
 
 ---
 
@@ -177,7 +182,13 @@ go run ./cmd/app/main.go
 框架调度层已做 panic recover，单插件 panic 不应导致主进程退出。
 若仍退出，请检查 panic 是否发生在插件外部初始化链路。
 
-### 4) `interface {} is nil, not string`
+### 4) 洛谷提交记录任务报错
 
-通常是 `utils.JsonDB.Get("Cookie")` 返回 `nil` 但代码强转为 `string`。
-建议先做存在性判断，再断言类型。
+先检查 `luogu2api.baseUrl` / `luogu2api.adminToken` 是否与服务端一致；任务运行中的
+常见错误（业务码见 `pkg/luogu2api/errors.go`）：
+
+- `401`：`adminToken` 与服务端 `ADMIN_TOKEN` 不一致
+- `1001`（HTTP 503）：号池没有可用账号，稍后重试即可
+- `1002`（HTTP 502）：号池内账号登录态全部失效，需要人工重新登录
+
+插件日志在 `logs/luogu/get_user_records.log`。

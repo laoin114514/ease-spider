@@ -10,14 +10,18 @@ dingding:
   appSecret: 0jzUXpbjMFs4jK3NNE1Hn3PTBJ8TZfVKurIR4_XI_2jDVmGD3Dkle7xQ4xtHH8e6
   weekRange: 1
 luogu:
-  isInServer: false
   luoguRecordsConcurrency: 5
-  luoguSolutionConcurrency: 5
-  luoguSubmissionDetailConcurrency: 5
-  luoguTeamID: 116191
-  username: laoyin
-  password: 683305SAO
   userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0
+#==================Luogu2Api SDK 配置==================
+# 洛谷提交记录统一由 Luogu2Api 服务获取（pkg/luogu2api SDK），账号池与登录态由该服务维护，
+# 本程序不再保存洛谷账号密码与 cookie
+luogu2api:
+  # spider 跑在容器里，Luogu2Api 部署在宿主机时用 host.docker.internal 访问。
+  # 其 docker compose 把容器 8080 映射到宿主机 8081（8080 已被其他项目占用）；
+  # 若 Luogu2Api 是宿主机上直跑（go run ./cmd/api），改成 http://host.docker.internal:8080
+  baseUrl: http://host.docker.internal:8081
+  # 访问令牌，需与 Luogu2Api 服务端 configs/.env 里的 ADMIN_TOKEN 一致；留空会在启动时校验失败
+  adminToken: ""
 cf:
   cfRecordsConcurrency: 4
   cfTeamContestProblemsConcurrency: 2
@@ -31,9 +35,6 @@ timerFrequency:
   cf_team_contests: 1h
   cf_team_contests_problems: 1h
   dingding: 1h
-  luogu_update_cookie: 1h
-  luogu_submission_detail: 1h
-  luogu_solution: 1h
   cf_records: 2m
   luogu_records: 2m
   reload_config: 1h

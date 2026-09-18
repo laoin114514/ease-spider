@@ -7,9 +7,6 @@ import (
 	cfGetTeamContests "spider/internal/crawlers/cf/get_team_contests"
 	cfGetUserRecords "spider/internal/crawlers/cf/get_user_records"
 	getcheckrecords "spider/internal/crawlers/dingding/get_check_records"
-	luoguGetCookie "spider/internal/crawlers/luogu/get_cookie"
-	luoguGetRecordDetail "spider/internal/crawlers/luogu/get_record_detail"
-	luoguGetSolutions "spider/internal/crawlers/luogu/get_solutions"
 	luoguGetUserRecords "spider/internal/crawlers/luogu/get_user_records"
 	niukeGetUserRecords "spider/internal/crawlers/niuke/get_user_records"
 
@@ -19,12 +16,11 @@ import (
 func Register() *easecrawler.Engine {
 	e := easecrawler.New()
 
+	// 洛谷只保留提交记录：数据经 Luogu2Api 服务（pkg/luogu2api SDK）获取，
+	// 取 cookie、提交详情、题解三个定时服务已随 SDK 接入一并删除
 	luogu := e.Group("luogu")
 	{
 		luogu.Register(luoguGetUserRecords.NewGetUserRecords())
-		luogu.Register(luoguGetCookie.NewGetCookie())
-		luogu.Register(luoguGetSolutions.NewGetSolutions())
-		luogu.Register(luoguGetRecordDetail.NewGetRecordDetail())
 	}
 
 	cf := e.Group("cf")
@@ -46,7 +42,5 @@ func Register() *easecrawler.Engine {
 		niuke.Register(niukeGetUserRecords.NewGetUserRecords())
 	}
 
-	a := e.Group("cf")
-	a.Group("")
 	return e
 }
