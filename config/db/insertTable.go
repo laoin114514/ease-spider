@@ -1,7 +1,16 @@
 package db
 
-func Insert_luogu_sub(table Luogu_all_submissions) error {
-	_, err := Pool.Exec("insert into luogu_all_submissions (Sub_id, Uid,Is_pass, Creation_time, Problem_name, Difficulty, Problem_id) values (?,?,?,?,?,?,?)",
+// Upsert_luogu_sub 幂等写入一条洛谷提交记录，返回本次是否真的新增了一行。
+//
+// 表的主键是 sub_id，所以"插入撞主键"只说明这条记录已经爬过，不是错误：
+//   - 已存在时返回 (false, nil)，调用方据此把它当作"已有"而不是失败，也就不会再有
+//     Error 1062 Duplicate entry 刷屏；
+//   - ownerKnown 为 true（洛谷记录里带回了提交者 uid）时，顺带把 uid 纠正为洛谷给出的
+//     真实提交者，这样 user.luogu_uid 变更后遗留在旧 uid 下的行会被逐步拉回来；
+//   - ownerKnown 为 false 时 uid 是兜底值，不能拿来改写库里已有的行。
+func Upsert_luogu_sub(table Luogu_all_submissions, ownerKnown bool) (bool, error) {
+	query := "insert into luogu_all_submissions (Sub_id, Uid, Is_pass, Creation_time, Problem_name, Difficulty, Problem_id) values (?,?,?,?,?,?,?)"
+	args := []interface{}{
 		table.Sub_id,
 		table.Uid,
 		table.Is_pass,
@@ -9,11 +18,25 @@ func Insert_luogu_sub(table Luogu_all_submissions) error {
 		table.Problem_name,
 		table.Difficulty,
 		table.Problem_id,
-	)
-	if err != nil {
-		return err
 	}
-	return nil
+	if ownerKnown {
+		// 刻意不用 values(Uid)：该写法在 MySQL 8.0.20 起已废弃，重复传一次参数兼容所有版本
+		query += " on duplicate key update Uid = ?"
+		args = append(args, table.Uid)
+	} else {
+		query += " on duplicate key update Sub_id = Sub_id"
+	}
+
+	result, err := Pool.Exec(query, args...)
+	if err != nil {
+		return false, err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	// affected：1 = 新插入；0 = 已存在且无需更新；2 = 已存在但纠正了 uid。后两种都算"已爬过"
+	return affected == 1, nil
 }
 
 // 批量插入，性能更好
