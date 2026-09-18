@@ -1,0 +1,63 @@
+# spider 爬虫服务
+#
+# 只起 spider 一个容器：MySQL（gxuicpc 库）与 Luogu2Api 都跑在宿主机上，容器通过下面
+# extra_hosts 注入的 host.docker.internal 访问它们（对应 config/config.prod.yml 里的
+# database.host 与 luogu2api.baseUrl）。Luogu2Api 是独立的一套栈，用它的
+# docker-compose.yml 管理，这里不重复编排。
+#
+# 首次启动前：
+#   1. 填好 config/config.prod.yml：database、luogu2api.adminToken 等；adminToken 必须与
+#      Luogu2Api 服务端 configs/.env 里的 ADMIN_TOKEN 一致，留空会直接启动失败
+#   2. 确认 config/.env 存在：程序启动时会 godotenv.Load("config/.env")，文件缺失会
+#      直接退出；该文件被 .gitignore 忽略，新克隆的仓库里没有。内容只影响本地开发，
+#      compose 里 RUN_MODE=prod 的优先级比它高
+#   3. 之前用 rebuild_and_restart.sh 起的容器占着 spider 这个名字，先删掉：docker rm -f spider
+#
+# 常用命令：
+#   docker compose up -d --build      # 构建并后台启动
+#   docker compose logs -f spider     # 框架日志：插件注册结果与每轮运行结果
+#   docker compose exec spider tail -f logs/luogu/get_user_records.log
+#   docker compose down               # 停止并删除容器（数据卷保留）
+name: spider
+
+services:
+  spider:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # 沿用 rebuild_and_restart.sh 里的镜像名，两个入口可以混用
+    image: spider:latest
+    container_name: spider
+    restart: unless-stopped
+    # Dockerfile 的 CMD 只有 ./spider（不带参数只打印用法就退出），run 必须显式带上；
+    # 单跑某个插件时可以换成：["./spider", "devrun", "luogu/get_user_records"]
+    command: ["./spider", "run"]
+    environment:
+      RUN_MODE: prod
+      # 日志时间戳用北京时间（时间入库不受影响：驱动固定按 UTC 格式化）
+      TZ: Asia/Shanghai
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      # 程序按工作目录 /spider 读 config/config.prod.yml 和 config/.env；镜像里另外声明了
+      # /config 卷（老脚本挂的就是它），这里一并指到同一份配置，免得每次 up 生成匿名卷
+      - ./config:/spider/config:ro
+      - ./config:/config:ro
+      # 日志与 data 用命名卷：镜像里这两个目录属于非 root 的 app 用户，命名卷会继承它的
+      # 属主，容器开箱即可写；换成 bind mount 时要先保证宿主机目录对镜像里的 app 用户可写
+      # （老脚本是 chown 到 app 的 uid:gid），否则插件会因为写不了日志而注册失败。
+      # 想直接在宿主机上看日志文件就换成：
+      #   - ./logs:/spider/logs
+      #   - ./data:/spider/data
+      - spider-logs:/spider/logs
+      - spider-data:/spider/data
+    logging:
+      driver: json-file
+      options:
+        # 框架日志走 stdout，加个上限免得 json-file 无限增长
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  spider-logs:
+  spider-data:
