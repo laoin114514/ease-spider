@@ -25,7 +25,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # 沿用 rebuild_and_restart.sh 里的镜像名，两个入口可以混用
+    # 沿用 rebuild_and_restart.sh 里的镜像名，两个入口可以混用。
+    # 注意：本地已经有 spider:latest 时，docker compose up 不会重新构建，会直接拿旧镜像跑；
+    # 拉了新提交/改完代码必须用 docker compose up -d --build（或先 docker compose build）
     image: spider:latest
     container_name: spider
     restart: unless-stopped
@@ -43,14 +45,22 @@ services:
       # /config 卷（老脚本挂的就是它），这里一并指到同一份配置，免得每次 up 生成匿名卷
       - ./config:/spider/config:ro
       - ./config:/config:ro
-      # 日志与 data 用命名卷：镜像里这两个目录属于非 root 的 app 用户，命名卷会继承它的
-      # 属主，容器开箱即可写；换成 bind mount 时要先保证宿主机目录对镜像里的 app 用户可写
-      # （老脚本是 chown 到 app 的 uid:gid），否则插件会因为写不了日志而注册失败。
-      # 想直接在宿主机上看日志文件就换成：
-      #   - ./logs:/spider/logs
-      #   - ./data:/spider/data
-      - spider-logs:/spider/logs
-      - spider-data:/spider/data
+      # 日志/data 走 bind mount 是为了在宿主机直接看文件，但容器里的进程是镜像里的非 root
+      # 用户 app，宿主机目录必须对它可写。Docker 自动创建的挂载源目录属于 root:root 0755，
+      # app 既建不了 logs/<group> 子目录也开不了日志文件，引擎会逐组打印
+      # 「创建目录失败: mkdir logs/luogu: permission denied」「注册失败: 创建目录失败」，
+      # 最后「插件总数=0」——容器看着是 Up，实际一个任务都不跑，只能从日志看出来。
+      # 首次部署执行（uid/gid 从镜像里取，alpine 的 -S 用户 uid 不要硬编码）：
+      #   APP_UID=$(docker run --rm --entrypoint id spider:latest -u app)
+      #   APP_GID=$(docker run --rm --entrypoint id spider:latest -g app)
+      #   sudo mkdir -p /home/logs /home/data
+      #   sudo chown -R "$APP_UID:$APP_GID" /home/logs /home/data
+      # 然后 docker compose restart spider（注册只在进程启动时做一次）。
+      # 不想管属主就换回命名卷，属主随镜像目录、开箱即写，但日志不在宿主机上：
+      #   - spider-logs:/spider/logs
+      #   - spider-data:/spider/data
+      - ./logs:/spider/logs
+      - ./data:/spider/data
     logging:
       driver: json-file
       options:
@@ -59,5 +69,7 @@ services:
         max-file: "3"
 
 volumes:
+  # 当前挂的是 bind mount，这两个命名卷没被引用（up 时仍会建出两个空卷，介意就删掉）；
+  # 换回命名卷挂载时可以直接用
   spider-logs:
   spider-data:
