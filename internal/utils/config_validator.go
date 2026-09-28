@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"spider/config"
+	"strings"
 )
 
 // ============================配置验证器===============================================
@@ -36,6 +37,11 @@ func (v *ConfigValidator) ValidateConfig() error {
 
 	// 验证钉钉配置
 	if err := v.validateDingdingConfig(); err != nil {
+		return err
+	}
+
+	// 验证定时任务配置
+	if err := v.validateTimerFrequency(); err != nil {
 		return err
 	}
 
@@ -98,6 +104,20 @@ func (v *ConfigValidator) validateDingdingConfig() error {
 	}
 	if dingding.AppSecret == "" {
 		return fmt.Errorf("钉钉AppSecret不能为空")
+	}
+	return nil
+}
+
+// validateTimerFrequency 验证 timerFrequency：取值需形如 30s / 5m / 2h / 1d（不带单位按分钟）。
+// 留空是允许的，插件会退回内置默认间隔。
+func (v *ConfigValidator) validateTimerFrequency() error {
+	for _, e := range config.TimerFrequency().Entries() {
+		if strings.TrimSpace(e.Value) == "" {
+			continue
+		}
+		if _, ok := config.ParseInterval(e.Value); !ok {
+			return fmt.Errorf("timerFrequency.%s 的取值 %q 非法，应形如 30s / 5m / 2h / 1d（不带单位按分钟）", e.Key, e.Value)
+		}
 	}
 	return nil
 }

@@ -3,7 +3,6 @@ package utils
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"time"
 )
 
@@ -95,27 +94,4 @@ func (d *DateFormat) BeforDateTimeWithDay(day int64) string {
 	befor := time.Unix(now.Unix()-day*24*3600, 1)
 	str := fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", befor.Year(), befor.Month(), befor.Day(), befor.Hour(), befor.Minute(), befor.Second())
 	return str
-}
-func (d *DateFormat) AnalysisTimerFrequency(s string) time.Duration {
-	idx := 0
-	for ; idx < len(s); idx++ {
-		if !(s[idx] >= '0' && s[idx] <= '9') {
-			break
-		}
-	}
-	duration, err := strconv.Atoi(s[:idx])
-	if err != nil {
-		return 0
-	}
-	if s[idx:] == "s" {
-		return time.Second * time.Duration(duration)
-	} else if s[idx:] == "m" {
-		return time.Minute * time.Duration(duration)
-	} else if s[idx:] == "h" {
-		return time.Hour * time.Duration(duration)
-	} else if s[idx:] == "d" {
-		return time.Hour * 24 * time.Duration(duration)
-	} else {
-		return time.Minute * time.Duration(duration)
-	}
 }

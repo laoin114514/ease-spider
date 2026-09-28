@@ -30,7 +30,7 @@ func (g *GetUserRecords) Name() string {
 }
 func (g *GetUserRecords) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         5 * time.Minute,
+		Interval:         config.IntervalOr(config.TimerFrequency().CfRecords, 5*time.Minute),
 		StartImmediately: true,
 	}
 }

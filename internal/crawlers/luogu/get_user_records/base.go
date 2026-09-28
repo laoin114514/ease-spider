@@ -1,6 +1,7 @@
 package getuserrecords
 
 import (
+	"spider/config"
 	"spider/internal/repository"
 	"spider/pkg/luogu2api"
 	"time"
@@ -29,7 +30,7 @@ func (g *GetUserRecords) Name() string {
 }
 func (g *GetUserRecords) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         5 * time.Minute,
+		Interval:         config.IntervalOr(config.TimerFrequency().LuoguRecords, 5*time.Hour),
 		StartImmediately: true,
 	}
 }

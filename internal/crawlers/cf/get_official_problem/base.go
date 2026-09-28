@@ -1,6 +1,7 @@
 package getofficialproblem
 
 import (
+	"spider/config"
 	"spider/internal/crawlers/cf/cfclient"
 	"time"
 
@@ -25,7 +26,7 @@ func (g *GetOfifcialProblems) Name() string {
 }
 func (g *GetOfifcialProblems) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         1 * time.Hour,
+		Interval:         config.IntervalOr(config.TimerFrequency().CfOfficialProblems, 1*time.Hour),
 		StartImmediately: true,
 	}
 }

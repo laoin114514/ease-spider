@@ -30,7 +30,7 @@ func (g *GetTeamContests) Name() string {
 }
 func (g *GetTeamContests) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         1 * time.Hour,
+		Interval:         config.IntervalOr(config.TimerFrequency().CfTeamContests, 1*time.Hour),
 		StartImmediately: true,
 	}
 }

@@ -1,6 +1,7 @@
 package getofifcialcontest
 
 import (
+	"spider/config"
 	"spider/internal/crawlers/cf/cfclient"
 	"spider/internal/repository"
 	"time"
@@ -27,7 +28,7 @@ func (g *GetOfifcialContest) Name() string {
 }
 func (g *GetOfifcialContest) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         1 * time.Hour,
+		Interval:         config.IntervalOr(config.TimerFrequency().CfOfficialContests, 1*time.Hour),
 		StartImmediately: true,
 	}
 }

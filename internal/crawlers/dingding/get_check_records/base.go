@@ -1,6 +1,7 @@
 package getcheckrecords
 
 import (
+	"spider/config"
 	"spider/internal/repository"
 	"time"
 
@@ -28,7 +29,7 @@ func (g *GetCheckRecords) Name() string {
 }
 func (g *GetCheckRecords) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         1 * time.Hour,
+		Interval:         config.IntervalOr(config.TimerFrequency().Dingding, 1*time.Hour),
 		StartImmediately: true,
 	}
 }

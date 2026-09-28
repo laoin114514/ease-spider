@@ -28,15 +28,16 @@ cf:
   managerAccount: 233zhang
   groupCode: mczZWy5WU7
 #==================定时任务配置==================
-#每个任务的执行时间，单位填在数字后面，如30s，30m，30h，30d，默认分钟,更改后需要重启程序
+#每个任务的执行时间，单位填在数字后面，如30s，30m，30h，30d，默认分钟；留空则用插件内置默认值；更改后需要重启程序
 timerFrequency:
   cf_official_contests: 1h
   cf_official_problems: 1h
   cf_team_contests: 1h
   cf_team_contests_problems: 1h
   dingding: 1h
-  cf_records: 2m
-  luogu_records: 2m
+  cf_records: 5m
+  luogu_records: 24h
+  niuke_records: 1h
   reload_config: 1h
 debug:
   all: true

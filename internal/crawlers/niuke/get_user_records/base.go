@@ -1,6 +1,7 @@
 package getuserrecords
 
 import (
+	"spider/config"
 	"spider/internal/repository"
 	"time"
 
@@ -27,7 +28,7 @@ func (g *GetUserRecords) Name() string {
 // Meta 返回插件元数据
 func (g *GetUserRecords) Meta() easecrawler.Meta {
 	return easecrawler.Meta{
-		Interval:         1 * time.Hour, // 只执行一次
+		Interval:         config.IntervalOr(config.TimerFrequency().NiukeRecords, 1*time.Hour),
 		StartImmediately: true,
 	}
 }

@@ -89,7 +89,7 @@ func (d *DemoCrawler) Run(c *easecrawler.Context) error {
 
 - `Name()`：插件唯一标识（同分组下不可重复）
 - `Meta()`：调度配置
-  - `Interval`：执行周期
+  - `Interval`：执行周期，从 `config.<mode>.yml` 的 `timerFrequency` 段读取（键见第 7 节）
   - `StartImmediately`：启动时是否先执行一次
   - `Logger`：可选，自定义日志器
 - `Run()`：框架调用入口，建议只做上下文准备，具体逻辑放 `service.go`
@@ -157,6 +157,24 @@ go run ./cmd devrun luogu/get_user_records  # 单跑某个插件
 洛谷提交记录经 Luogu2Api 服务（`pkg/luogu2api` SDK）获取，运行前需在
 `config/config.dev.yml` / `config/config.prod.yml` 的 `luogu2api` 段填好 `baseUrl`
 与 `adminToken`（后者与服务端 `ADMIN_TOKEN` 一致），两项为空时启动阶段就会失败。
+
+### 定时任务配置（timerFrequency）
+
+各插件的执行周期统一从 `config.<mode>.yml` 的 `timerFrequency` 段读取，`Meta()` 不再硬编码间隔：
+
+| 插件 | 配置键 | 内置默认值 |
+|---|---|---|
+| `luogu/get_user_records` | `luogu_records` | 5m |
+| `cf/get_user_records` | `cf_records` | 5m |
+| `cf/get_team_contests` | `cf_team_contests` | 1h |
+| `cf/get_team_contest_problems` | `cf_team_contests_problems` | 1h |
+| `cf/get_ofifcial_contest` | `cf_official_contests` | 1h |
+| `cf/get_ofifcial_problems` | `cf_official_problems` | 1h |
+| `dingding/get_check_records` | `dingding` | 1h |
+| `niuke/get_user_records` | `niuke_records` | 1h |
+
+取值形如 `30s` / `5m` / `2h` / `1d`，不带单位按分钟；**留空表示不配置**，插件退回内置默认值。
+格式非法的取值会在启动阶段被 `ConfigValidator` 拦下（解析器是 `config.ParseInterval`）。
 
 ### 依赖内化：git submodule
 
