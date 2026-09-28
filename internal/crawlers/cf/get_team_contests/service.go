@@ -1,36 +1,29 @@
 package getteamcontests
 
 import (
-	"fmt"
 	"spider/config"
 	"spider/config/db"
 	"spider/internal/constants"
-	"spider/internal/models"
-	"spider/internal/utils"
-	cfurlgenerator "spider/pkg/cf-url-generator"
 	"time"
+
+	cf "github.com/laoin114514/codeforcesClient"
 )
 
 // GetCfTeamContests 获取CF团队比赛 - 对外提供的主要接口
 func (g *GetTeamContests) GetCfTeamContests() error {
 	g.count = 0
 
-	// 构建请求URL
-	url, err := g.buildTeamContestsURL()
-	if err != nil {
-		g.log.Errorf("构建请求URL失败 %s", err.Error())
-		return err
-	}
-
-	// 获取数据
-	resp, err := g.fetchTeamContestsData(url)
+	// 带 manager 账号的签名请求 contest.list
+	resp, err := g.client.WithHandle(g.useAccount).ContestList(&cf.ContestListParams{
+		GroupCode: config.AppConfig.Cf.GroupCode,
+	})
 	if err != nil {
 		g.log.Errorf("获取数据失败 %s", err.Error())
 		return err
 	}
 
 	// 处理团队比赛数据
-	err = g.processTeamContests(&resp)
+	err = g.processTeamContests(resp)
 	if err != nil {
 		g.log.Errorf("处理数据失败 %s", err.Error())
 		return err
@@ -40,24 +33,13 @@ func (g *GetTeamContests) GetCfTeamContests() error {
 	return nil
 }
 
-// buildTeamContestsURL 构建团队比赛请求URL - 私有方法
-func (g *GetTeamContests) buildTeamContestsURL() (string, error) {
-	GroupCode := config.AppConfig.Cf.GroupCode
-	return g.urlGenerator.Contest.List(g.useAccount, &cfurlgenerator.ContestListParams{
-		GroupCode: GroupCode,
-	})
-}
-
-// fetchTeamContestsData 获取团队比赛数据 - 私有方法
-func (g *GetTeamContests) fetchTeamContestsData(url string) (models.CfTeamContestsResponse, error) {
-	req := utils.NewRequest[models.CfTeamContestsResponse](true)
-	return req.Get(url, map[string]string{})
-}
-
 // processTeamContests 处理团队比赛数据 - 私有方法
-func (g *GetTeamContests) processTeamContests(resp *models.CfTeamContestsResponse) error {
+func (g *GetTeamContests) processTeamContests(resp *cf.ContestListResponse) error {
 	for _, cfTeamContest := range resp.Result {
-		table := g.buildTeamContestTable(&cfTeamContest)
+		if cfTeamContest == nil {
+			continue
+		}
+		table := g.buildTeamContestTable(cfTeamContest)
 		err := db.Insert_cf_team_contests(table)
 		if err != nil {
 			continue
@@ -68,29 +50,15 @@ func (g *GetTeamContests) processTeamContests(resp *models.CfTeamContestsRespons
 }
 
 // buildTeamContestTable 构建团队比赛表 - 私有方法
-func (g *GetTeamContests) buildTeamContestTable(cfTeamContest *models.CfContest) db.Cf_team_contests {
-	if cfTeamContest.StartTimeSeconds == 0 {
-		cfTeamContest.StartTimeSeconds = time.Now().Unix()
+func (g *GetTeamContests) buildTeamContestTable(cfTeamContest *cf.Contest) db.Cf_team_contests {
+	startTime := cfTeamContest.StartTimeSeconds
+	if startTime == 0 {
+		startTime = time.Now().Unix()
 	}
 	return db.Cf_team_contests{
-		Contest_id:   int(cfTeamContest.Id),
+		Contest_id:   cfTeamContest.ID,
 		Contest_name: cfTeamContest.Name,
 		PrePare_by:   cfTeamContest.PreparedBy,
-		Start_time:   time.Unix(cfTeamContest.StartTimeSeconds, 0).Add(constants.TimeZoneOffsetHours * time.Hour),
+		Start_time:   time.Unix(startTime, 0).Add(constants.TimeZoneOffsetHours * time.Hour),
 	}
-}
-
-// logError 记录错误日志 - 私有方法
-func (g *GetTeamContests) logError(message string, err error) {
-	errorMsg := message
-	if err != nil {
-		errorMsg += fmt.Sprintf(" %v", err)
-	}
-	g.log.Errorf(errorMsg)
-}
-
-// logSuccess 记录成功日志 - 私有方法
-func (g *GetTeamContests) logSuccess(message string, count int) {
-	successMsg := fmt.Sprintf("%s %d条", message, count)
-	g.log.Printf(successMsg)
 }

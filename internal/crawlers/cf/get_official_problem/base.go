@@ -1,23 +1,21 @@
 package getofficialproblem
 
 import (
-	"spider/internal/repository"
-	cfurlgenerator "spider/pkg/cf-url-generator"
+	"spider/internal/crawlers/cf/cfclient"
 	"time"
 
+	cf "github.com/laoin114514/codeforcesClient"
 	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 type GetOfifcialProblems struct {
-	log          *easecrawler.EaseLogger
-	repo         *repository.CfRepository
-	urlGenerator *cfurlgenerator.GenerateCFurl
-	count        int
+	log    *easecrawler.EaseLogger
+	client *cf.Client
+	count  int
 }
 
 func NewGetOfifcialProblems() *GetOfifcialProblems {
 	return &GetOfifcialProblems{
-		repo:  repository.NewCfRepository(),
 		count: 0,
 	}
 }
@@ -32,14 +30,11 @@ func (g *GetOfifcialProblems) Meta() easecrawler.Meta {
 	}
 }
 func (g *GetOfifcialProblems) Run(c *easecrawler.Context) error {
-	apiKeyPool, err := g.repo.GetCfApikeyPool()
-	if err != nil {
-		return err
-	}
-	g.urlGenerator = cfurlgenerator.NewGenerator(apiKeyPool)
+	// problemset.problems 是公共接口，不需要凭据
+	g.client = cfclient.NewPlain(0)
 	g.log = easecrawler.GetCrawlerLogger(c)
 
-	err = g.GetCfOfficialProblems()
+	err := g.GetCfOfficialProblems()
 	if err != nil {
 		return err
 	}

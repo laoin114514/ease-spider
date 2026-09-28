@@ -1,20 +1,17 @@
 package getteamcontestproblems
 
 import (
-	"fmt"
 	"spider/config"
 	"spider/config/db"
 	"spider/internal/constants"
-	"spider/internal/models"
-	"spider/internal/utils"
-	cfurlgenerator "spider/pkg/cf-url-generator"
 
+	cf "github.com/laoin114514/codeforcesClient"
 	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 // GetCfTeamContestsProblems 获取CF团队比赛题目 - 对外提供的主要接口
 func (g *GetTeamContestProblems) GetCfTeamContestsProblems() error {
-	g.count = 0
+	g.count.Store(0)
 
 	// 获取团队比赛数据
 	teamContests, err := g.repo.GetTeamContests()
@@ -31,28 +28,27 @@ func (g *GetTeamContestProblems) GetCfTeamContestsProblems() error {
 		return g.processTeamContestProblems(teamContest)
 	})
 
-	g.log.Printf("插入团队比赛题目 %d", g.count)
+	g.log.Printf("插入团队比赛题目 %d", g.count.Load())
 	return nil
 }
 
 // processTeamContestProblems 处理单个团队比赛的题目 - 私有方法
 func (g *GetTeamContestProblems) processTeamContestProblems(teamContest db.Cf_team_contests) error {
-	// 构建请求URL
-	url, err := g.buildTeamContestProblemsURL(teamContest)
-	if err != nil {
-		g.log.Errorf("构建团队比赛题目请求URL失败 %s", err.Error())
-		return err
-	}
-
-	// 获取题目数据
-	problems, err := g.fetchTeamContestProblemsData(url)
+	// 以出题人身份带签名请求 standings
+	problems, err := g.client.WithHandle(teamContest.PrePare_by).ContestStandings(&cf.ContestStandingsParams{
+		ContestID:      teamContest.Contest_id,
+		AsManager:      true,
+		From:           1,
+		Count:          constants.CfMaxRecords,
+		ShowUnofficial: true,
+	})
 	if err != nil {
 		g.log.Errorf("获取团队比赛题目失败 %s", err.Error())
 		return err
 	}
 
 	// 处理团队比赛题目
-	err = g.processTeamContestProblemsData(&problems)
+	err = g.processTeamContestProblemsData(problems)
 	if err != nil {
 		g.log.Errorf("处理团队比赛题目失败 %s", err.Error())
 		return err
@@ -61,60 +57,38 @@ func (g *GetTeamContestProblems) processTeamContestProblems(teamContest db.Cf_te
 	return nil
 }
 
-// buildTeamContestProblemsURL 构建团队比赛题目请求URL - 私有方法
-func (g *GetTeamContestProblems) buildTeamContestProblemsURL(teamContest db.Cf_team_contests) (string, error) {
-	return g.urlGenerator.Contest.Standings(teamContest.PrePare_by, &cfurlgenerator.ContestStandingsParams{
-		ContestID:      teamContest.Contest_id,
-		AsManager:      true,
-		From:           1,
-		Count:          constants.CfMaxRecords,
-		ShowUnofficial: true,
-	})
-}
-
-// fetchTeamContestProblemsData 获取团队比赛题目数据 - 私有方法
-func (g *GetTeamContestProblems) fetchTeamContestProblemsData(url string) (models.CfTeamContestProblemsResponse, error) {
-	req := utils.NewRequest[models.CfTeamContestProblemsResponse](true)
-	return req.Get(url, map[string]string{})
-}
-
 // processTeamContestProblemsData 处理团队比赛题目数据 - 私有方法
-func (g *GetTeamContestProblems) processTeamContestProblemsData(resp *models.CfTeamContestProblemsResponse) error {
+func (g *GetTeamContestProblems) processTeamContestProblemsData(resp *cf.ContestStandingsResponse) error {
+	if resp.Result == nil {
+		return nil
+	}
 	for _, cfProblem := range resp.Result.Problems {
-		table := g.buildTeamProblemTable(&cfProblem)
+		if cfProblem == nil {
+			continue
+		}
+		table := g.buildTeamProblemTable(cfProblem)
 		err := db.Insert_team_questions(table)
 		if err != nil {
 			continue
 		}
-		g.count++
+		g.count.Add(1)
 	}
 	return nil
 }
 
 // buildTeamProblemTable 构建团队题目表 - 私有方法
-func (g *GetTeamContestProblems) buildTeamProblemTable(cfProblem *models.CfProblem) db.Cf_team_problems {
-	if cfProblem.Rating == 0 {
-		cfProblem.Rating = -1
+//
+// 字段映射保持迁移前的行为不变：Team_contest_name 取的是题目标题，
+// Official_contest_ID 没有赋值（沿用从前的写法，是否修正另行处理）。
+func (g *GetTeamContestProblems) buildTeamProblemTable(cfProblem *cf.Problem) db.Cf_team_problems {
+	rating := cfProblem.Rating
+	if rating == 0 {
+		rating = -1
 	}
 	return db.Cf_team_problems{
-		Team_contest_id:   int(cfProblem.ContestId),
+		Team_contest_id:   cfProblem.ContestID,
 		Team_contest_name: cfProblem.Name,
 		Problem_name:      cfProblem.Name,
-		Rating:            int(cfProblem.Rating),
+		Rating:            rating,
 	}
-}
-
-// logError 记录错误日志 - 私有方法
-func (g *GetTeamContestProblems) logError(message string, err error) {
-	errorMsg := message
-	if err != nil {
-		errorMsg += fmt.Sprintf(" %v", err)
-	}
-	g.log.Errorf(errorMsg)
-}
-
-// logSuccess 记录成功日志 - 私有方法
-func (g *GetTeamContestProblems) logSuccess(message string, count int) {
-	successMsg := fmt.Sprintf("%s %d条", message, count)
-	g.log.Printf(successMsg)
 }

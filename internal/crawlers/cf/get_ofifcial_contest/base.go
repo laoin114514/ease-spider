@@ -1,18 +1,19 @@
 package getofifcialcontest
 
 import (
+	"spider/internal/crawlers/cf/cfclient"
 	"spider/internal/repository"
-	cfurlgenerator "spider/pkg/cf-url-generator"
 	"time"
 
+	cf "github.com/laoin114514/codeforcesClient"
 	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 type GetOfifcialContest struct {
-	log          *easecrawler.EaseLogger
-	repo         *repository.CfRepository
-	urlGenerator *cfurlgenerator.GenerateCFurl
-	count        int
+	log    *easecrawler.EaseLogger
+	repo   *repository.CfRepository
+	client *cf.Client
+	count  int
 }
 
 func NewGetOfifcialContest() *GetOfifcialContest {
@@ -31,12 +32,12 @@ func (g *GetOfifcialContest) Meta() easecrawler.Meta {
 	}
 }
 func (g *GetOfifcialContest) Run(c *easecrawler.Context) error {
-	apiKeyPool, err := g.repo.GetCfApikeyPool()
+	keys, err := g.repo.GetCfApikeyPool()
 	if err != nil {
 		return err
 	}
-	g.urlGenerator = cfurlgenerator.NewGenerator(apiKeyPool)
-
+	// 单个请求，不需要限流
+	g.client = cfclient.NewSigned(keys, 0)
 	g.log = easecrawler.GetCrawlerLogger(c)
 	err = g.GetCfOfficialContests()
 	if err != nil {

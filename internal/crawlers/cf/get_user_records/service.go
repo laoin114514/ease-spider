@@ -6,10 +6,9 @@ import (
 	"spider/config/db"
 	"spider/internal/constants"
 	"spider/internal/models"
-	"spider/internal/utils"
-	cfurlgenerator "spider/pkg/cf-url-generator"
 	"time"
 
+	cf "github.com/laoin114514/codeforcesClient"
 	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
@@ -48,31 +47,15 @@ func (g *GetUserRecords) processUserRecords(cfUserData models.CfUserData) error 
 		return err
 	}
 
-	// 构建请求URL
-	url, err := g.buildRequestURL(cfUserData.Account, true)
+	// 拉取提交记录
+	resp, err := g.fetchUserStatus(cfUserData.Account)
 	if err != nil {
-		g.log.Errorf("%s构建请求URL失败 %s", cfUserData.RealName, err.Error())
+		g.log.Errorf("%s请求数据失败 %s", cfUserData.RealName, err.Error())
 		return err
 	}
 
-	// 发起请求
-	resp, err := g.fetchUserStatus(url)
-	if err != nil {
-		g.log.Errorf("%s请求数据失败，尝试无apiKey请求 %s", cfUserData.RealName, err.Error())
-		url, err = g.buildRequestURL(cfUserData.Account, false)
-		if err != nil {
-			g.log.Errorf("%s构建请求URL失败 %s", cfUserData.RealName, err.Error())
-			return err
-		}
-		resp, err = g.fetchUserStatus(url)
-		if err != nil {
-			g.log.Errorf("%s请求数据失败,URL:%s %s", cfUserData.RealName, url, err.Error())
-			return err
-		}
-	}
-
 	// 处理CF提交记录
-	err = g.processSubmissionRecords(&cfUserData, &resp)
+	err = g.processSubmissionRecords(&cfUserData, resp)
 	if err != nil {
 		g.log.Errorf("%s处理提交记录失败 %s", cfUserData.RealName, err.Error())
 		return err
@@ -96,39 +79,28 @@ func (g *GetUserRecords) loadExistingRecords(cfUserData *models.CfUserData) erro
 	return nil
 }
 
-// buildRequestURL 构建请求URL - 私有方法
-func (g *GetUserRecords) buildRequestURL(account string, isApiKey bool) (string, error) {
-	// 尝试使用HTTPS
-	url, err := g.urlGenerator.User.Status(
-		isApiKey,
-		&cfurlgenerator.UserStatusParams{
-			Handle: account,
-			From:   1,
-			Count:  constants.CfMaxRecords,
-		},
-	)
-	if err != nil {
-		// 回退到HTTP
-		url, err = g.urlGenerator.User.Status(
-			false,
-			&cfurlgenerator.UserStatusParams{
-				Handle: account,
-				From:   1,
-				Count:  constants.CfMaxRecords,
-			},
-		)
+// fetchUserStatus 拉取某个账号的全部提交记录 - 私有方法
+//
+// 有凭据时优先带 apiKey 签名请求，失败再退回无签名的公共接口（与迁移前一致）。
+func (g *GetUserRecords) fetchUserStatus(account string) (*cf.UserStatusResponse, error) {
+	params := &cf.UserStatusParams{
+		Handle: account,
+		From:   1,
+		Count:  constants.CfMaxRecords,
 	}
-	return url, err
-}
-
-// fetchUserStatus 获取用户状态数据 - 私有方法
-func (g *GetUserRecords) fetchUserStatus(url string) (models.CfUserStatusResponse, error) {
-	req := utils.NewRequest[models.CfUserStatusResponse](true)
-	return req.Get(url, map[string]string{})
+	if _, ok := g.keys[account]; !ok {
+		return g.plain.UserStatus(params)
+	}
+	resp, err := g.signed.WithHandle(account).UserStatus(params)
+	if err == nil {
+		return resp, nil
+	}
+	g.log.Warnf("%s带apiKey请求失败，改用无签名请求 %s", account, err.Error())
+	return g.plain.UserStatus(params)
 }
 
 // processSubmissionRecords 处理提交记录 - 私有方法
-func (g *GetUserRecords) processSubmissionRecords(cfUserData *models.CfUserData, resp *models.CfUserStatusResponse) error {
+func (g *GetUserRecords) processSubmissionRecords(cfUserData *models.CfUserData, resp *cf.UserStatusResponse) error {
 
 	skippedCount := 0
 	for _, cfRecord := range resp.Result {
@@ -137,7 +109,7 @@ func (g *GetUserRecords) processSubmissionRecords(cfUserData *models.CfUserData,
 			continue
 		}
 
-		table := g.buildSubmissionTable(&cfRecord, cfUserData)
+		table := g.buildSubmissionTable(cfRecord, cfUserData)
 		err := db.Insert_cf_all_sub(table)
 		if err != nil {
 			g.log.Errorf("%s插入提交记录失败 %s", cfUserData.RealName, err.Error())
@@ -151,9 +123,14 @@ func (g *GetUserRecords) processSubmissionRecords(cfUserData *models.CfUserData,
 }
 
 // shouldSkipRecord 判断是否应该跳过该提交记录 - 私有方法
-func (g *GetUserRecords) shouldSkipRecord(cfRecord models.CfSubmission, cfUserData *models.CfUserData) bool {
+func (g *GetUserRecords) shouldSkipRecord(cfRecord *cf.Submission, cfUserData *models.CfUserData) bool {
+	// 客户端用指针返回记录，这里必须防 nil，否则取 Problem 会 panic
+	if cfRecord == nil || cfRecord.Problem == nil {
+		g.log.Warnf("%s收到缺少题目信息的提交记录，已跳过", cfUserData.RealName)
+		return true
+	}
 	// 如果提交记录已存在，则跳过
-	if cfUserData.OldDataSet[int(cfRecord.Id)] {
+	if cfUserData.OldDataSet[int(cfRecord.ID)] {
 		return true
 	}
 	// 如果提交记录还在测试中，则跳过
@@ -164,17 +141,18 @@ func (g *GetUserRecords) shouldSkipRecord(cfRecord models.CfSubmission, cfUserDa
 }
 
 // buildSubmissionTable 构建提交记录表 - 私有方法
-func (g *GetUserRecords) buildSubmissionTable(cfRecord *models.CfSubmission, cfUserData *models.CfUserData) db.Cf_all_submissions {
-	if cfRecord.Problem.Rating == 0 {
-		cfRecord.Problem.Rating = -1
+func (g *GetUserRecords) buildSubmissionTable(cfRecord *cf.Submission, cfUserData *models.CfUserData) db.Cf_all_submissions {
+	rating := cfRecord.Problem.Rating
+	if rating == 0 {
+		rating = -1
 	}
 	return db.Cf_all_submissions{
-		Sub_id:        int(cfRecord.Id),
+		Sub_id:        int(cfRecord.ID),
 		Account:       cfUserData.Account,
-		Problem_id:    fmt.Sprintf("%d%s", cfRecord.Problem.ContestId, cfRecord.Problem.Index),
+		Problem_id:    fmt.Sprintf("%d%s", cfRecord.Problem.ContestID, cfRecord.Problem.Index),
 		Problem_name:  cfRecord.Problem.Name,
 		Verdict:       cfRecord.Verdict,
-		Rating:        int(cfRecord.Problem.Rating),
+		Rating:        rating,
 		Creation_time: time.Unix(cfRecord.CreationTimeSeconds, 0).Add(constants.TimeZoneOffsetHours * time.Hour),
 	}
 }

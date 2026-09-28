@@ -2,19 +2,20 @@ package getteamcontests
 
 import (
 	"spider/config"
+	"spider/internal/crawlers/cf/cfclient"
 	"spider/internal/repository"
-	cfurlgenerator "spider/pkg/cf-url-generator"
 	"time"
 
+	cf "github.com/laoin114514/codeforcesClient"
 	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 type GetTeamContests struct {
-	log          *easecrawler.EaseLogger
-	repo         *repository.CfRepository
-	urlGenerator *cfurlgenerator.GenerateCFurl
-	useAccount   string
-	count        int
+	log        *easecrawler.EaseLogger
+	repo       *repository.CfRepository
+	client     *cf.Client
+	useAccount string
+	count      int
 }
 
 func NewGetTeamContests() *GetTeamContests {
@@ -34,11 +35,12 @@ func (g *GetTeamContests) Meta() easecrawler.Meta {
 	}
 }
 func (g *GetTeamContests) Run(c *easecrawler.Context) error {
-	apiKeyPool, err := g.repo.GetCfApikeyPool()
+	keys, err := g.repo.GetCfApikeyPool()
 	if err != nil {
 		return err
 	}
-	g.urlGenerator = cfurlgenerator.NewGenerator(apiKeyPool)
+	// 单个请求，不需要限流
+	g.client = cfclient.NewSigned(keys, 0)
 	g.log = easecrawler.GetCrawlerLogger(c)
 	g.GetCfTeamContests()
 	return nil

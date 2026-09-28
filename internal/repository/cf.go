@@ -3,7 +3,6 @@ package repository
 import (
 	"spider/config/db"
 	"spider/internal/models"
-	cfurlgenerator "spider/pkg/cf-url-generator"
 	"time"
 )
 
@@ -48,20 +47,27 @@ func (r *CfRepository) GetCfRecordsIdToset(account string) (map[int]bool, error)
 	}
 	return cfRecords, nil
 }
-func (r *CfRepository) GetCfApikeyPool() (map[string]*cfurlgenerator.UserApikey, error) {
+
+// CfApiKey 是单个 CF 账号的 API 凭据（对应 user 表的 cf_apikey / cf_secret）。
+type CfApiKey struct {
+	ApiKey string
+	Secret string
+}
+
+func (r *CfRepository) GetCfApikeyPool() (map[string]CfApiKey, error) {
 	rows, err := db.Pool.Query("SELECT cf_account, cf_apikey, cf_secret FROM user WHERE cf_account != '' AND cf_account IS NOT NULL AND cf_account != ' ' AND (role_id = 1 OR role_id = 3) AND cf_apikey IS NOT NULL AND cf_secret IS NOT NULL")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	apiKeyPool := make(map[string]*cfurlgenerator.UserApikey)
+	apiKeyPool := make(map[string]CfApiKey)
 	for rows.Next() {
 		var account, apikey, secret string
 		err := rows.Scan(&account, &apikey, &secret)
 		if err != nil {
 			return nil, err
 		}
-		apiKeyPool[account] = &cfurlgenerator.UserApikey{Apikey: apikey, SecretKey: secret}
+		apiKeyPool[account] = CfApiKey{ApiKey: apikey, Secret: secret}
 	}
 	return apiKeyPool, nil
 }

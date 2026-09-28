@@ -177,10 +177,10 @@ git clone --recurse-submodules <repo>
 git submodule update --init --recursive
 ```
 
-依赖用 `internal/tools/tools.go`（`//go:build tools`）固定，`go mod tidy` 不会移除
-require/replace，同时该文件不参与正常构建，客户端不会进入二进制产物。
-子模块缺失时 `go mod tidy` 与 `docker build` 会直接报错；`go build ./...` 目前不受
-影响（业务代码尚未 import 它）。
+CF 相关插件（`internal/crawlers/cf/*`）已直接 import 该客户端，require/replace 由真实
+依赖固定，不需要额外的 tools.go；`internal/crawlers/cf/cfclient` 负责把 user 表的
+`cf_apikey`/`cf_secret` 装配成带号池签名的客户端（自带限流与 429/5xx 重试）。
+子模块缺失时 `go mod tidy`、`go build ./...` 与 `docker build` 都会直接报错。
 
 ---
 

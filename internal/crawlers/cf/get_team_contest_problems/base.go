@@ -1,24 +1,27 @@
 package getteamcontestproblems
 
 import (
+	"spider/config"
+	"spider/internal/crawlers/cf/cfclient"
 	"spider/internal/repository"
-	cfurlgenerator "spider/pkg/cf-url-generator"
+	"sync/atomic"
 	"time"
 
+	cf "github.com/laoin114514/codeforcesClient"
 	easecrawler "github.com/laoin114514/ease-crawler"
 )
 
 type GetTeamContestProblems struct {
-	log          *easecrawler.EaseLogger
-	repo         *repository.CfRepository
-	urlGenerator *cfurlgenerator.GenerateCFurl
-	count        int
+	log    *easecrawler.EaseLogger
+	repo   *repository.CfRepository
+	client *cf.Client
+	// count 在并发器里累加，用原子量避免数据竞争
+	count atomic.Int64
 }
 
 func NewGetTeamContestProblems() *GetTeamContestProblems {
 	return &GetTeamContestProblems{
-		repo:  repository.NewCfRepository(),
-		count: 0,
+		repo: repository.NewCfRepository(),
 	}
 }
 func (g *GetTeamContestProblems) Name() string {
@@ -31,11 +34,11 @@ func (g *GetTeamContestProblems) Meta() easecrawler.Meta {
 	}
 }
 func (g *GetTeamContestProblems) Run(c *easecrawler.Context) error {
-	apiKeyPool, err := g.repo.GetCfApikeyPool()
+	keys, err := g.repo.GetCfApikeyPool()
 	if err != nil {
 		return err
 	}
-	g.urlGenerator = cfurlgenerator.NewGenerator(apiKeyPool)
+	g.client = cfclient.NewSigned(keys, config.AppConfig.Cf.CfTeamContestProblemsConcurrency)
 	g.log = easecrawler.GetCrawlerLogger(c)
 	g.GetCfTeamContestsProblems()
 	return nil
