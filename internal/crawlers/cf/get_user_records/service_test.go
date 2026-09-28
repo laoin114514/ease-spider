@@ -9,7 +9,7 @@ import (
 	"spider/internal/models"
 
 	cf "github.com/laoin114514/codeforcesClient"
-	easecrawler "github.com/laoin114514/ease-crawler"
+	easecrawler "spider/pkg/crawler"
 )
 
 func newTestLogger() *easecrawler.EaseLogger {

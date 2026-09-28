@@ -1,6 +1,6 @@
 # Spider 插件化爬虫项目说明
 
-本项目基于 `pkg/ease-crawler` 构建，采用“**分组 + 插件**”的方式组织抓取任务。
+本项目基于 `pkg/crawler`（内化的 ease-crawler 框架）构建，采用“**分组 + 插件**”的方式组织抓取任务。
 
 你可以把它理解成：
 
@@ -56,7 +56,7 @@
 package demo
 
 import (
-    easecrawler "spider/pkg/ease-crawler"
+    easecrawler "spider/pkg/crawler"
     "time"
 )
 

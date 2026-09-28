@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	easecrawler "github.com/laoin114514/ease-crawler"
+	easecrawler "spider/pkg/crawler"
 )
 
 // GetAndStore 获取并入库洛谷用户提交记录

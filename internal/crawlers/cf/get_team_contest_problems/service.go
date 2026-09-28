@@ -6,7 +6,7 @@ import (
 	"spider/internal/constants"
 
 	cf "github.com/laoin114514/codeforcesClient"
-	easecrawler "github.com/laoin114514/ease-crawler"
+	easecrawler "spider/pkg/crawler"
 )
 
 // GetCfTeamContestsProblems 获取CF团队比赛题目 - 对外提供的主要接口

@@ -8,7 +8,7 @@ import (
 	"spider/internal/crawlers"
 	"spider/internal/utils"
 
-	ease "github.com/laoin114514/ease-crawler"
+	ease "spider/pkg/crawler"
 )
 
 func init() {

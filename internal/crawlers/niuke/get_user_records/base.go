@@ -4,7 +4,7 @@ import (
 	"spider/internal/repository"
 	"time"
 
-	easecrawler "github.com/laoin114514/ease-crawler"
+	easecrawler "spider/pkg/crawler"
 )
 
 // GetUserRecords 牛客用户记录插件

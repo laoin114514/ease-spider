@@ -7,7 +7,7 @@ import (
 	"time"
 
 	cf "github.com/laoin114514/codeforcesClient"
-	easecrawler "github.com/laoin114514/ease-crawler"
+	easecrawler "spider/pkg/crawler"
 )
 
 type GetTeamContests struct {

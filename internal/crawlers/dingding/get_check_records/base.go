@@ -4,7 +4,7 @@ import (
 	"spider/internal/repository"
 	"time"
 
-	easecrawler "github.com/laoin114514/ease-crawler"
+	easecrawler "spider/pkg/crawler"
 )
 
 type GetCheckRecords struct {

@@ -5,7 +5,7 @@ import (
 	"spider/pkg/luogu2api"
 	"time"
 
-	easecrawler "github.com/laoin114514/ease-crawler"
+	easecrawler "spider/pkg/crawler"
 )
 
 // GetUserRecords 获取洛谷用户提交记录。
