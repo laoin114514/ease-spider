@@ -8,7 +8,11 @@ RUN apk add --no-cache ca-certificates
 ENV GOPROXY=https://goproxy.cn,direct \
     GOSUMDB=sum.golang.google.cn
 
+# go.mod 用 replace 把内化的 Codeforces 客户端重定向到 pkg/codeforcesAPIClient
+# （git submodule）。go mod download 需要先读到它的 go.mod，所以单独拷一份；
+# 源码目录稍后整块 COPY。子模块没检出时这里会直接失败，属于预期（见 README 运行方式）。
 COPY go.mod go.sum ./
+COPY pkg/codeforcesAPIClient/go.mod pkg/codeforcesAPIClient/go.mod
 RUN --mount=type=cache,target=/go/pkg/mod \
     go mod download
 

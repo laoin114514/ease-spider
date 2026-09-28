@@ -158,6 +158,30 @@ go run ./cmd devrun luogu/get_user_records  # 单跑某个插件
 `config/config.dev.yml` / `config/config.prod.yml` 的 `luogu2api` 段填好 `baseUrl`
 与 `adminToken`（后者与服务端 `ADMIN_TOKEN` 一致），两项为空时启动阶段就会失败。
 
+### 依赖内化：git submodule
+
+Codeforces API 客户端（`codeforcesAPIClient`）不再从网络拉取，而是以 git submodule
+内化在 `pkg/codeforcesAPIClient`，并在 `go.mod` 里重定向：
+
+```
+replace github.com/laoin114514/codeforcesClient => ./pkg/codeforcesAPIClient
+```
+
+（仓库已改名为 `codeforcesAPIClient`，但客户端 `go.mod` 声明的模块路径仍是
+`github.com/laoin114514/codeforcesClient`，import 与 require 以模块路径为准。）
+因此**首次克隆必须带子模块**：
+
+```bash
+git clone --recurse-submodules <repo>
+# 已经克隆但目录为空时
+git submodule update --init --recursive
+```
+
+依赖用 `internal/tools/tools.go`（`//go:build tools`）固定，`go mod tidy` 不会移除
+require/replace，同时该文件不参与正常构建，客户端不会进入二进制产物。
+子模块缺失时 `go mod tidy` 与 `docker build` 会直接报错；`go build ./...` 目前不受
+影响（业务代码尚未 import 它）。
+
 ---
 
 ## 8. 常见问题排查
