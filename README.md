@@ -158,6 +158,21 @@ go run ./cmd devrun luogu/get_user_records  # 单跑某个插件
 `config/config.dev.yml` / `config/config.prod.yml` 的 `luogu2api` 段填好 `baseUrl`
 与 `adminToken`（后者与服务端 `ADMIN_TOKEN` 一致），两项为空时启动阶段就会失败。
 
+### 退出行为（优雅退出）
+
+`run` 模式会捕获 `SIGINT`(Ctrl-C) 与 `SIGTERM`（`docker stop` / `docker compose down`），
+退出流程如下：
+
+1. 取消引擎 ctx，各插件**跑完当前这一轮任务**后退出——正在进行的抓取与入库不被打断
+2. 引擎最多等待 `SetShutdownTimeout` 指定的时长（默认 30s）；超时直接返回，避免某个
+   卡住的任务（上游接口不返回等）让进程永远退不掉
+3. `main` 的 `defer` 调用 `Engine.Close()`，释放各插件的日志文件句柄
+4. 收到第一次信号后信号处理恢复默认：**再发一次信号即可强制终止**进程
+
+因此 `docker stop` 会在任务收尾后立刻返回；若某个任务长期卡住，最多等
+`stop_grace_period`（见 `docker-compose.yml`，配成 40s）后被 Docker 强制杀掉。
+`devrun` / `list` 是跑完即退的一次性命令，不需要信号。
+
 ### 定时任务配置（timerFrequency）
 
 各插件的执行周期统一从 `config.<mode>.yml` 的 `timerFrequency` 段读取，`Meta()` 不再硬编码间隔：

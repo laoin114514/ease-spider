@@ -12,6 +12,12 @@ import (
 	"time"
 )
 
+// defaultShutdownTimeout 是收到退出信号后，等待正在执行的插件收尾的默认上限。
+//
+// 收尾超时后引擎直接返回（进程随即退出），不再无限期等待：某个卡住的任务
+// （上游接口不返回、并发器里的任务迟迟不结束）不应该让进程永远退不掉。
+const defaultShutdownTimeout = 30 * time.Second
+
 // Engine 是框架核心调度器。
 //
 // 主要职责：
@@ -31,6 +37,8 @@ type Engine struct {
 	engineLogger *EaseLogger
 	// 日志根目录，默认 "logs"。
 	logRootDir string
+	// shutdownTimeout 是收到退出信号后等待插件收尾的最长时间，见 SetShutdownTimeout。
+	shutdownTimeout time.Duration
 	// 全局插件注册表：key = groupPath/name。
 	crawlers map[string]*registeredCrawler
 	// 打开的日志文件句柄，便于 Close() 时统一释放。
@@ -71,13 +79,14 @@ func New() *Engine {
 			children: make(map[string]*CrawlerGroup),
 			parent:   nil,
 		},
-		mu:           sync.RWMutex{},
-		ctx:          new(Context),
-		engineLogger: NewLogger(os.Stdout, "", log.LstdFlags),
-		logRootDir:   "logs",
-		crawlers:     make(map[string]*registeredCrawler),
-		logFiles:     make(map[string]*os.File),
-		loggerPrefix: "[ease-engine] ",
+		mu:              sync.RWMutex{},
+		ctx:             new(Context),
+		engineLogger:    NewLogger(os.Stdout, "", log.LstdFlags),
+		logRootDir:      "logs",
+		crawlers:        make(map[string]*registeredCrawler),
+		logFiles:        make(map[string]*os.File),
+		loggerPrefix:    "[ease-engine] ",
+		shutdownTimeout: defaultShutdownTimeout,
 	}
 
 	// 让根分组可以访问引擎。
@@ -96,6 +105,29 @@ func (e *Engine) SetLogRootDir(dir string) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.logRootDir = dir
+}
+
+// SetShutdownTimeout 设置收到退出信号后等待插件收尾的最长时间。
+//
+// 取值 <=0 会回退为默认值（defaultShutdownTimeout）。该值只在 RunWithContext
+// 观察到 ctx 被取消后才生效：等待期间插件会把当前这轮任务跑完，超时则直接返回。
+func (e *Engine) SetShutdownTimeout(d time.Duration) {
+	if d <= 0 {
+		d = defaultShutdownTimeout
+	}
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	e.shutdownTimeout = d
+}
+
+// getShutdownTimeout 读取收尾等待上限，零值回退为默认值。
+func (e *Engine) getShutdownTimeout() time.Duration {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	if e.shutdownTimeout <= 0 {
+		return defaultShutdownTimeout
+	}
+	return e.shutdownTimeout
 }
 
 // 获取单个插件
@@ -129,14 +161,25 @@ func (e *Engine) DevRun(key string) {
 	crawler.crawler.Run(cctx)
 }
 
-// Run 使用 background context 启动所有注册插件。
-// 该函数会阻塞（直到所有调度 goroutine 退出，通常需配合 RunWithContext）。
+// Run 使用 background context 启动所有注册插件，会一直阻塞。
+//
+// 注意：background context 永远不会取消，因此用 Run 起的进程收不到退出信号，
+// 也无法优雅收尾。常驻进程请改用 RunWithContext，并传入由
+// signal.NotifyContext 构造的 ctx（参见 cmd/manage.go 的 runUntilSignal）。
 func (g *CrawlerGroup) Run() {
 	g.RunWithContext(context.Background())
 }
 
 // RunWithContext 启动所有注册插件，并受 ctx 生命周期控制。
-// 当 ctx.Done() 触发后，各插件循环会退出，RunWithContext 返回。
+//
+// 退出行为：
+//  1. ctx 未取消时阻塞（各插件按 Interval 一直调度）
+//  2. ctx.Done() 触发后，各插件在**跑完当前这轮任务**之后退出，不会打断正在进行的
+//     抓取与入库（写入本身是幂等的，但让任务自然结束能少留半截数据）
+//  3. 收尾等待有上限（见 SetShutdownTimeout，默认 30s）：超时后 RunWithContext 直接
+//     返回，进程随即退出，避免卡住的任务让进程永远退不掉
+//
+// 调用方在它返回后应调用 Close() 释放日志文件句柄。
 func (g *CrawlerGroup) RunWithContext(ctx context.Context) {
 	g.engine.mu.RLock()
 	items := make([]*registeredCrawler, 0, len(g.engine.crawlers))
@@ -159,7 +202,31 @@ func (g *CrawlerGroup) RunWithContext(ctx context.Context) {
 			g.engine.runCrawlerLoop(ctx, it)
 		}(item)
 	}
-	wg.Wait()
+
+	// 用 channel 而不是直接 wg.Wait()，这样在等待收尾的同时还能观察超时
+	done := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		// 没有插件，或所有插件都已自行退出
+		g.engine.engineLogger.Printf("crawler引擎停止, 所有插件已退出")
+	case <-ctx.Done():
+		timeout := g.engine.getShutdownTimeout()
+		g.engine.engineLogger.Printf("收到退出信号, 等待正在执行的任务收尾(最多%s)", timeout)
+
+		timer := time.NewTimer(timeout)
+		defer timer.Stop()
+		select {
+		case <-done:
+			g.engine.engineLogger.Printf("crawler引擎停止, 所有插件已收尾退出")
+		case <-timer.C:
+			g.engine.engineLogger.Printf("等待收尾超时(%s), 仍有任务未结束, 强制退出引擎", timeout)
+		}
+	}
 }
 
 // runCrawlerLoop 执行单个插件的调度循环。
@@ -199,6 +266,14 @@ func (e *Engine) runCrawlerLoop(ctx context.Context, item *registeredCrawler) {
 	}
 
 	if meta.StartImmediately {
+		// ctx 已经取消（启动瞬间就收到了退出信号）时不再启动新的一轮，
+		// 否则退出会白等一轮任务的时长
+		select {
+		case <-ctx.Done():
+			e.logf(item.path, item.name, "停止运行")
+			return
+		default:
+		}
 		runOnce()
 	}
 

@@ -31,6 +31,10 @@ services:
     image: spider:latest
     container_name: spider
     restart: unless-stopped
+    # 程序捕获 SIGTERM 后会等正在执行的那轮任务收尾（引擎上限 30s，见 pkg/crawler/engine.go），
+    # 收尾完立刻退出。Docker 默认只给 10s 就会 SIGKILL，所以这里放宽到 40s，
+    # 让程序有机会自己退干净；任务正常收尾时并不会真的等满这个时长。
+    stop_grace_period: 40s
     # Dockerfile 的 CMD 只有 ./spider（不带参数只打印用法就退出），run 必须显式带上；
     # 单跑某个插件时可以换成：["./spider", "devrun", "luogu/get_user_records"]
     command: ["./spider", "run"]
